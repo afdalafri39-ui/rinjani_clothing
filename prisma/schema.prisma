@@ -1,0 +1,87 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         String   @default("ADMIN")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Category {
+  id           String    @id @default(cuid())
+  name         String
+  slug         String    @unique
+  description  String?
+  image        String?
+  displayOrder Int       @default(0)
+  active       Boolean   @default(true)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  products     Product[]
+}
+
+model Product {
+  id          String           @id @default(cuid())
+  name        String
+  slug        String           @unique
+  description String?
+  price       Float
+  categoryId  String?
+  category    Category?        @relation(fields: [categoryId], references: [id])
+  material    String?
+  weight      String?
+  featured    Boolean          @default(false)
+  status      String           @default("DRAFT")
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  images      ProductImage[]
+  variants    ProductVariant[]
+}
+
+model ProductImage {
+  id        String   @id @default(cuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  url       String
+  alt       String?
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model ProductVariant {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  size      String?
+  color     String?
+  stock     Int     @default(0)
+  sku       String?
+}
+
+model SiteSettings {
+  id                   String   @id @default("default")
+  brandName            String   @default("Rinjani Clothing")
+  whatsappNumber       String?
+  whatsappEnabled      Boolean  @default(false)
+  telegramUsername     String?
+  telegramEnabled      Boolean  @default(false)
+  instagramUrl         String?
+  email                String?
+  address              String?
+  orderMessageTemplate String?
+  currency             String   @default("IDR")
+  updatedAt            DateTime @updatedAt
+}
