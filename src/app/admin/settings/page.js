@@ -181,7 +181,7 @@ export default function AdminSettingsPage() {
               <div style={{ fontSize: '0.75rem', fontWeight: '600', letterSpacing: '0.06em', color: '#666', marginBottom: '8px' }}>
                 SIMULASI PREVIEW PESAN WHATSAPP:
               </div>
-              <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'sans-serif', fontSize: '0.875rem', color: '#111', margin: 0 }}>
+              <pre style={{ whiteSpace: 'pre-wrap', fontFamily: 'var(--font-family)', fontSize: '0.875rem', color: '#111', margin: 0 }}>
                 {samplePreviewMessage}
               </pre>
             </div>
