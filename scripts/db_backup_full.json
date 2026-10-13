@@ -1,0 +1,850 @@
+{
+  "users": [
+    {
+      "id": "cmumu1sdy0000sxkst1cs7ni1",
+      "name": "Admin Rinjani",
+      "email": "admin@rinjani.com",
+      "passwordHash": "$2b$12$mceJmuN8w.87ZUe8ADm9ZOGNElGgx/UbxbBTcZn6x60nEvKOBdnv6",
+      "role": "ADMIN",
+      "createdAt": "2026-09-29T15:30:07.990Z",
+      "updatedAt": "2026-09-29T15:30:07.990Z"
+    }
+  ],
+  "siteSettings": [
+    {
+      "id": "default",
+      "brandName": "Rinjani Clothing",
+      "whatsappNumber": "6281369876282",
+      "whatsappEnabled": true,
+      "telegramUsername": "rinjaniclothing",
+      "telegramEnabled": false,
+      "instagramUrl": "http://instagram.com/rinjani.clothing",
+      "email": "hello@rinjaniclothing.com",
+      "address": "Lombok, Nusa Tenggara Barat, Indonesia",
+      "orderMessageTemplate": "Halo Rinjani Clothing,\n\nSaya ingin memesan:\n\nProduk: {{product_name}}\nUkuran: {{size}}\nWarna: {{color}}\nJumlah: {{quantity}}\n\nLink produk:\n{{product_url}}",
+      "currency": "IDR",
+      "customOrdersSheetWebhook": null,
+      "productOrdersSheetWebhook": null,
+      "updatedAt": "2026-10-04T17:46:26.055Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": "cmumu1se70001sxksgzukbcdn",
+      "name": "T-Shirts",
+      "slug": "t-shirts",
+      "description": "Kaos harian dengan kualitas premium",
+      "image": null,
+      "displayOrder": 1,
+      "active": true,
+      "createdAt": "2026-09-29T15:30:07.999Z",
+      "updatedAt": "2026-09-29T15:30:07.999Z"
+    },
+    {
+      "id": "cmumu1sea0002sxksweprx2w1",
+      "name": "Oversize",
+      "slug": "oversize",
+      "description": "Koleksi oversize untuk gaya santai",
+      "image": null,
+      "displayOrder": 2,
+      "active": true,
+      "createdAt": "2026-09-29T15:30:08.002Z",
+      "updatedAt": "2026-09-29T15:30:08.002Z"
+    },
+    {
+      "id": "cmumu1sed0003sxksdrccy4r0",
+      "name": "Long Sleeve",
+      "slug": "long-sleeve",
+      "description": "Kaos lengan panjang untuk segala suasana",
+      "image": null,
+      "displayOrder": 3,
+      "active": true,
+      "createdAt": "2026-09-29T15:30:08.005Z",
+      "updatedAt": "2026-09-29T15:30:08.005Z"
+    },
+    {
+      "id": "cmumu1seg0004sxksnewcrp66",
+      "name": "Hoodies",
+      "slug": "hoodies",
+      "description": "Hoodie nyaman untuk cuaca sejuk",
+      "image": null,
+      "displayOrder": 4,
+      "active": true,
+      "createdAt": "2026-09-29T15:30:08.008Z",
+      "updatedAt": "2026-09-29T15:30:08.008Z"
+    },
+    {
+      "id": "cmv6kzorh0005sxh8gno6fdtu",
+      "name": "Accessories",
+      "slug": "accessories",
+      "description": "Aksesoris pelengkap gaya",
+      "image": null,
+      "displayOrder": 5,
+      "active": true,
+      "createdAt": "2026-10-13T11:11:56.958Z",
+      "updatedAt": "2026-10-13T11:11:56.958Z"
+    }
+  ],
+  "products": [
+    {
+      "id": "cmv6iqnk10004sxysh7847xld",
+      "name": "Dummy",
+      "slug": "dummy",
+      "description": "",
+      "price": 149000,
+      "categoryId": null,
+      "material": "Cotton Combed 30s",
+      "weight": "180g",
+      "featured": false,
+      "status": "ACTIVE",
+      "createdAt": "2026-10-13T10:08:56.256Z",
+      "updatedAt": "2026-10-13T11:12:27.842Z"
+    },
+    {
+      "id": "cmv6kzorl0007sxh86sh5t2x1",
+      "name": "Rinjani Mountain Tee",
+      "slug": "rinjani-mountain-tee",
+      "description": "Kaos dengan desain terinspirasi dari Gunung Rinjani. Bahan cotton combed 30s yang nyaman dan breathable untuk aktivitas sehari-hari.",
+      "price": 125000,
+      "categoryId": "cmumu1se70001sxksgzukbcdn",
+      "material": "Cotton Combed 30s",
+      "weight": "180g",
+      "featured": true,
+      "status": "ACTIVE",
+      "createdAt": "2026-10-13T11:11:56.962Z",
+      "updatedAt": "2026-10-13T11:11:56.962Z"
+    },
+    {
+      "id": "cmv6kzos2000psxh8v4oidqj0",
+      "name": "Summit Oversize Tee",
+      "slug": "summit-oversize-tee",
+      "description": "Oversize tee dengan cutting relaxed fit. Desain minimalis dengan detail branding Rinjani Clothing di bagian dada.",
+      "price": 145000,
+      "categoryId": "cmumu1sea0002sxksweprx2w1",
+      "material": "Cotton Combed 24s",
+      "weight": "220g",
+      "featured": true,
+      "status": "ACTIVE",
+      "createdAt": "2026-10-13T11:11:56.978Z",
+      "updatedAt": "2026-10-13T11:11:56.978Z"
+    },
+    {
+      "id": "cmv6kzoso001fsxh85quseq79",
+      "name": "Trail Long Sleeve",
+      "slug": "trail-long-sleeve",
+      "description": "Kaos lengan panjang untuk petualangan outdoor. Bahan yang cepat kering dan nyaman di segala cuaca.",
+      "price": 165000,
+      "categoryId": "cmumu1sed0003sxksdrccy4r0",
+      "material": "Cotton Bamboo Blend",
+      "weight": "200g",
+      "featured": false,
+      "status": "ACTIVE",
+      "createdAt": "2026-10-13T11:11:57.001Z",
+      "updatedAt": "2026-10-13T11:11:57.001Z"
+    },
+    {
+      "id": "cmv6kzotb0025sxh8kzbw42og",
+      "name": "Basecamp Hoodie",
+      "slug": "basecamp-hoodie",
+      "description": "Hoodie tebal dan hangat untuk cuaca dingin. Dilengkapi kangaroo pocket dan adjustable hood. Cocok untuk camping atau hang out.",
+      "price": 275000,
+      "categoryId": "cmumu1seg0004sxksnewcrp66",
+      "material": "Fleece Cotton",
+      "weight": "450g",
+      "featured": true,
+      "status": "ACTIVE",
+      "createdAt": "2026-10-13T11:11:57.024Z",
+      "updatedAt": "2026-10-13T11:11:57.024Z"
+    },
+    {
+      "id": "cmv6kzoto002jsxh80u82fhvg",
+      "name": "Urban Graphic Tee",
+      "slug": "urban-graphic-tee",
+      "description": "Kaos dengan artwork eksklusif bertema urban culture. Printing menggunakan teknik DTF berkualitas tinggi yang tahan lama.",
+      "price": 135000,
+      "categoryId": "cmumu1se70001sxksgzukbcdn",
+      "material": "Cotton Combed 30s",
+      "weight": "180g",
+      "featured": false,
+      "status": "ACTIVE",
+      "createdAt": "2026-10-13T11:11:57.036Z",
+      "updatedAt": "2026-10-13T11:11:57.036Z"
+    },
+    {
+      "id": "cmv6kzou40031sxh8q8naw1zb",
+      "name": "Wilderness Oversize",
+      "slug": "wilderness-oversize",
+      "description": "Oversize tee koleksi Wilderness. Desain back print yang bold dengan tema alam dan pegunungan.",
+      "price": 155000,
+      "categoryId": "cmumu1sea0002sxksweprx2w1",
+      "material": "Cotton Combed 24s",
+      "weight": "230g",
+      "featured": true,
+      "status": "ACTIVE",
+      "createdAt": "2026-10-13T11:11:57.052Z",
+      "updatedAt": "2026-10-13T11:11:57.052Z"
+    },
+    {
+      "id": "cmv6kzouu003rsxh8s73buggo",
+      "name": "Ridge Cap",
+      "slug": "ridge-cap",
+      "description": "Topi five-panel dengan bordir logo Rinjani Clothing. Adjustable strap untuk kenyamanan.",
+      "price": 89000,
+      "categoryId": "cmv6kzorh0005sxh8gno6fdtu",
+      "material": "Canvas Cotton",
+      "weight": "80g",
+      "featured": false,
+      "status": "ACTIVE",
+      "createdAt": "2026-10-13T11:11:57.079Z",
+      "updatedAt": "2026-10-13T11:11:57.079Z"
+    }
+  ],
+  "productImages": [
+    {
+      "id": "cmv6iqnk10005sxys2zo3fyg7",
+      "productId": "cmv6iqnk10004sxysh7847xld",
+      "url": "https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&q=80",
+      "alt": "Dummy",
+      "sortOrder": 0,
+      "createdAt": "2026-10-13T10:08:56.256Z"
+    }
+  ],
+  "productVariants": [
+    {
+      "id": "cmv6iqnk10006sxysoizd0ym8",
+      "productId": "cmv6iqnk10004sxysh7847xld",
+      "size": "S",
+      "color": "Black",
+      "stock": 10,
+      "sku": "dummy-s-black"
+    },
+    {
+      "id": "cmv6iqnk10007sxyss1wlw8f3",
+      "productId": "cmv6iqnk10004sxysh7847xld",
+      "size": "M",
+      "color": "Black",
+      "stock": 15,
+      "sku": "dummy-m-black"
+    },
+    {
+      "id": "cmv6iqnk10008sxys5qglmy28",
+      "productId": "cmv6iqnk10004sxysh7847xld",
+      "size": "L",
+      "color": "Black",
+      "stock": 12,
+      "sku": "dummy-l-black"
+    },
+    {
+      "id": "cmv6iqnk10009sxys1xyi1adu",
+      "productId": "cmv6iqnk10004sxysh7847xld",
+      "size": "XL",
+      "color": "Black",
+      "stock": 8,
+      "sku": "dummy-xl-black"
+    },
+    {
+      "id": "cmv6kzoro0009sxh8nawh6iqp",
+      "productId": "cmv6kzorl0007sxh86sh5t2x1",
+      "size": "S",
+      "color": "Black",
+      "stock": 3,
+      "sku": "rinjani-mountain-tee-s-black"
+    },
+    {
+      "id": "cmv6kzorp000bsxh8rviv51n7",
+      "productId": "cmv6kzorl0007sxh86sh5t2x1",
+      "size": "S",
+      "color": "White",
+      "stock": 6,
+      "sku": "rinjani-mountain-tee-s-white"
+    },
+    {
+      "id": "cmv6kzorr000dsxh8emxpi0pz",
+      "productId": "cmv6kzorl0007sxh86sh5t2x1",
+      "size": "M",
+      "color": "Black",
+      "stock": 15,
+      "sku": "rinjani-mountain-tee-m-black"
+    },
+    {
+      "id": "cmv6kzort000fsxh87rw8iyte",
+      "productId": "cmv6kzorl0007sxh86sh5t2x1",
+      "size": "M",
+      "color": "White",
+      "stock": 6,
+      "sku": "rinjani-mountain-tee-m-white"
+    },
+    {
+      "id": "cmv6kzoru000hsxh89nlxzpmf",
+      "productId": "cmv6kzorl0007sxh86sh5t2x1",
+      "size": "L",
+      "color": "Black",
+      "stock": 5,
+      "sku": "rinjani-mountain-tee-l-black"
+    },
+    {
+      "id": "cmv6kzorw000jsxh8xugbzpy5",
+      "productId": "cmv6kzorl0007sxh86sh5t2x1",
+      "size": "L",
+      "color": "White",
+      "stock": 4,
+      "sku": "rinjani-mountain-tee-l-white"
+    },
+    {
+      "id": "cmv6kzory000lsxh860nl3onv",
+      "productId": "cmv6kzorl0007sxh86sh5t2x1",
+      "size": "XL",
+      "color": "Black",
+      "stock": 12,
+      "sku": "rinjani-mountain-tee-xl-black"
+    },
+    {
+      "id": "cmv6kzos0000nsxh8mwitkbo4",
+      "productId": "cmv6kzorl0007sxh86sh5t2x1",
+      "size": "XL",
+      "color": "White",
+      "stock": 10,
+      "sku": "rinjani-mountain-tee-xl-white"
+    },
+    {
+      "id": "cmv6kzos4000rsxh8743fb26h",
+      "productId": "cmv6kzos2000psxh8v4oidqj0",
+      "size": "M",
+      "color": "Black",
+      "stock": 6,
+      "sku": "summit-oversize-tee-m-black"
+    },
+    {
+      "id": "cmv6kzos5000tsxh8oxr02jp2",
+      "productId": "cmv6kzos2000psxh8v4oidqj0",
+      "size": "M",
+      "color": "Cream",
+      "stock": 9,
+      "sku": "summit-oversize-tee-m-cream"
+    },
+    {
+      "id": "cmv6kzos7000vsxh8cqcz0yf9",
+      "productId": "cmv6kzos2000psxh8v4oidqj0",
+      "size": "M",
+      "color": "Navy",
+      "stock": 6,
+      "sku": "summit-oversize-tee-m-navy"
+    },
+    {
+      "id": "cmv6kzos8000xsxh8h5b4v4ux",
+      "productId": "cmv6kzos2000psxh8v4oidqj0",
+      "size": "L",
+      "color": "Black",
+      "stock": 11,
+      "sku": "summit-oversize-tee-l-black"
+    },
+    {
+      "id": "cmv6kzosa000zsxh8s2tjpjgy",
+      "productId": "cmv6kzos2000psxh8v4oidqj0",
+      "size": "L",
+      "color": "Cream",
+      "stock": 11,
+      "sku": "summit-oversize-tee-l-cream"
+    },
+    {
+      "id": "cmv6kzosb0011sxh87tzow4uy",
+      "productId": "cmv6kzos2000psxh8v4oidqj0",
+      "size": "L",
+      "color": "Navy",
+      "stock": 11,
+      "sku": "summit-oversize-tee-l-navy"
+    },
+    {
+      "id": "cmv6kzosd0013sxh8hz1g3exx",
+      "productId": "cmv6kzos2000psxh8v4oidqj0",
+      "size": "XL",
+      "color": "Black",
+      "stock": 10,
+      "sku": "summit-oversize-tee-xl-black"
+    },
+    {
+      "id": "cmv6kzosf0015sxh88hfnnhxw",
+      "productId": "cmv6kzos2000psxh8v4oidqj0",
+      "size": "XL",
+      "color": "Cream",
+      "stock": 9,
+      "sku": "summit-oversize-tee-xl-cream"
+    },
+    {
+      "id": "cmv6kzosh0017sxh8e6gr7752",
+      "productId": "cmv6kzos2000psxh8v4oidqj0",
+      "size": "XL",
+      "color": "Navy",
+      "stock": 9,
+      "sku": "summit-oversize-tee-xl-navy"
+    },
+    {
+      "id": "cmv6kzosj0019sxh814q2pobb",
+      "productId": "cmv6kzos2000psxh8v4oidqj0",
+      "size": "XXL",
+      "color": "Black",
+      "stock": 6,
+      "sku": "summit-oversize-tee-xxl-black"
+    },
+    {
+      "id": "cmv6kzosk001bsxh819tyq0if",
+      "productId": "cmv6kzos2000psxh8v4oidqj0",
+      "size": "XXL",
+      "color": "Cream",
+      "stock": 14,
+      "sku": "summit-oversize-tee-xxl-cream"
+    },
+    {
+      "id": "cmv6kzosm001dsxh8cuw1ta06",
+      "productId": "cmv6kzos2000psxh8v4oidqj0",
+      "size": "XXL",
+      "color": "Navy",
+      "stock": 8,
+      "sku": "summit-oversize-tee-xxl-navy"
+    },
+    {
+      "id": "cmv6kzosq001hsxh8dtmkuy5x",
+      "productId": "cmv6kzoso001fsxh85quseq79",
+      "size": "S",
+      "color": "Black",
+      "stock": 2,
+      "sku": "trail-long-sleeve-s-black"
+    },
+    {
+      "id": "cmv6kzoss001jsxh81clm69x2",
+      "productId": "cmv6kzoso001fsxh85quseq79",
+      "size": "S",
+      "color": "White",
+      "stock": 10,
+      "sku": "trail-long-sleeve-s-white"
+    },
+    {
+      "id": "cmv6kzost001lsxh8i8jrtb2v",
+      "productId": "cmv6kzoso001fsxh85quseq79",
+      "size": "S",
+      "color": "Brown",
+      "stock": 12,
+      "sku": "trail-long-sleeve-s-brown"
+    },
+    {
+      "id": "cmv6kzosv001nsxh8q5idof9d",
+      "productId": "cmv6kzoso001fsxh85quseq79",
+      "size": "M",
+      "color": "Black",
+      "stock": 1,
+      "sku": "trail-long-sleeve-m-black"
+    },
+    {
+      "id": "cmv6kzosx001psxh8xjupdf4b",
+      "productId": "cmv6kzoso001fsxh85quseq79",
+      "size": "M",
+      "color": "White",
+      "stock": 9,
+      "sku": "trail-long-sleeve-m-white"
+    },
+    {
+      "id": "cmv6kzosy001rsxh8xniapcij",
+      "productId": "cmv6kzoso001fsxh85quseq79",
+      "size": "M",
+      "color": "Brown",
+      "stock": 5,
+      "sku": "trail-long-sleeve-m-brown"
+    },
+    {
+      "id": "cmv6kzot0001tsxh8xjjylk5z",
+      "productId": "cmv6kzoso001fsxh85quseq79",
+      "size": "L",
+      "color": "Black",
+      "stock": 9,
+      "sku": "trail-long-sleeve-l-black"
+    },
+    {
+      "id": "cmv6kzot2001vsxh8aed9tuoz",
+      "productId": "cmv6kzoso001fsxh85quseq79",
+      "size": "L",
+      "color": "White",
+      "stock": 2,
+      "sku": "trail-long-sleeve-l-white"
+    },
+    {
+      "id": "cmv6kzot4001xsxh8jxtc0vyl",
+      "productId": "cmv6kzoso001fsxh85quseq79",
+      "size": "L",
+      "color": "Brown",
+      "stock": 5,
+      "sku": "trail-long-sleeve-l-brown"
+    },
+    {
+      "id": "cmv6kzot5001zsxh87gfovfkw",
+      "productId": "cmv6kzoso001fsxh85quseq79",
+      "size": "XL",
+      "color": "Black",
+      "stock": 4,
+      "sku": "trail-long-sleeve-xl-black"
+    },
+    {
+      "id": "cmv6kzot70021sxh86i3rcezp",
+      "productId": "cmv6kzoso001fsxh85quseq79",
+      "size": "XL",
+      "color": "White",
+      "stock": 9,
+      "sku": "trail-long-sleeve-xl-white"
+    },
+    {
+      "id": "cmv6kzot90023sxh82i4coc0p",
+      "productId": "cmv6kzoso001fsxh85quseq79",
+      "size": "XL",
+      "color": "Brown",
+      "stock": 9,
+      "sku": "trail-long-sleeve-xl-brown"
+    },
+    {
+      "id": "cmv6kzotd0027sxh8cq9d4ozf",
+      "productId": "cmv6kzotb0025sxh8kzbw42og",
+      "size": "M",
+      "color": "Black",
+      "stock": 13,
+      "sku": "basecamp-hoodie-m-black"
+    },
+    {
+      "id": "cmv6kzotf0029sxh81ofbbgbn",
+      "productId": "cmv6kzotb0025sxh8kzbw42og",
+      "size": "M",
+      "color": "Navy",
+      "stock": 13,
+      "sku": "basecamp-hoodie-m-navy"
+    },
+    {
+      "id": "cmv6kzotg002bsxh806oslyrw",
+      "productId": "cmv6kzotb0025sxh8kzbw42og",
+      "size": "L",
+      "color": "Black",
+      "stock": 7,
+      "sku": "basecamp-hoodie-l-black"
+    },
+    {
+      "id": "cmv6kzoti002dsxh8ixfaw5kr",
+      "productId": "cmv6kzotb0025sxh8kzbw42og",
+      "size": "L",
+      "color": "Navy",
+      "stock": 15,
+      "sku": "basecamp-hoodie-l-navy"
+    },
+    {
+      "id": "cmv6kzotk002fsxh88c2ij5jh",
+      "productId": "cmv6kzotb0025sxh8kzbw42og",
+      "size": "XL",
+      "color": "Black",
+      "stock": 7,
+      "sku": "basecamp-hoodie-xl-black"
+    },
+    {
+      "id": "cmv6kzotl002hsxh8mjyeg2mq",
+      "productId": "cmv6kzotb0025sxh8kzbw42og",
+      "size": "XL",
+      "color": "Navy",
+      "stock": 10,
+      "sku": "basecamp-hoodie-xl-navy"
+    },
+    {
+      "id": "cmv6kzotq002lsxh8zh6ra6su",
+      "productId": "cmv6kzoto002jsxh80u82fhvg",
+      "size": "S",
+      "color": "Black",
+      "stock": 4,
+      "sku": "urban-graphic-tee-s-black"
+    },
+    {
+      "id": "cmv6kzots002nsxh8my912kcd",
+      "productId": "cmv6kzoto002jsxh80u82fhvg",
+      "size": "S",
+      "color": "White",
+      "stock": 12,
+      "sku": "urban-graphic-tee-s-white"
+    },
+    {
+      "id": "cmv6kzotu002psxh8o6qyvuxd",
+      "productId": "cmv6kzoto002jsxh80u82fhvg",
+      "size": "M",
+      "color": "Black",
+      "stock": 4,
+      "sku": "urban-graphic-tee-m-black"
+    },
+    {
+      "id": "cmv6kzotv002rsxh89wimjmuz",
+      "productId": "cmv6kzoto002jsxh80u82fhvg",
+      "size": "M",
+      "color": "White",
+      "stock": 6,
+      "sku": "urban-graphic-tee-m-white"
+    },
+    {
+      "id": "cmv6kzotx002tsxh8r7t0krll",
+      "productId": "cmv6kzoto002jsxh80u82fhvg",
+      "size": "L",
+      "color": "Black",
+      "stock": 14,
+      "sku": "urban-graphic-tee-l-black"
+    },
+    {
+      "id": "cmv6kzoty002vsxh8jdxgtsh2",
+      "productId": "cmv6kzoto002jsxh80u82fhvg",
+      "size": "L",
+      "color": "White",
+      "stock": 6,
+      "sku": "urban-graphic-tee-l-white"
+    },
+    {
+      "id": "cmv6kzou0002xsxh8dvqai80g",
+      "productId": "cmv6kzoto002jsxh80u82fhvg",
+      "size": "XL",
+      "color": "Black",
+      "stock": 11,
+      "sku": "urban-graphic-tee-xl-black"
+    },
+    {
+      "id": "cmv6kzou2002zsxh8xvax7gun",
+      "productId": "cmv6kzoto002jsxh80u82fhvg",
+      "size": "XL",
+      "color": "White",
+      "stock": 2,
+      "sku": "urban-graphic-tee-xl-white"
+    },
+    {
+      "id": "cmv6kzou60033sxh8e9vmlowh",
+      "productId": "cmv6kzou40031sxh8q8naw1zb",
+      "size": "M",
+      "color": "Black",
+      "stock": 13,
+      "sku": "wilderness-oversize-m-black"
+    },
+    {
+      "id": "cmv6kzou70035sxh826a4clt3",
+      "productId": "cmv6kzou40031sxh8q8naw1zb",
+      "size": "M",
+      "color": "White",
+      "stock": 2,
+      "sku": "wilderness-oversize-m-white"
+    },
+    {
+      "id": "cmv6kzoua0037sxh87ok5mjul",
+      "productId": "cmv6kzou40031sxh8q8naw1zb",
+      "size": "M",
+      "color": "Cream",
+      "stock": 7,
+      "sku": "wilderness-oversize-m-cream"
+    },
+    {
+      "id": "cmv6kzouc0039sxh8u9ye760s",
+      "productId": "cmv6kzou40031sxh8q8naw1zb",
+      "size": "L",
+      "color": "Black",
+      "stock": 14,
+      "sku": "wilderness-oversize-l-black"
+    },
+    {
+      "id": "cmv6kzoud003bsxh89sc4oxva",
+      "productId": "cmv6kzou40031sxh8q8naw1zb",
+      "size": "L",
+      "color": "White",
+      "stock": 4,
+      "sku": "wilderness-oversize-l-white"
+    },
+    {
+      "id": "cmv6kzouf003dsxh81sfwukaf",
+      "productId": "cmv6kzou40031sxh8q8naw1zb",
+      "size": "L",
+      "color": "Cream",
+      "stock": 9,
+      "sku": "wilderness-oversize-l-cream"
+    },
+    {
+      "id": "cmv6kzouh003fsxh842jnutwv",
+      "productId": "cmv6kzou40031sxh8q8naw1zb",
+      "size": "XL",
+      "color": "Black",
+      "stock": 10,
+      "sku": "wilderness-oversize-xl-black"
+    },
+    {
+      "id": "cmv6kzouj003hsxh8xib1bdns",
+      "productId": "cmv6kzou40031sxh8q8naw1zb",
+      "size": "XL",
+      "color": "White",
+      "stock": 9,
+      "sku": "wilderness-oversize-xl-white"
+    },
+    {
+      "id": "cmv6kzoul003jsxh82v08v8np",
+      "productId": "cmv6kzou40031sxh8q8naw1zb",
+      "size": "XL",
+      "color": "Cream",
+      "stock": 3,
+      "sku": "wilderness-oversize-xl-cream"
+    },
+    {
+      "id": "cmv6kzoun003lsxh8eudyr10j",
+      "productId": "cmv6kzou40031sxh8q8naw1zb",
+      "size": "XXL",
+      "color": "Black",
+      "stock": 2,
+      "sku": "wilderness-oversize-xxl-black"
+    },
+    {
+      "id": "cmv6kzoup003nsxh8bu7kmh0w",
+      "productId": "cmv6kzou40031sxh8q8naw1zb",
+      "size": "XXL",
+      "color": "White",
+      "stock": 12,
+      "sku": "wilderness-oversize-xxl-white"
+    },
+    {
+      "id": "cmv6kzour003psxh83cspc25r",
+      "productId": "cmv6kzou40031sxh8q8naw1zb",
+      "size": "XXL",
+      "color": "Cream",
+      "stock": 13,
+      "sku": "wilderness-oversize-xxl-cream"
+    },
+    {
+      "id": "cmv6kzouw003tsxh8pzjaa04u",
+      "productId": "cmv6kzouu003rsxh8s73buggo",
+      "size": "One Size",
+      "color": "Black",
+      "stock": 13,
+      "sku": "ridge-cap-one-size-black"
+    },
+    {
+      "id": "cmv6kzouy003vsxh8dxeaftrw",
+      "productId": "cmv6kzouu003rsxh8s73buggo",
+      "size": "One Size",
+      "color": "Navy",
+      "stock": 8,
+      "sku": "ridge-cap-one-size-navy"
+    },
+    {
+      "id": "cmv6kzouz003xsxh8qr7moxg0",
+      "productId": "cmv6kzouu003rsxh8s73buggo",
+      "size": "One Size",
+      "color": "Brown",
+      "stock": 7,
+      "sku": "ridge-cap-one-size-brown"
+    }
+  ],
+  "customOrders": [],
+  "productOrders": [],
+  "customGarments": [
+    {
+      "id": "cmv6jodv90000sxrgtjjfhfae",
+      "name": "T-Shirt Reguler",
+      "slug": "t-shirt-reguler",
+      "category": "T-Shirt",
+      "description": "Kaos lengan pendek potongan reguler fit, nyaman untuk harian. Bahan cotton combed lembut dan adem.",
+      "price": 55000,
+      "minOrder": 12,
+      "active": true,
+      "sortOrder": 1,
+      "images": "[\"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80\",\"https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80\"]",
+      "createdAt": "2026-10-13T10:35:10.005Z",
+      "updatedAt": "2026-10-13T10:35:10.005Z"
+    },
+    {
+      "id": "cmv6jodvc0001sxrg3munrbjk",
+      "name": "T-Shirt Oversize",
+      "slug": "t-shirt-oversize",
+      "category": "T-Shirt",
+      "description": "Kaos oversize dengan drop shoulder, tampilan streetwear modern. Potongan longgar dan trendi.",
+      "price": 65000,
+      "minOrder": 12,
+      "active": true,
+      "sortOrder": 2,
+      "images": "[\"https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80\",\"https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80\"]",
+      "createdAt": "2026-10-13T10:35:10.008Z",
+      "updatedAt": "2026-10-13T10:35:10.008Z"
+    },
+    {
+      "id": "cmv6jodve0002sxrgwbftqi0y",
+      "name": "Polo Shirt",
+      "slug": "polo-shirt",
+      "category": "Polo",
+      "description": "Polo shirt klasik dengan kerah rapi, cocok untuk seragam kantor, event, atau casual semi-formal.",
+      "price": 75000,
+      "minOrder": 12,
+      "active": true,
+      "sortOrder": 3,
+      "images": "[\"https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=800&q=80\"]",
+      "createdAt": "2026-10-13T10:35:10.010Z",
+      "updatedAt": "2026-10-13T10:41:28.613Z"
+    },
+    {
+      "id": "cmv6jodvg0003sxrgxuovos55",
+      "name": "Long Sleeve",
+      "slug": "long-sleeve",
+      "category": "Long Sleeve",
+      "description": "Kaos lengan panjang dengan rib manset, cocok untuk cuaca sejuk, outdoor, dan gaya layering.",
+      "price": 65000,
+      "minOrder": 12,
+      "active": true,
+      "sortOrder": 4,
+      "images": "[\"https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&q=80\"]",
+      "createdAt": "2026-10-13T10:35:10.012Z",
+      "updatedAt": "2026-10-13T10:35:10.012Z"
+    },
+    {
+      "id": "cmv6jodvi0004sxrgs33f82z1",
+      "name": "Hoodie",
+      "slug": "hoodie",
+      "category": "Hoodie",
+      "description": "Hoodie pullover dengan kangaroo pocket dan tali serut, bahan fleece tebal premium yang hangat.",
+      "price": 135000,
+      "minOrder": 12,
+      "active": true,
+      "sortOrder": 5,
+      "images": "[\"https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&q=80\"]",
+      "createdAt": "2026-10-13T10:35:10.015Z",
+      "updatedAt": "2026-10-13T10:35:10.015Z"
+    },
+    {
+      "id": "cmv6jodvk0005sxrgue1vaxix",
+      "name": "Jersey Sport",
+      "slug": "jersey-sport",
+      "category": "Jersey",
+      "description": "Jersey olahraga bahan Dri-Fit mikro, ultra ringan, cepat kering, dan sangat breathable.",
+      "price": 70000,
+      "minOrder": 12,
+      "active": true,
+      "sortOrder": 6,
+      "images": "[\"https://images.unsplash.com/photo-1580089595767-98745d7025c5?w=800&q=80\"]",
+      "createdAt": "2026-10-13T10:35:10.017Z",
+      "updatedAt": "2026-10-13T10:35:10.017Z"
+    },
+    {
+      "id": "cmv6jodvm0006sxrg5hjrgjnr",
+      "name": "Raglan",
+      "slug": "raglan",
+      "category": "Raglan",
+      "description": "Kaos raglan 3/4 sleeves kombinasi dua warna, gaya vintage baseball autentik.",
+      "price": 65000,
+      "minOrder": 12,
+      "active": true,
+      "sortOrder": 7,
+      "images": "[\"https://images.unsplash.com/photo-1562157873-818bc0726f68?w=800&q=80\"]",
+      "createdAt": "2026-10-13T10:35:10.018Z",
+      "updatedAt": "2026-10-13T10:35:10.018Z"
+    },
+    {
+      "id": "cmv6jodvo0007sxrgu0in3dqd",
+      "name": "Tank Top",
+      "slug": "tank-top",
+      "category": "Tank Top",
+      "description": "Tank top sleeveless potongan ergonomis, cocok untuk olahraga, gym, dan cuaca tropis.",
+      "price": 50000,
+      "minOrder": 12,
+      "active": true,
+      "sortOrder": 8,
+      "images": "[\"https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&q=80\"]",
+      "createdAt": "2026-10-13T10:35:10.021Z",
+      "updatedAt": "2026-10-13T10:35:10.021Z"
+    }
+  ]
+}

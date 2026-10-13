@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase, generateId } from '@/lib/supabase';
 
 // Generate unique order number: PO-YYYYMMDD-XXXX
 function generateOrderNumber() {
@@ -16,37 +16,44 @@ export async function GET(request) {
     const status = searchParams.get('status');
     const limit = parseInt(searchParams.get('limit') || '50', 10);
 
-    const where = {};
+    let query = supabase
+      .from('ProductOrder')
+      .select('*')
+      .order('createdAt', { ascending: false })
+      .limit(limit);
+
     if (status && status !== 'ALL') {
-      where.status = status;
+      query = query.eq('status', status);
     }
 
-    const orders = await prisma.productOrder.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-    });
+    const { data: orders, error } = await query;
+    if (error) throw error;
 
-    const totalCount = await prisma.productOrder.count({ where });
-    const statusCounts = await prisma.$transaction([
-      prisma.productOrder.count({ where: { status: 'BARU' } }),
-      prisma.productOrder.count({ where: { status: 'DIPROSES' } }),
-      prisma.productOrder.count({ where: { status: 'DIKIRIM' } }),
-      prisma.productOrder.count({ where: { status: 'SELESAI' } }),
-      prisma.productOrder.count({ where: { status: 'DIBATALKAN' } }),
-      prisma.productOrder.count(),
+    let countQuery = supabase.from('ProductOrder').select('*', { count: 'exact', head: true });
+    if (status && status !== 'ALL') {
+      countQuery = countQuery.eq('status', status);
+    }
+    const { count: totalCount } = await countQuery;
+
+    const [cBaru, cDiproses, cDikirim, cSelesai, cBatal, cAll] = await Promise.all([
+      supabase.from('ProductOrder').select('*', { count: 'exact', head: true }).eq('status', 'BARU'),
+      supabase.from('ProductOrder').select('*', { count: 'exact', head: true }).eq('status', 'DIPROSES'),
+      supabase.from('ProductOrder').select('*', { count: 'exact', head: true }).eq('status', 'DIKIRIM'),
+      supabase.from('ProductOrder').select('*', { count: 'exact', head: true }).eq('status', 'SELESAI'),
+      supabase.from('ProductOrder').select('*', { count: 'exact', head: true }).eq('status', 'DIBATALKAN'),
+      supabase.from('ProductOrder').select('*', { count: 'exact', head: true }),
     ]);
 
     return NextResponse.json({
-      orders,
-      totalCount,
+      orders: orders || [],
+      totalCount: totalCount || 0,
       statusCounts: {
-        BARU: statusCounts[0],
-        DIPROSES: statusCounts[1],
-        DIKIRIM: statusCounts[2],
-        SELESAI: statusCounts[3],
-        DIBATALKAN: statusCounts[4],
-        ALL: statusCounts[5],
+        BARU: cBaru.count || 0,
+        DIPROSES: cDiproses.count || 0,
+        DIKIRIM: cDikirim.count || 0,
+        SELESAI: cSelesai.count || 0,
+        DIBATALKAN: cBatal.count || 0,
+        ALL: cAll.count || 0,
       },
     });
   } catch (error) {
@@ -83,6 +90,7 @@ export async function POST(request) {
     }
 
     const orderNumber = generateOrderNumber();
+    const id = generateId('po');
 
     const parsedPrice = typeof price === 'number' ? price : parseFloat(String(price || '0').replace(/[^0-9.]/g, '')) || 0;
     const parsedQty = parseInt(quantity || 1, 10) || 1;
@@ -90,8 +98,10 @@ export async function POST(request) {
       ? (typeof totalPrice === 'number' ? totalPrice : parseFloat(String(totalPrice).replace(/[^0-9.]/g, '')) || 0)
       : parsedPrice * parsedQty;
 
-    const order = await prisma.productOrder.create({
-      data: {
+    const { data: order, error } = await supabase
+      .from('ProductOrder')
+      .insert({
+        id,
         orderNumber,
         customerName: customerName.trim(),
         customerPhone: customerPhone.trim(),
@@ -105,8 +115,11 @@ export async function POST(request) {
         totalPrice: computedTotal,
         notes: notes ? notes.trim() : null,
         status: 'BARU',
-      },
-    });
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
 
     return NextResponse.json({ order, orderNumber }, { status: 201 });
   } catch (error) {

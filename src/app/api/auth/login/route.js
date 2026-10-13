@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
 import { generateToken, setAuthCookie } from '@/lib/auth';
 
@@ -14,9 +14,11 @@ export async function POST(request) {
       );
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email: email.toLowerCase().trim() },
-    });
+    const { data: user } = await supabase
+      .from('User')
+      .select('*')
+      .eq('email', email.toLowerCase().trim())
+      .maybeSingle();
 
     if (!user) {
       return NextResponse.json(

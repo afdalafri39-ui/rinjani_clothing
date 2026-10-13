@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase, generateId } from '@/lib/supabase';
 
 // Helper to generate slug
 function generateSlug(name) {
@@ -19,31 +19,27 @@ export async function GET(request) {
     const category = searchParams.get('category');
     const search = searchParams.get('search');
 
-    const where = {};
+    let query = supabase
+      .from('CustomGarment')
+      .select('*')
+      .order('sortOrder', { ascending: true })
+      .order('createdAt', { ascending: false });
+
     if (activeOnly) {
-      where.active = true;
+      query = query.eq('active', true);
     }
     if (category && category !== 'all') {
-      where.category = category;
+      query = query.eq('category', category);
     }
     if (search) {
-      where.OR = [
-        { name: { contains: search } },
-        { description: { contains: search } },
-        { category: { contains: search } },
-      ];
+      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%,category.ilike.%${search}%`);
     }
 
-    const models = await prisma.customGarment.findMany({
-      where,
-      orderBy: [
-        { sortOrder: 'asc' },
-        { createdAt: 'desc' },
-      ],
-    });
+    const { data: models, error } = await query;
+    if (error) throw error;
 
     // Parse images array for each model
-    const formattedModels = models.map((m) => {
+    const formattedModels = (models || []).map((m) => {
       let images = [];
       try {
         images = JSON.parse(m.images || '[]');
@@ -85,8 +81,12 @@ export async function POST(request) {
     }
 
     let slug = customSlug ? generateSlug(customSlug) : generateSlug(name);
-    // Ensure slug uniqueness
-    const existing = await prisma.customGarment.findUnique({ where: { slug } });
+    const { data: existing } = await supabase
+      .from('CustomGarment')
+      .select('id')
+      .eq('slug', slug)
+      .maybeSingle();
+
     if (existing) {
       slug = `${slug}-${Math.random().toString(36).substring(2, 6)}`;
     }
@@ -98,8 +98,11 @@ export async function POST(request) {
       ? images
       : '[]';
 
-    const newModel = await prisma.customGarment.create({
-      data: {
+    const id = generateId('cg');
+    const { data: newModel, error } = await supabase
+      .from('CustomGarment')
+      .insert({
+        id,
         name: name.trim(),
         slug,
         category: category.trim(),
@@ -109,8 +112,11 @@ export async function POST(request) {
         active: Boolean(active),
         sortOrder: parseInt(sortOrder, 10) || 0,
         images: imagesJson,
-      },
-    });
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
 
     let parsedImages = [];
     try {

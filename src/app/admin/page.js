@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 import { formatPrice, getTotalStock, getStockStatus } from '@/lib/utils';
 import { Plus, Package, Grid, Settings, ArrowRight, ClipboardList, Shirt, User, Clock, ShoppingBag } from 'lucide-react';
 
@@ -16,55 +16,52 @@ const STATUS_CONFIG = {
 
 async function getDashboardStats() {
   try {
-    const totalProducts = await prisma.product.count();
-    const totalCategories = await prisma.category.count();
+    const [
+      { count: totalProducts },
+      { count: totalCategories },
+      { data: productsData },
+      { count: totalCustomOrders },
+      { count: newCustomOrders },
+      { count: inProgressOrders },
+      { data: recentCustomOrders },
+      { count: totalProductOrders },
+      { count: newProductOrders },
+      { count: inProgressProductOrders },
+    ] = await Promise.all([
+      supabase.from('Product').select('*', { count: 'exact', head: true }),
+      supabase.from('Category').select('*', { count: 'exact', head: true }),
+      supabase
+        .from('Product')
+        .select('*, category:Category(*), variants:ProductVariant(*), images:ProductImage(*)')
+        .order('createdAt', { ascending: false }),
+      supabase.from('CustomOrder').select('*', { count: 'exact', head: true }),
+      supabase.from('CustomOrder').select('*', { count: 'exact', head: true }).eq('status', 'BARU'),
+      supabase.from('CustomOrder').select('*', { count: 'exact', head: true }).in('status', ['DIPROSES', 'MOCKUP', 'PRODUKSI']),
+      supabase.from('CustomOrder').select('*').order('createdAt', { ascending: false }).limit(5),
+      supabase.from('ProductOrder').select('*', { count: 'exact', head: true }),
+      supabase.from('ProductOrder').select('*', { count: 'exact', head: true }).eq('status', 'BARU'),
+      supabase.from('ProductOrder').select('*', { count: 'exact', head: true }).in('status', ['DIPROSES', 'DIKIRIM']),
+    ]);
 
-    const products = await prisma.product.findMany({
-      include: {
-        category: true,
-        variants: true,
-        images: { take: 1 },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
+    const products = productsData || [];
     let outOfStockCount = 0;
     products.forEach((p) => {
       const stock = getTotalStock(p.variants);
       if (stock <= 0) outOfStockCount++;
     });
 
-    // Custom order stats
-    const totalCustomOrders = await prisma.customOrder.count();
-    const newCustomOrders = await prisma.customOrder.count({ where: { status: 'BARU' } });
-    const inProgressOrders = await prisma.customOrder.count({
-      where: { status: { in: ['DIPROSES', 'MOCKUP', 'PRODUKSI'] } },
-    });
-
-    const recentCustomOrders = await prisma.customOrder.findMany({
-      orderBy: { createdAt: 'desc' },
-      take: 5,
-    });
-
-    // Product order stats (from shop)
-    const totalProductOrders = await prisma.productOrder.count();
-    const newProductOrders = await prisma.productOrder.count({ where: { status: 'BARU' } });
-    const inProgressProductOrders = await prisma.productOrder.count({
-      where: { status: { in: ['DIPROSES', 'DIKIRIM'] } },
-    });
-
     return {
-      totalProducts,
-      totalCategories,
+      totalProducts: totalProducts || 0,
+      totalCategories: totalCategories || 0,
       outOfStockCount,
       recentProducts: products.slice(0, 5),
-      totalCustomOrders,
-      newCustomOrders,
-      inProgressOrders,
-      recentCustomOrders,
-      totalProductOrders,
-      newProductOrders,
-      inProgressProductOrders,
+      totalCustomOrders: totalCustomOrders || 0,
+      newCustomOrders: newCustomOrders || 0,
+      inProgressOrders: inProgressOrders || 0,
+      recentCustomOrders: recentCustomOrders || [],
+      totalProductOrders: totalProductOrders || 0,
+      newProductOrders: newProductOrders || 0,
+      inProgressProductOrders: inProgressProductOrders || 0,
     };
   } catch (err) {
     console.error(err);

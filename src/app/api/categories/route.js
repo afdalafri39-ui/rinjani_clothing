@@ -1,21 +1,26 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase, generateId } from '@/lib/supabase';
 import { requireAuth } from '@/lib/auth';
 import { generateSlug } from '@/lib/utils';
 
 export async function GET() {
   try {
-    const categories = await prisma.category.findMany({
-      where: { active: true },
-      include: {
-        _count: {
-          select: { products: true },
-        },
-      },
-      orderBy: { displayOrder: 'asc' },
-    });
+    const { data: categories, error } = await supabase
+      .from('Category')
+      .select('*, products:Product(id)')
+      .eq('active', true)
+      .order('displayOrder', { ascending: true });
 
-    return NextResponse.json({ categories });
+    if (error) throw error;
+
+    const formatted = (categories || []).map((c) => ({
+      ...c,
+      _count: {
+        products: c.products ? c.products.length : 0,
+      },
+    }));
+
+    return NextResponse.json({ categories: formatted });
   } catch (error) {
     console.error('Fetch categories error:', error);
     return NextResponse.json(
@@ -42,21 +47,32 @@ export async function POST(request) {
     }
 
     let slug = generateSlug(name);
-    const existing = await prisma.category.findUnique({ where: { slug } });
+    const { data: existing } = await supabase
+      .from('Category')
+      .select('id')
+      .eq('slug', slug)
+      .maybeSingle();
+
     if (existing) {
       slug = `${slug}-${Date.now().toString().slice(-4)}`;
     }
 
-    const category = await prisma.category.create({
-      data: {
+    const id = generateId('cat');
+    const { data: category, error } = await supabase
+      .from('Category')
+      .insert({
+        id,
         name,
         slug,
         description: description || null,
         image: image || null,
         displayOrder: parseInt(displayOrder, 10) || 0,
         active: active !== undefined ? !!active : true,
-      },
-    });
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
 
     return NextResponse.json({ category }, { status: 201 });
   } catch (error) {

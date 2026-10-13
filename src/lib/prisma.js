@@ -1,7 +1,8 @@
-import { PrismaClient } from '@prisma/client';
+// DEPRECATED: Prisma has been completely replaced by Supabase (@supabase/supabase-js).
+// Import and use `supabase` directly:
+// import { supabase } from '@/lib/supabase';
 
-const globalForPrisma = globalThis;
+import { supabase } from './supabase';
 
-export const prisma = globalForPrisma.prisma ?? new PrismaClient();
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+export { supabase };
+export default supabase;

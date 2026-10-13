@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 
 export async function GET() {
   try {
@@ -9,16 +9,11 @@ export async function GET() {
       return NextResponse.json({ user: null }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: authUser.id },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        createdAt: true,
-      },
-    });
+    const { data: user } = await supabase
+      .from('User')
+      .select('id, name, email, role, createdAt')
+      .eq('id', authUser.id)
+      .maybeSingle();
 
     if (!user) {
       return NextResponse.json({ user: null }, { status: 404 });

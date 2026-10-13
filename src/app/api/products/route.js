@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase, generateId } from '@/lib/supabase';
 import { requireAuth } from '@/lib/auth';
 import { generateSlug } from '@/lib/utils';
 
@@ -12,50 +12,46 @@ export async function GET(request) {
     const featured = searchParams.get('featured');
     const sort = searchParams.get('sort') || 'newest';
 
-    const where = {};
+    let query = supabase
+      .from('Product')
+      .select('*, category:Category(*), images:ProductImage(*), variants:ProductVariant(*)');
 
-    // By default, if not specifically asking for admin view, return ACTIVE products
     if (status) {
-      where.status = status;
+      query = query.eq('status', status);
     } else if (!searchParams.has('allStatus')) {
-      where.status = 'ACTIVE';
-    }
-
-    if (category) {
-      where.category = { slug: category };
+      query = query.eq('status', 'ACTIVE');
     }
 
     if (featured === 'true') {
-      where.featured = true;
+      query = query.eq('featured', true);
     }
 
     if (search) {
-      where.OR = [
-        { name: { contains: search } },
-        { description: { contains: search } },
-        { material: { contains: search } },
-      ];
+      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%,material.ilike.%${search}%`);
     }
 
-    let orderBy = { createdAt: 'desc' };
     if (sort === 'price-asc') {
-      orderBy = { price: 'asc' };
+      query = query.order('price', { ascending: true });
     } else if (sort === 'price-desc') {
-      orderBy = { price: 'desc' };
+      query = query.order('price', { ascending: false });
     } else if (sort === 'name-asc') {
-      orderBy = { name: 'asc' };
+      query = query.order('name', { ascending: true });
+    } else {
+      query = query.order('createdAt', { ascending: false });
     }
 
-    const products = await prisma.product.findMany({
-      where,
-      include: {
-        category: true,
-        images: {
-          orderBy: { sortOrder: 'asc' },
-        },
-        variants: true,
-      },
-      orderBy,
+    const { data: rawProducts, error } = await query;
+    if (error) throw error;
+
+    let products = rawProducts || [];
+    if (category) {
+      products = products.filter((p) => p.category?.slug === category);
+    }
+
+    products.forEach((p) => {
+      if (Array.isArray(p.images)) {
+        p.images.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+      }
     });
 
     return NextResponse.json({ products });
@@ -86,47 +82,70 @@ export async function POST(request) {
     }
 
     let slug = generateSlug(name);
-    // Ensure slug uniqueness
-    const existing = await prisma.product.findUnique({ where: { slug } });
+    const { data: existing } = await supabase.from('Product').select('id').eq('slug', slug).maybeSingle();
     if (existing) {
       slug = `${slug}-${Date.now().toString().slice(-4)}`;
     }
 
-    const product = await prisma.product.create({
-      data: {
+    const productId = generateId('prod');
+    const { data: product, error } = await supabase
+      .from('Product')
+      .insert({
+        id: productId,
         name,
         slug,
-        description,
+        description: description || null,
         price: parseFloat(price),
         categoryId: categoryId || null,
         material: material || null,
         weight: weight || null,
         featured: !!featured,
         status: status || 'ACTIVE',
-        images: {
-          create: (images || []).map((img, index) => ({
-            url: typeof img === 'string' ? img : img.url,
-            alt: img.alt || name,
-            sortOrder: index,
-          })),
-        },
-        variants: {
-          create: (variants || []).map((v) => ({
-            size: v.size || null,
-            color: v.color || null,
-            stock: parseInt(v.stock, 10) || 0,
-            sku: v.sku || `${slug}-${v.size || ''}-${v.color || ''}`.toLowerCase().replace(/\s/g, '-'),
-          })),
-        },
-      },
-      include: {
-        category: true,
-        images: true,
-        variants: true,
-      },
-    });
+      })
+      .select('*, category:Category(*)')
+      .single();
 
-    return NextResponse.json({ product }, { status: 201 });
+    if (error) throw error;
+
+    // Insert Images
+    let createdImages = [];
+    if (images && images.length > 0) {
+      const imgRows = images.map((img, index) => ({
+        id: generateId('img'),
+        productId: productId,
+        url: typeof img === 'string' ? img : img.url,
+        alt: (typeof img === 'object' && img.alt) || name,
+        sortOrder: index,
+      }));
+      const { data: insertedImgs } = await supabase.from('ProductImage').insert(imgRows).select('*');
+      createdImages = insertedImgs || [];
+    }
+
+    // Insert Variants
+    let createdVariants = [];
+    if (variants && variants.length > 0) {
+      const varRows = variants.map((v) => ({
+        id: generateId('var'),
+        productId: productId,
+        size: v.size || null,
+        color: v.color || null,
+        stock: parseInt(v.stock, 10) || 0,
+        sku: v.sku || `${slug}-${v.size || ''}-${v.color || ''}`.toLowerCase().replace(/\s/g, '-'),
+      }));
+      const { data: insertedVars } = await supabase.from('ProductVariant').insert(varRows).select('*');
+      createdVariants = insertedVars || [];
+    }
+
+    return NextResponse.json(
+      {
+        product: {
+          ...product,
+          images: createdImages,
+          variants: createdVariants,
+        },
+      },
+      { status: 201 }
+    );
   } catch (error) {
     console.error('Create product error:', error);
     return NextResponse.json(

@@ -1,14 +1,15 @@
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 
 export default async function sitemap() {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
   let products = [];
   try {
-    products = await prisma.product.findMany({
-      where: { status: 'PUBLISHED' },
-      select: { slug: true, updatedAt: true },
-    });
+    const { data } = await supabase
+      .from('Product')
+      .select('slug, updatedAt')
+      .in('status', ['ACTIVE', 'PUBLISHED']);
+    products = data || [];
   } catch (e) {
     console.error('Error fetching products for sitemap:', e);
   }

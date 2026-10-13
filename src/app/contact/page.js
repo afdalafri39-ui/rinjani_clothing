@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 import { MessageSquare, Camera, Mail, MapPin } from 'lucide-react';
 import { generateWhatsAppUrl } from '@/lib/utils';
 
@@ -9,9 +9,11 @@ export const metadata = {
 
 async function getContactSettings() {
   try {
-    let settings = await prisma.siteSettings.findUnique({
-      where: { id: 'default' },
-    });
+    const { data: settings } = await supabase
+      .from('SiteSettings')
+      .select('*')
+      .eq('id', 'default')
+      .maybeSingle();
     return settings;
   } catch (err) {
     console.error(err);

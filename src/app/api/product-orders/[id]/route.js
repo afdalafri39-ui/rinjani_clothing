@@ -1,13 +1,20 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 
 // GET: Get single product order by ID
 export async function GET(request, { params }) {
   try {
     const { id } = await params;
-    const order = await prisma.productOrder.findUnique({
-      where: { id },
-    });
+    const { data: order, error } = await supabase
+      .from('ProductOrder')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
+    if (error) {
+      console.error('GET /api/product-orders/[id] Supabase error:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
     if (!order) {
       return NextResponse.json({ error: 'Pesanan tidak ditemukan.' }, { status: 404 });
@@ -28,14 +35,21 @@ export async function PATCH(request, { params }) {
 
     const { status, adminNotes } = body;
 
-    const updateData = {};
+    const updateData = { updatedAt: new Date().toISOString() };
     if (status) updateData.status = status;
     if (adminNotes !== undefined) updateData.adminNotes = adminNotes;
 
-    const order = await prisma.productOrder.update({
-      where: { id },
-      data: updateData,
-    });
+    const { data: order, error } = await supabase
+      .from('ProductOrder')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('PATCH /api/product-orders/[id] Supabase error:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
     return NextResponse.json({ order });
   } catch (error) {
@@ -48,9 +62,15 @@ export async function PATCH(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     const { id } = await params;
-    await prisma.productOrder.delete({
-      where: { id },
-    });
+    const { error } = await supabase
+      .from('ProductOrder')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('DELETE /api/product-orders/[id] Supabase error:', error);
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

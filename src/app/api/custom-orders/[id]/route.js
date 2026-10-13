@@ -1,14 +1,17 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 
 // GET: Get a single custom order by ID
 export async function GET(request, { params }) {
   try {
     const { id } = await params;
-    const order = await prisma.customOrder.findUnique({
-      where: { id },
-    });
+    const { data: order, error } = await supabase
+      .from('CustomOrder')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
 
+    if (error) throw error;
     if (!order) {
       return NextResponse.json({ error: 'Pesanan tidak ditemukan.' }, { status: 404 });
     }
@@ -28,14 +31,18 @@ export async function PATCH(request, { params }) {
 
     const { status, adminNotes } = body;
 
-    const updateData = {};
+    const updateData = { updatedAt: new Date().toISOString() };
     if (status) updateData.status = status;
     if (adminNotes !== undefined) updateData.adminNotes = adminNotes;
 
-    const order = await prisma.customOrder.update({
-      where: { id },
-      data: updateData,
-    });
+    const { data: order, error } = await supabase
+      .from('CustomOrder')
+      .update(updateData)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
 
     return NextResponse.json({ order });
   } catch (error) {
@@ -48,9 +55,8 @@ export async function PATCH(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     const { id } = await params;
-    await prisma.customOrder.delete({
-      where: { id },
-    });
+    const { error } = await supabase.from('CustomOrder').delete().eq('id', id);
+    if (error) throw error;
 
     return NextResponse.json({ success: true });
   } catch (error) {

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 
 // Helper to generate slug
 function generateSlug(name) {
@@ -16,12 +16,13 @@ export async function GET(request, { params }) {
   try {
     const { id } = await params;
 
-    const model = await prisma.customGarment.findFirst({
-      where: {
-        OR: [{ id }, { slug: id }],
-      },
-    });
+    const { data: model, error } = await supabase
+      .from('CustomGarment')
+      .select('*')
+      .or(`id.eq.${id},slug.eq.${id}`)
+      .maybeSingle();
 
+    if (error) throw error;
     if (!model) {
       return NextResponse.json({ error: 'Model custom tidak ditemukan.' }, { status: 404 });
     }
@@ -52,7 +53,12 @@ export async function PUT(request, { params }) {
     const { id } = await params;
     const body = await request.json();
 
-    const existing = await prisma.customGarment.findUnique({ where: { id } });
+    const { data: existing } = await supabase
+      .from('CustomGarment')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+
     if (!existing) {
       return NextResponse.json({ error: 'Model custom tidak ditemukan.' }, { status: 404 });
     }
@@ -69,15 +75,17 @@ export async function PUT(request, { params }) {
       images,
     } = body;
 
-    const data = {};
+    const data = { updatedAt: new Date().toISOString() };
 
     if (name !== undefined) data.name = name.trim();
     if (customSlug !== undefined) {
       const newSlug = generateSlug(customSlug);
-      // check conflict
-      const conflict = await prisma.customGarment.findFirst({
-        where: { slug: newSlug, NOT: { id } },
-      });
+      const { data: conflict } = await supabase
+        .from('CustomGarment')
+        .select('id')
+        .eq('slug', newSlug)
+        .neq('id', id)
+        .maybeSingle();
       if (!conflict) data.slug = newSlug;
     }
     if (category !== undefined) data.category = category.trim();
@@ -94,10 +102,14 @@ export async function PUT(request, { params }) {
         : '[]';
     }
 
-    const updated = await prisma.customGarment.update({
-      where: { id },
-      data,
-    });
+    const { data: updated, error } = await supabase
+      .from('CustomGarment')
+      .update(data)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) throw error;
 
     let parsedImages = [];
     try {
@@ -123,13 +135,8 @@ export async function PUT(request, { params }) {
 export async function DELETE(request, { params }) {
   try {
     const { id } = await params;
-
-    const existing = await prisma.customGarment.findUnique({ where: { id } });
-    if (!existing) {
-      return NextResponse.json({ error: 'Model custom tidak ditemukan.' }, { status: 404 });
-    }
-
-    await prisma.customGarment.delete({ where: { id } });
+    const { error } = await supabase.from('CustomGarment').delete().eq('id', id);
+    if (error) throw error;
 
     return NextResponse.json({ success: true, message: 'Model custom berhasil dihapus.' });
   } catch (error) {

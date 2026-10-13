@@ -1,39 +1,47 @@
 import Link from 'next/link';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 import ProductCard from '@/components/ProductCard';
 
 export const revalidate = 60; // SSR with 60s revalidation
 
 async function getHomepageData() {
   try {
-    const featuredProducts = await prisma.product.findMany({
-      where: { status: 'ACTIVE', featured: true },
-      include: {
-        category: true,
-        images: { orderBy: { sortOrder: 'asc' } },
-        variants: true,
-      },
-      take: 4,
-    });
+    const { data: featuredData } = await supabase
+      .from('Product')
+      .select('*, category:Category(*), images:ProductImage(*), variants:ProductVariant(*)')
+      .eq('status', 'ACTIVE')
+      .eq('featured', true)
+      .limit(4);
 
-    const newArrivals = await prisma.product.findMany({
-      where: { status: 'ACTIVE' },
-      include: {
-        category: true,
-        images: { orderBy: { sortOrder: 'asc' } },
-        variants: true,
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 8,
-    });
+    const { data: newArrivalsData } = await supabase
+      .from('Product')
+      .select('*, category:Category(*), images:ProductImage(*), variants:ProductVariant(*)')
+      .eq('status', 'ACTIVE')
+      .order('createdAt', { ascending: false })
+      .limit(8);
 
-    const categories = await prisma.category.findMany({
-      where: { active: true },
-      take: 3,
-      orderBy: { displayOrder: 'asc' },
-    });
+    const { data: categoriesData } = await supabase
+      .from('Category')
+      .select('*')
+      .eq('active', true)
+      .order('displayOrder', { ascending: true })
+      .limit(3);
 
-    return { featuredProducts, newArrivals, categories };
+    const sortImages = (list) => {
+      if (!list) return [];
+      list.forEach((p) => {
+        if (Array.isArray(p.images)) {
+          p.images.sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+        }
+      });
+      return list;
+    };
+
+    return {
+      featuredProducts: sortImages(featuredData) || [],
+      newArrivals: sortImages(newArrivalsData) || [],
+      categories: categoriesData || [],
+    };
   } catch (err) {
     console.error('Error loading homepage data:', err);
     return { featuredProducts: [], newArrivals: [], categories: [] };

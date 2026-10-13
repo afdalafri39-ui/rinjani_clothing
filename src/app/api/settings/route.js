@@ -1,29 +1,35 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabase';
 import { requireAuth } from '@/lib/auth';
 
 export async function GET() {
   try {
-    let settings = await prisma.siteSettings.findUnique({
-      where: { id: 'default' },
-    });
+    let { data: settings } = await supabase
+      .from('SiteSettings')
+      .select('*')
+      .eq('id', 'default')
+      .maybeSingle();
 
     if (!settings) {
-      settings = await prisma.siteSettings.create({
-        data: {
-          id: 'default',
-          brandName: 'Rinjani Clothing',
-          whatsappNumber: '6281369876282',
-          whatsappEnabled: true,
-          telegramUsername: '',
-          telegramEnabled: false,
-          instagramUrl: 'http://instagram.com/rinjani.clothing',
-          email: 'hello@rinjaniclothing.com',
-          address: 'Lombok, Nusa Tenggara Barat, Indonesia',
-          orderMessageTemplate: 'Halo Rinjani Clothing,\n\nSaya ingin memesan:\n\nProduk: {{product_name}}\nUkuran: {{size}}\nWarna: {{color}}\nJumlah: {{quantity}}\n\nLink produk:\n{{product_url}}',
-          currency: 'IDR',
-        },
-      });
+      const defaultData = {
+        id: 'default',
+        brandName: 'Rinjani Clothing',
+        whatsappNumber: '6281369876282',
+        whatsappEnabled: true,
+        telegramUsername: '',
+        telegramEnabled: false,
+        instagramUrl: 'http://instagram.com/rinjani.clothing',
+        email: 'hello@rinjaniclothing.com',
+        address: 'Lombok, Nusa Tenggara Barat, Indonesia',
+        orderMessageTemplate: 'Halo Rinjani Clothing,\n\nSaya ingin memesan:\n\nProduk: {{product_name}}\nUkuran: {{size}}\nWarna: {{color}}\nJumlah: {{quantity}}\n\nLink produk:\n{{product_url}}',
+        currency: 'IDR',
+      };
+      const { data: newSettings } = await supabase
+        .from('SiteSettings')
+        .insert(defaultData)
+        .select()
+        .single();
+      settings = newSettings || defaultData;
     }
 
     return NextResponse.json({ settings });
@@ -45,7 +51,7 @@ export async function PUT(request) {
 
     const data = await request.json();
 
-    const updateData = {};
+    const updateData = { updatedAt: new Date().toISOString() };
     if (data.brandName !== undefined) updateData.brandName = data.brandName;
     if (data.whatsappNumber !== undefined) updateData.whatsappNumber = data.whatsappNumber;
     if (data.whatsappEnabled !== undefined) updateData.whatsappEnabled = !!data.whatsappEnabled;
@@ -59,25 +65,44 @@ export async function PUT(request) {
     if (data.customOrdersSheetWebhook !== undefined) updateData.customOrdersSheetWebhook = data.customOrdersSheetWebhook;
     if (data.productOrdersSheetWebhook !== undefined) updateData.productOrdersSheetWebhook = data.productOrdersSheetWebhook;
 
-    const settings = await prisma.siteSettings.upsert({
-      where: { id: 'default' },
-      update: updateData,
-      create: {
-        id: 'default',
-        brandName: data.brandName || 'Rinjani Clothing',
-        whatsappNumber: data.whatsappNumber || null,
-        whatsappEnabled: !!data.whatsappEnabled,
-        telegramUsername: data.telegramUsername || null,
-        telegramEnabled: !!data.telegramEnabled,
-        instagramUrl: data.instagramUrl || null,
-        email: data.email || null,
-        address: data.address || null,
-        orderMessageTemplate: data.orderMessageTemplate || null,
-        currency: data.currency || 'IDR',
-        customOrdersSheetWebhook: data.customOrdersSheetWebhook || null,
-        productOrdersSheetWebhook: data.productOrdersSheetWebhook || null,
-      },
-    });
+    const { data: existing } = await supabase
+      .from('SiteSettings')
+      .select('id')
+      .eq('id', 'default')
+      .maybeSingle();
+
+    let settings;
+    if (existing) {
+      const { data: res } = await supabase
+        .from('SiteSettings')
+        .update(updateData)
+        .eq('id', 'default')
+        .select()
+        .single();
+      settings = res;
+    } else {
+      const { data: res } = await supabase
+        .from('SiteSettings')
+        .insert({
+          id: 'default',
+          brandName: data.brandName || 'Rinjani Clothing',
+          whatsappNumber: data.whatsappNumber || null,
+          whatsappEnabled: !!data.whatsappEnabled,
+          telegramUsername: data.telegramUsername || null,
+          telegramEnabled: !!data.telegramEnabled,
+          instagramUrl: data.instagramUrl || null,
+          email: data.email || null,
+          address: data.address || null,
+          orderMessageTemplate: data.orderMessageTemplate || null,
+          currency: data.currency || 'IDR',
+          customOrdersSheetWebhook: data.customOrdersSheetWebhook || null,
+          productOrdersSheetWebhook: data.productOrdersSheetWebhook || null,
+          ...updateData,
+        })
+        .select()
+        .single();
+      settings = res;
+    }
 
     return NextResponse.json({ settings });
   } catch (error) {

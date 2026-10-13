@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase, generateId } from '@/lib/supabase';
 
 // Generate unique order number: CO-YYYYMMDD-XXXX
 function generateOrderNumber() {
@@ -16,39 +16,46 @@ export async function GET(request) {
     const status = searchParams.get('status');
     const limit = parseInt(searchParams.get('limit') || '50', 10);
 
-    const where = {};
+    let query = supabase
+      .from('CustomOrder')
+      .select('*')
+      .order('createdAt', { ascending: false })
+      .limit(limit);
+
     if (status && status !== 'ALL') {
-      where.status = status;
+      query = query.eq('status', status);
     }
 
-    const orders = await prisma.customOrder.findMany({
-      where,
-      orderBy: { createdAt: 'desc' },
-      take: limit,
-    });
+    const { data: orders, error } = await query;
+    if (error) throw error;
 
-    const totalCount = await prisma.customOrder.count({ where });
-    const statusCounts = await prisma.$transaction([
-      prisma.customOrder.count({ where: { status: 'BARU' } }),
-      prisma.customOrder.count({ where: { status: 'DIPROSES' } }),
-      prisma.customOrder.count({ where: { status: 'MOCKUP' } }),
-      prisma.customOrder.count({ where: { status: 'PRODUKSI' } }),
-      prisma.customOrder.count({ where: { status: 'SELESAI' } }),
-      prisma.customOrder.count({ where: { status: 'DIBATALKAN' } }),
-      prisma.customOrder.count(),
+    let countQuery = supabase.from('CustomOrder').select('*', { count: 'exact', head: true });
+    if (status && status !== 'ALL') {
+      countQuery = countQuery.eq('status', status);
+    }
+    const { count: totalCount } = await countQuery;
+
+    const [cBaru, cDiproses, cMockup, cProduksi, cSelesai, cBatal, cAll] = await Promise.all([
+      supabase.from('CustomOrder').select('*', { count: 'exact', head: true }).eq('status', 'BARU'),
+      supabase.from('CustomOrder').select('*', { count: 'exact', head: true }).eq('status', 'DIPROSES'),
+      supabase.from('CustomOrder').select('*', { count: 'exact', head: true }).eq('status', 'MOCKUP'),
+      supabase.from('CustomOrder').select('*', { count: 'exact', head: true }).eq('status', 'PRODUKSI'),
+      supabase.from('CustomOrder').select('*', { count: 'exact', head: true }).eq('status', 'SELESAI'),
+      supabase.from('CustomOrder').select('*', { count: 'exact', head: true }).eq('status', 'DIBATALKAN'),
+      supabase.from('CustomOrder').select('*', { count: 'exact', head: true }),
     ]);
 
     return NextResponse.json({
-      orders,
-      totalCount,
+      orders: orders || [],
+      totalCount: totalCount || 0,
       statusCounts: {
-        BARU: statusCounts[0],
-        DIPROSES: statusCounts[1],
-        MOCKUP: statusCounts[2],
-        PRODUKSI: statusCounts[3],
-        SELESAI: statusCounts[4],
-        DIBATALKAN: statusCounts[5],
-        ALL: statusCounts[6],
+        BARU: cBaru.count || 0,
+        DIPROSES: cDiproses.count || 0,
+        MOCKUP: cMockup.count || 0,
+        PRODUKSI: cProduksi.count || 0,
+        SELESAI: cSelesai.count || 0,
+        DIBATALKAN: cBatal.count || 0,
+        ALL: cAll.count || 0,
       },
     });
   } catch (error) {
@@ -88,9 +95,12 @@ export async function POST(request) {
     }
 
     const orderNumber = generateOrderNumber();
+    const id = generateId('co');
 
-    const order = await prisma.customOrder.create({
-      data: {
+    const { data: order, error } = await supabase
+      .from('CustomOrder')
+      .insert({
+        id,
         orderNumber,
         customerName,
         customerPhone,
@@ -107,8 +117,11 @@ export async function POST(request) {
         notes: notes || null,
         designFiles: typeof designFiles === 'string' ? designFiles : JSON.stringify(designFiles || []),
         status: 'BARU',
-      },
-    });
+      })
+      .select()
+      .single();
+
+    if (error) throw error;
 
     return NextResponse.json({ order, orderNumber }, { status: 201 });
   } catch (error) {
