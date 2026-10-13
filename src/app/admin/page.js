@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
-import { formatPrice, getTotalStock, getStockStatus } from '@/lib/utils';
+import { formatPrice, getTotalStock, getStockStatus, getProductImage } from '@/lib/utils';
 import { Plus, Package, Grid, Settings, ArrowRight, ClipboardList, Shirt, User, Clock, ShoppingBag } from 'lucide-react';
 
 export const revalidate = 0; // Dynamic
@@ -325,7 +325,7 @@ export default async function AdminDashboardPage() {
             {stats.recentProducts.map((p) => {
               const stock = getTotalStock(p.variants);
               const status = getStockStatus(stock);
-              const img = p.images[0]?.url || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&q=80';
+              const img = getProductImage(p);
 
               return (
                 <tr key={p.id}>

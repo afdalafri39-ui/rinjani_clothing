@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Plus, Search, Trash2, Edit, AlertCircle } from 'lucide-react';
-import { formatPrice, getTotalStock, getStockStatus } from '@/lib/utils';
+import { formatPrice, getTotalStock, getStockStatus, getProductImage } from '@/lib/utils';
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
@@ -140,7 +140,7 @@ export default function AdminProductsPage() {
               {filteredProducts.map((p) => {
                 const stock = getTotalStock(p.variants);
                 const stockStatus = getStockStatus(stock);
-                const img = p.images[0]?.url || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&q=80';
+                const img = getProductImage(p);
 
                 return (
                   <tr key={p.id}>

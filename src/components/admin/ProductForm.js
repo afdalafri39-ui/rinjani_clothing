@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Trash2, ArrowLeft, Image as ImageIcon } from 'lucide-react';
-import { formatPrice } from '@/lib/utils';
+import { Plus, Trash2, ArrowLeft, Image as ImageIcon, Shuffle } from 'lucide-react';
+import { formatPrice, getRandomApparelImage } from '@/lib/utils';
 
 export default function ProductForm({ initialData = null, isEdit = false }) {
   const router = useRouter();
@@ -24,11 +24,14 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
 
   // Images state
   const [images, setImages] = useState(
-    initialData?.images?.map((img) => img.url) || [
-      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&q=80',
-    ]
+    initialData?.images?.map((img) => img.url) || [getRandomApparelImage()]
   );
   const [newImageUrl, setNewImageUrl] = useState('');
+
+  const handleRandomizeImage = () => {
+    const randomUrl = getRandomApparelImage();
+    setImages([randomUrl]);
+  };
 
   // Variants state
   const [variants, setVariants] = useState(
@@ -277,9 +280,18 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
               type="button"
               className="btn btn-secondary"
               onClick={handleAddImage}
-              style={{ display: 'flex', alignItems: 'center', gap: '6px' }}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
             >
               <Plus size={16} /> TAMBAH URL GAMBAR
+            </button>
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleRandomizeImage}
+              style={{ display: 'flex', alignItems: 'center', gap: '6px', whiteSpace: 'nowrap' }}
+              title="Acak foto apparel dari Unsplash"
+            >
+              <Shuffle size={16} /> ACAK GAMBAR
             </button>
           </div>
 

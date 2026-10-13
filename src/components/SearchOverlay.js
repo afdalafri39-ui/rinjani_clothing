@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Search, X } from 'lucide-react';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, getProductImage } from '@/lib/utils';
 
 export default function SearchOverlay({ isOpen, onClose }) {
   const [query, setQuery] = useState('');
@@ -81,7 +81,7 @@ export default function SearchOverlay({ isOpen, onClose }) {
             </div>
             <div className="product-grid">
               {results.map((product) => {
-                const mainImg = product.images?.[0]?.url || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&q=80';
+                const mainImg = getProductImage(product);
                 return (
                   <Link
                     key={product.id}

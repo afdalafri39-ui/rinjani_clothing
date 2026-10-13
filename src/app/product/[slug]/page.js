@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
-import { formatPrice, getStockStatus } from '@/lib/utils';
+import { formatPrice, getStockStatus, getProductImage } from '@/lib/utils';
 import ContactModal from '@/components/ContactModal';
 import { ChevronRight, ArrowLeft, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
@@ -25,11 +25,8 @@ export default function ProductDetailPage({ params }) {
         if (data.product) {
           const p = data.product;
           setProduct(p);
-          if (p.images && p.images.length > 0) {
-            setSelectedImage(p.images[0].url);
-          } else {
-            setSelectedImage('https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&q=80');
-          }
+          const mainImg = getProductImage(p);
+          setSelectedImage(mainImg);
 
           // Extract unique sizes and colors from variants
           const sizes = Array.from(new Set(p.variants.map((v) => v.size).filter(Boolean)));

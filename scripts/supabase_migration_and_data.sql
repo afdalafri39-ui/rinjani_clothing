@@ -228,9 +228,17 @@ INSERT INTO "Product" ("id", "name", "slug", "description", "price", "categoryId
 VALUES ('cmv6kzouu003rsxh8s73buggo', 'Ridge Cap', 'ridge-cap', 'Topi five-panel dengan bordir logo Rinjani Clothing. Adjustable strap untuk kenyamanan.', 89000, 'cmv6kzorh0005sxh8gno6fdtu', 'Canvas Cotton', '80g', FALSE, 'ACTIVE', '2026-10-13T11:11:57.079Z'::timestamptz, '2026-10-13T11:11:57.079Z'::timestamptz)
 ON CONFLICT ("id") DO NOTHING;
 
--- DATA: ProductImage (1 rows)
+-- DATA: ProductImage (8 rows)
 INSERT INTO "ProductImage" ("id", "productId", "url", "alt", "sortOrder", "createdAt")
-VALUES ('cmv6iqnk10005sxys2zo3fyg7', 'cmv6iqnk10004sxysh7847xld', 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&q=80', 'Dummy', 0, '2026-10-13T10:08:56.256Z'::timestamptz)
+VALUES 
+  ('cmv6iqnk10005sxys2zo3fyg7', 'cmv6iqnk10004sxysh7847xld', 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&q=80', 'Dummy', 0, '2026-10-13T10:08:56.256Z'::timestamptz),
+  ('img_ridge_cap_01', 'cmv6kzouu003rsxh8s73buggo', 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=800&q=80', 'Ridge Cap', 0, NOW()),
+  ('img_wilderness_01', 'cmv6kzou40031sxh8q8naw1zb', 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&q=80', 'Wilderness Oversize', 0, NOW()),
+  ('img_urban_tee_01', 'cmv6kzoto002jsxh80u82fhvg', 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80', 'Urban Graphic Tee', 0, NOW()),
+  ('img_basecamp_01', 'cmv6kzotb0025sxh8kzbw42og', 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&q=80', 'Basecamp Hoodie', 0, NOW()),
+  ('img_trail_ls_01', 'cmv6kzoso001fsxh85quseq79', 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&q=80', 'Trail Long Sleeve', 0, NOW()),
+  ('img_summit_01', 'cmv6kzos2000psxh8v4oidqj0', 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&q=80', 'Summit Oversize Tee', 0, NOW()),
+  ('img_rinjani_mt_01', 'cmv6kzorl0007sxh86sh5t2x1', 'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=800&q=80', 'Rinjani Mountain Tee', 0, NOW())
 ON CONFLICT ("id") DO NOTHING;
 
 -- DATA: ProductVariant (65 rows)

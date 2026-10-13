@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { supabase, generateId } from '@/lib/supabase';
 import { requireAuth } from '@/lib/auth';
-import { generateSlug } from '@/lib/utils';
+import { generateSlug, getRandomApparelImage } from '@/lib/utils';
 
 export async function GET(request) {
   try {
@@ -107,19 +107,18 @@ export async function POST(request) {
 
     if (error) throw error;
 
-    // Insert Images
+    // Insert Images (auto-generate random apparel image if not provided)
     let createdImages = [];
-    if (images && images.length > 0) {
-      const imgRows = images.map((img, index) => ({
-        id: generateId('img'),
-        productId: productId,
-        url: typeof img === 'string' ? img : img.url,
-        alt: (typeof img === 'object' && img.alt) || name,
-        sortOrder: index,
-      }));
-      const { data: insertedImgs } = await supabase.from('ProductImage').insert(imgRows).select('*');
-      createdImages = insertedImgs || [];
-    }
+    const imageList = (images && images.length > 0) ? images : [getRandomApparelImage()];
+    const imgRows = imageList.map((img, index) => ({
+      id: generateId('img'),
+      productId: productId,
+      url: typeof img === 'string' ? img : img.url,
+      alt: (typeof img === 'object' && img.alt) || name,
+      sortOrder: index,
+    }));
+    const { data: insertedImgs } = await supabase.from('ProductImage').insert(imgRows).select('*');
+    createdImages = insertedImgs || [];
 
     // Insert Variants
     let createdVariants = [];

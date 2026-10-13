@@ -1,10 +1,10 @@
 import Link from 'next/link';
-import { formatPrice, getTotalStock, getStockStatus } from '@/lib/utils';
+import { formatPrice, getTotalStock, getStockStatus, getProductImage } from '@/lib/utils';
 
 export default function ProductCard({ product }) {
   const totalStock = getTotalStock(product.variants);
   const stockStatus = getStockStatus(totalStock);
-  const mainImage = product.images?.[0]?.url || 'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&q=80';
+  const mainImage = getProductImage(product);
 
   return (
     <Link href={`/product/${product.slug}`} className="product-card">
