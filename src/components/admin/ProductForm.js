@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Plus, Trash2, ArrowLeft, Image as ImageIcon } from 'lucide-react';
+import { formatPrice } from '@/lib/utils';
 
 export default function ProductForm({ initialData = null, isEdit = false }) {
   const router = useRouter();
@@ -170,7 +171,7 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
 
         {/* HARGA */}
         <div className="form-group">
-          <label className="form-label">HARGA (IDR) *</label>
+          <label className="form-label">HARGA (RUPIAH / RP) *</label>
           <input
             type="number"
             className="form-input"
@@ -178,7 +179,11 @@ export default function ProductForm({ initialData = null, isEdit = false }) {
             value={price}
             onChange={(e) => setPrice(e.target.value)}
             required
+            min="0"
           />
+          <span style={{ fontSize: '0.75rem', color: '#666', marginTop: '4px', display: 'block' }}>
+            Tampil sebagai: <strong>{formatPrice(parseFloat(price) || 0)}</strong>
+          </span>
         </div>
 
         {/* KATEGORI */}

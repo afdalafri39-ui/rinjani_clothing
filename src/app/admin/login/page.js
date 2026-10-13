@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Lock, Mail, ShieldCheck } from 'lucide-react';
+import { ArrowLeft, Lock, Mail } from 'lucide-react';
+import LogoRC from '@/components/LogoRC';
 
 export default function AdminLoginPage() {
   const [email, setEmail] = useState('');
@@ -66,8 +67,8 @@ export default function AdminLoginPage() {
         </div>
 
         <div className="login-brand">
-          <div style={{ width: '48px', height: '48px', backgroundColor: '#111', color: '#FFF', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 16px' }}>
-            <ShieldCheck size={24} />
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '16px' }}>
+            <LogoRC width={72} height={67} />
           </div>
           <div className="login-brand-name">RINJANI CLOTHING</div>
           <div className="login-brand-role">PORTAL LOGIN ADMINISTRATOR</div>

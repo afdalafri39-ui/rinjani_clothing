@@ -1,6 +1,8 @@
 import './globals.css';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
+import { CartProvider } from '@/context/CartContext';
+import CartDrawer from '@/components/CartDrawer';
 
 export const metadata = {
   title: 'Rinjani Clothing — Made for the Journey',
@@ -20,9 +22,12 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        <Header />
-        <main>{children}</main>
-        <Footer />
+        <CartProvider>
+          <Header />
+          <main>{children}</main>
+          <Footer />
+          <CartDrawer />
+        </CartProvider>
       </body>
     </html>
   );

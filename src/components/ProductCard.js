@@ -18,13 +18,15 @@ export default function ProductCard({ product }) {
         ) : null}
       </div>
 
-      <div className="product-card-name">{product.name}</div>
-      <div className="product-card-price">
-        {totalStock <= 0 ? (
-          <span className="product-card-sold-out">SOLD OUT</span>
-        ) : (
-          formatPrice(product.price)
-        )}
+      <div className="product-card-info">
+        <div className="product-card-name">{product.name}</div>
+        <div className="product-card-price">
+          {totalStock <= 0 ? (
+            <span className="product-card-sold-out">SOLD OUT</span>
+          ) : (
+            formatPrice(product.price)
+          )}
+        </div>
       </div>
     </Link>
   );

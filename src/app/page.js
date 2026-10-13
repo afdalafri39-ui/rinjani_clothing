@@ -76,75 +76,77 @@ export default async function Home() {
           <h2 className="brand-statement-title">
             SIMPLISITAS & DAYA TAHAN PADA SETIAP DETAIL.
           </h2>
+          <div className="brand-statement-cta">
+          </div>
           <p className="brand-statement-text">
             Kami meyakini pakaian bukan sekadar tampilan, melainkan teman dalam setiap perjalanan. Rinjani Clothing mengombinasikan desain minimalis, potongan ergonomis, dan daya tahan material terbaik.
           </p>
-        </div>
-      </section>
 
-      {/* 3. FEATURED COLLECTION EDITORIAL GRID */}
-      <section className="section">
-        <div className="container">
-          <div className="section-header">
-            <div className="section-label">KOLEKSI PILIHAN</div>
-            <h2 className="section-title">EDITORIAL LOOKBOOK</h2>
-          </div>
+          {/* ALUR PEMESANAN CUSTOM */}
+          <div style={{ maxWidth: '800px', margin: 'var(--space-9) auto 0', textAlign: 'left' }}>
+            <div className="section-header" style={{ textAlign: 'center', marginBottom: 'var(--space-7)' }}>
+              <div className="section-label">ALUR PEMESANAN</div>
+              <h3 className="section-title" style={{ fontSize: '1.75rem' }}>CARA MEMESAN CUSTOM APPAREL</h3>
+            </div>
 
-          <div className="collection-grid collection-grid-editorial">
-            <div className="collection-item collection-item-large">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=1400&q=80"
-                alt="Oversize Collection"
-              />
-              <div className="collection-item-overlay">
+            <div className="custom-steps">
+              <div className="custom-step">
+                <div className="custom-step-number" />
                 <div>
-                  <div className="collection-item-title">THE OVERSIZE SERIES</div>
-                  <div className="collection-item-subtitle">Comfortable relaxed fit cotton combed 24s</div>
+                  <h4 className="custom-step-title">Konfigurasi Spesifikasi</h4>
+                  <p className="custom-step-desc">
+                    Pilih model baju, warna, jenis kain, dan metode cetak menggunakan konfigurator kami. Tentukan ukuran dan jumlah pesanan.
+                  </p>
+                </div>
+              </div>
+
+              <div className="custom-step">
+                <div className="custom-step-number" />
+                <div>
+                  <h4 className="custom-step-title">Kirim Desain ke Admin</h4>
+                  <p className="custom-step-desc">
+                    Kirimkan file desain Anda (format AI, PSD, PNG transparan) beserta detail spesifikasi ke WhatsApp admin kami.
+                  </p>
+                </div>
+              </div>
+
+              <div className="custom-step">
+                <div className="custom-step-number" />
+                <div>
+                  <h4 className="custom-step-title">Konfirmasi Mockup & Harga</h4>
+                  <p className="custom-step-desc">
+                    Tim kami membuatkan visual preview (mockup) dan estimasi biaya terbaik sesuai dengan kuantitas pesanan Anda.
+                  </p>
+                </div>
+              </div>
+
+              <div className="custom-step">
+                <div className="custom-step-number" />
+                <div>
+                  <h4 className="custom-step-title">Produksi & Pengiriman</h4>
+                  <p className="custom-step-desc">
+                    Setelah konfirmasi dan DP, barang masuk tahap produksi lalu dikirim ke seluruh Indonesia.
+                  </p>
                 </div>
               </div>
             </div>
 
-            <div className="collection-grid-row">
-              <div className="collection-item collection-item-medium">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=900&q=80"
-                  alt="Outdoor Apparel"
-                />
-                <div className="collection-item-overlay">
-                  <div>
-                    <div className="collection-item-title">MOUNTAIN & TRAIL TEE</div>
-                    <div className="collection-item-subtitle">High breathability for active movement</div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="collection-item collection-item-medium">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src="https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=900&q=80"
-                  alt="Hoodies & Outerwear"
-                />
-                <div className="collection-item-overlay">
-                  <div>
-                    <div className="collection-item-title">BASECAMP HOODIES</div>
-                    <div className="collection-item-subtitle">Heavyweight fleece warmth</div>
-                  </div>
-                </div>
-              </div>
+            <div style={{ textAlign: 'center', marginTop: 'var(--space-8)' }}>
+              <Link href="/custom" className="btn btn-primary">
+                MULAI PESANAN CUSTOM
+              </Link>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 4. NEW ARRIVALS */}
+      {/* 3. OFFICIAL PRODUCT RINJANI CLOTHING */}
       <section className="section">
         <div className="container">
           <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
             <div>
               <div className="section-label">KATALOG PRODUK</div>
-              <h2 className="section-title">NEW ARRIVALS</h2>
+              <h2 className="section-title">OFFCIAL PRODUCT </h2>
             </div>
             <Link href="/shop" className="btn btn-secondary">
               LIHAT SEMUA

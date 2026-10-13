@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import LogoRC from '@/components/LogoRC';
 
 export default function Footer() {
   const pathname = usePathname();
@@ -14,7 +15,10 @@ export default function Footer() {
       <div className="container">
         <div className="footer-grid">
           <div className="footer-brand">
-            <div className="footer-brand-name">RINJANI CLOTHING</div>
+            <div className="footer-brand-name" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <LogoRC width={24} height={22} />
+              <span>RINJANI CLOTHING</span>
+            </div>
             <p className="footer-brand-text">
               Everyday apparel inspired by movement, nature, and urban culture. Crafted with high quality materials and minimal aesthetic.
             </p>

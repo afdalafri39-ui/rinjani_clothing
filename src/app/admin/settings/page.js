@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, CheckCircle2, MessageSquare, Globe, Mail, MapPin } from 'lucide-react';
+import { Save, CheckCircle2, MessageSquare, Globe, Mail, MapPin, Banknote } from 'lucide-react';
 import { generateOrderMessage } from '@/lib/utils';
 
 export default function AdminSettingsPage() {
@@ -19,6 +19,7 @@ export default function AdminSettingsPage() {
   const [email, setEmail] = useState('');
   const [address, setAddress] = useState('');
   const [orderMessageTemplate, setOrderMessageTemplate] = useState('');
+  const [currency, setCurrency] = useState('IDR');
 
   useEffect(() => {
     fetch('/api/settings')
@@ -35,6 +36,7 @@ export default function AdminSettingsPage() {
           setEmail(s.email || '');
           setAddress(s.address || '');
           setOrderMessageTemplate(s.orderMessageTemplate || '');
+          setCurrency(s.currency || 'IDR');
         }
         setLoading(false);
       })
@@ -59,6 +61,7 @@ export default function AdminSettingsPage() {
       email,
       address,
       orderMessageTemplate,
+      currency,
     };
 
     try {
@@ -236,6 +239,34 @@ export default function AdminSettingsPage() {
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
               />
+            </div>
+          </div>
+        </div>
+
+        {/* SECTION 4: MATA UANG & KURS */}
+        <div className="settings-section">
+          <div className="settings-section-header">
+            <h3 className="settings-section-title">4. MATA UANG & KURS (CURRENCY)</h3>
+            <p className="settings-section-desc">Format mata uang yang digunakan untuk seluruh harga katalog pakaian dan pesanan.</p>
+          </div>
+
+          <div className="settings-section-body">
+            <div className="form-group">
+              <label className="form-label">MATA UANG TOKO</label>
+              <select
+                className="form-select"
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+              >
+                <option value="IDR">Rupiah Indonesia (IDR / Rp) - Standar Indonesia</option>
+              </select>
+            </div>
+
+            <div style={{ padding: '14px 16px', backgroundColor: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: '6px', display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <Banknote size={20} style={{ color: '#16A34A' }} />
+              <div style={{ fontSize: '0.8125rem', color: '#166534' }}>
+                Format saat ini: <strong>Rupiah (Rp)</strong>. Seluruh harga pada website publik dan admin ditampilkan menggunakan simbol <strong>Rp</strong> (contoh: <code>Rp 125.000</code>).
+              </div>
             </div>
           </div>
         </div>

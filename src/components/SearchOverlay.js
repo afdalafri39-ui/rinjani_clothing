@@ -93,8 +93,10 @@ export default function SearchOverlay({ isOpen, onClose }) {
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img src={mainImg} alt={product.name} />
                     </div>
-                    <div className="product-card-name">{product.name}</div>
-                    <div className="product-card-price">{formatPrice(product.price)}</div>
+                    <div className="product-card-info">
+                      <div className="product-card-name">{product.name}</div>
+                      <div className="product-card-price">{formatPrice(product.price)}</div>
+                    </div>
                   </Link>
                 );
               })}

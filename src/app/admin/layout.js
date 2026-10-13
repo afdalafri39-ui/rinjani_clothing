@@ -3,7 +3,8 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Package, Grid, Settings, LogOut, LayoutDashboard, Menu, X, ExternalLink } from 'lucide-react';
+import { Package, Grid, Settings, LogOut, LayoutDashboard, Menu, X, ExternalLink, ClipboardList, Shirt, ShoppingBag } from 'lucide-react';
+import LogoRC from '@/components/LogoRC';
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -61,6 +62,9 @@ export default function AdminLayout({ children }) {
 
   const navItems = [
     { label: 'Dashboard Overview', href: '/admin', icon: LayoutDashboard },
+    { label: 'Pesanan Custom', href: '/admin/custom-orders', icon: ClipboardList },
+    { label: 'Pesanan Produk', href: '/admin/product-orders', icon: ShoppingBag },
+    { label: 'Katalog Custom', href: '/admin/custom-models', icon: Shirt },
     { label: 'Kelola Produk', href: '/admin/products', icon: Package },
     { label: 'Kelola Kategori', href: '/admin/categories', icon: Grid },
     { label: 'Pengaturan Toko', href: '/admin/settings', icon: Settings },
@@ -76,9 +80,12 @@ export default function AdminLayout({ children }) {
 
       {/* Sidebar */}
       <aside className={`admin-sidebar ${sidebarOpen ? 'open' : ''}`}>
-        <div className="admin-sidebar-brand">
-          <div className="admin-sidebar-brand-name">RINJANI</div>
-          <div className="admin-sidebar-brand-role">INVENTORY SYSTEM</div>
+        <div className="admin-sidebar-brand" style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <LogoRC width={28} height={26} />
+          <div>
+            <div className="admin-sidebar-brand-name">RINJANI</div>
+            <div className="admin-sidebar-brand-role">INVENTORY SYSTEM</div>
+          </div>
         </div>
 
         <nav className="admin-sidebar-nav">
@@ -136,6 +143,9 @@ export default function AdminLayout({ children }) {
             </button>
             <h1 className="admin-topbar-title">
               {pathname === '/admin' && 'Dashboard Overview'}
+              {pathname.startsWith('/admin/custom-orders') && 'Pesanan Custom Order'}
+              {pathname.startsWith('/admin/product-orders') && 'Pesanan Produk (Shop)'}
+              {pathname.startsWith('/admin/custom-models') && 'Manajemen Katalog Model Custom'}
               {pathname.startsWith('/admin/products') && 'Manajemen Inventaris Produk'}
               {pathname === '/admin/categories' && 'Manajemen Kategori'}
               {pathname === '/admin/settings' && 'Pengaturan Kontak & Toko'}

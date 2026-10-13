@@ -4,7 +4,8 @@ import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { formatPrice, getStockStatus } from '@/lib/utils';
 import ContactModal from '@/components/ContactModal';
-import { ChevronRight, ArrowLeft } from 'lucide-react';
+import { ChevronRight, ArrowLeft, ShoppingBag } from 'lucide-react';
+import { useCart } from '@/context/CartContext';
 
 export default function ProductDetailPage({ params }) {
   const { slug } = use(params);
@@ -15,6 +16,7 @@ export default function ProductDetailPage({ params }) {
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { addToCart } = useCart();
 
   useEffect(() => {
     fetch(`/api/products/${slug}`)
@@ -88,6 +90,7 @@ export default function ProductDetailPage({ params }) {
     name: product.name,
     slug: product.slug,
     price: formatPrice(product.price),
+    rawPrice: product.price,
     selectedSize,
     selectedColor,
     quantity,
@@ -201,9 +204,37 @@ export default function ProductDetailPage({ params }) {
             </div>
           </div>
 
-          {/* HUBUNGI ADMIN CTA */}
-          <div className="product-cta">
+          {/* ACTION BUTTONS (TAMBAH KE KERANJANG & PESAN LANGSUNG) */}
+          <div className="product-cta" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
             <button
+              type="button"
+              className="btn btn-secondary btn-full btn-lg"
+              onClick={(e) => {
+                if (availableStock <= 0) return;
+                addToCart(
+                  {
+                    type: 'product',
+                    id: `prod_${product.slug}_${selectedSize || 'all'}_${selectedColor || 'all'}`,
+                    slug: product.slug,
+                    name: product.name,
+                    price: product.price,
+                    quantity,
+                    selectedSize,
+                    selectedColor,
+                    image: selectedImage,
+                  },
+                  e
+                );
+              }}
+              disabled={availableStock <= 0}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+            >
+              <ShoppingBag size={18} />
+              <span>+ TAMBAH KE KERANJANG</span>
+            </button>
+
+            <button
+              type="button"
               className="btn btn-primary btn-full btn-lg"
               onClick={() => setIsModalOpen(true)}
               disabled={availableStock <= 0}

@@ -1,10 +1,7 @@
 export function formatPrice(price) {
-  return new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(price);
+  if (price === null || price === undefined || isNaN(price)) return 'Rp 0';
+  const num = typeof price === 'number' ? price : parseFloat(String(price).replace(/[^0-9.-]+/g, '')) || 0;
+  return `Rp ${Math.round(num).toLocaleString('id-ID')}`;
 }
 
 export function getStockStatus(totalStock) {

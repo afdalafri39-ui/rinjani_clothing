@@ -71,6 +71,29 @@ model ProductVariant {
   sku       String?
 }
 
+model CustomOrder {
+  id              String   @id @default(cuid())
+  orderNumber     String   @unique
+  customerName    String
+  customerPhone   String
+  customerEmail   String?
+  garmentModel    String
+  garmentCategory String?
+  color           String
+  colorHex        String?
+  fabric          String
+  fabricWeight    String?
+  printingMethod  String
+  sizes           String   // JSON string: {"M": 2, "L": 3}
+  totalQuantity   Int      @default(1)
+  notes           String?
+  designFiles     String?  // JSON string: ["file1.png", "file2.pdf"]
+  status          String   @default("BARU") // BARU, DIPROSES, MOCKUP, PRODUKSI, SELESAI, DIBATALKAN
+  adminNotes      String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
 model SiteSettings {
   id                   String   @id @default("default")
   brandName            String   @default("Rinjani Clothing")
@@ -83,5 +106,43 @@ model SiteSettings {
   address              String?
   orderMessageTemplate String?
   currency             String   @default("IDR")
+  customOrdersSheetWebhook  String?
+  productOrdersSheetWebhook String?
   updatedAt            DateTime @updatedAt
 }
+
+model ProductOrder {
+  id            String   @id @default(cuid())
+  orderNumber   String   @unique // PO-YYYYMMDD-XXXX
+  customerName  String
+  customerPhone String
+  customerEmail String?
+  productName   String
+  productSlug   String?
+  price         Float    @default(0)
+  quantity      Int      @default(1)
+  size          String?
+  color         String?
+  totalPrice    Float    @default(0)
+  notes         String?
+  status        String   @default("BARU") // BARU, DIPROSES, DIKIRIM, SELESAI, DIBATALKAN
+  adminNotes    String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model CustomGarment {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  category    String   @default("T-Shirt")
+  description String?
+  price       Float    @default(0)
+  minOrder    Int      @default(12)
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  images      String   @default("[]")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+

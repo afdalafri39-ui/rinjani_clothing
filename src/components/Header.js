@@ -3,14 +3,17 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Search, Menu, X } from 'lucide-react';
+import { Search, Menu, X, ShoppingBag } from 'lucide-react';
+import LogoRC from '@/components/LogoRC';
 import SearchOverlay from './SearchOverlay';
+import { useCart } from '@/context/CartContext';
 
 export default function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const pathname = usePathname();
+  const { totalItems, setIsCartOpen, isCartBumping } = useCart();
 
   const isHomepage = pathname === '/';
   const isAdmin = pathname.startsWith('/admin');
@@ -46,11 +49,7 @@ export default function Header() {
         <div className="header-inner">
           <div className="header-logo">
             <Link href="/" className="header-logo-link">
-              <img
-                src="/logo-brand.png"
-                alt="Rinjani Clothing"
-                className="header-logo-img"
-              />
+              <LogoRC width={36} height={34} />
               <span className="header-logo-text">Rinjani Clothing</span>
             </Link>
           </div>
@@ -80,6 +79,19 @@ export default function Header() {
             </button>
 
             <button
+              id="header-cart-btn"
+              className={`header-cart-btn ${isCartBumping ? 'cart-bumping' : ''}`}
+              onClick={() => setIsCartOpen(true)}
+              aria-label="Keranjang Pesanan"
+              title="Buka Keranjang Pesanan"
+            >
+              <ShoppingBag size={20} />
+              {totalItems > 0 && (
+                <span className="header-cart-badge">{totalItems}</span>
+              )}
+            </button>
+
+            <button
               className="header-menu-btn"
               onClick={() => setMobileMenuOpen(true)}
               aria-label="Menu Mobile"
@@ -97,7 +109,10 @@ export default function Header() {
       />
       <div className={`mobile-menu ${mobileMenuOpen ? 'open' : ''}`}>
         <div className="mobile-menu-header">
-          <div className="header-logo">RINJANI</div>
+          <Link href="/" className="header-logo-link" onClick={() => setMobileMenuOpen(false)}>
+            <LogoRC width={28} height={26} />
+            <span className="header-logo-text">RINJANI</span>
+          </Link>
           <button
             className="mobile-menu-close"
             onClick={() => setMobileMenuOpen(false)}
@@ -126,7 +141,27 @@ export default function Header() {
             </Link>
           </div>
 
-          <div className="mobile-menu-section" style={{ marginTop: '32px' }}>
+          <div className="mobile-menu-section" style={{ marginTop: '24px' }}>
+            <div className="mobile-menu-section-title">PESANAN SAYA</div>
+            <button
+              type="button"
+              className="mobile-menu-cart-action"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setIsCartOpen(true);
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                <ShoppingBag size={18} />
+                <span>Keranjang Pesanan</span>
+              </div>
+              <span className="mobile-cart-badge-pill">
+                {totalItems > 0 ? `${totalItems} pcs` : 'Kosong'}
+              </span>
+            </button>
+          </div>
+
+          <div className="mobile-menu-section" style={{ marginTop: '24px' }}>
             <div className="mobile-menu-section-title">KATEGORI</div>
             <Link href="/shop?category=t-shirts" className="mobile-menu-sub-link">
               T-Shirts
