@@ -18,8 +18,6 @@ import {
   FileText,
   Image as ImageIcon,
   Ruler,
-  MapPin,
-  ShieldCheck,
   ChevronRight,
   Plus,
   Minus,
@@ -29,6 +27,7 @@ import {
 } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 import { useCart } from '@/context/CartContext';
+import tshirtColorData from '@/data/tshirt_colors.json';
 
 // ============================================================
 // DATA: Garment models, colors, fabrics, printing methods, sizes
@@ -42,11 +41,15 @@ const GARMENT_MODELS = [
     price: 42000,
     tagline: 'Koleksi Esensial Harian',
     description: 'Kaos katun combed potongan reguler fit, sangat lembut dan nyaman untuk harian, seragam, atau merchandise clothing.',
-    image: 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80',
+    image: '/products/t-shirt-reguler/tshirt-reguler-salmon.jpg',
     images: [
-      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80',
-      'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80',
-      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&q=80',
+      '/products/t-shirt-reguler/tshirt-reguler-salmon.jpg',
+      '/products/t-shirt-reguler/tshirt-reguler-hitam.jpg',
+      '/products/t-shirt-reguler/tshirt-reguler-putih.jpg',
+      '/products/t-shirt-reguler/tshirt-reguler-navy.jpg',
+      '/products/t-shirt-reguler/tshirt-reguler-sage-green.jpg',
+      '/products/t-shirt-reguler/tshirt-reguler-maroon.jpg',
+      '/products/t-shirt-reguler/tshirt-reguler-kuning.jpg',
     ],
   },
   {
@@ -262,7 +265,7 @@ export default function CustomPage() {
   const [selectedColor, setSelectedColor] = useState(COLORS[0]);
   const [selectedFabric, setSelectedFabric] = useState(FABRICS[0]);
   const [selectedPrinting, setSelectedPrinting] = useState(PRINTING_METHODS[0]);
-  
+
   // Size & Quantity
   const [activeSize, setActiveSize] = useState('S');
   const [quickQuantity, setQuickQuantity] = useState(1);
@@ -332,12 +335,26 @@ export default function CustomPage() {
     }, 60);
   };
 
-  // Model image array
+  // Model image array & color-specific asset resolution
+  const isTshirtReguler =
+    selectedModel?.id === 'tshirt-reguler' ||
+    selectedModel?.slug === 't-shirt-reguler' ||
+    selectedModel?.name?.toLowerCase().includes('reguler');
+
+  const colorSpecificImage =
+    isTshirtReguler && selectedColor?.id
+      ? (tshirtColorData?.localUrls?.[selectedColor.id] || tshirtColorData?.storageUrls?.[selectedColor.id])
+      : null;
+
   const modelImages =
     selectedModel?.images && selectedModel.images.length > 0
       ? selectedModel.images
-      : [selectedModel?.image || 'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80'];
-  const activeImage = modelImages[activeImageIdx] || modelImages[0];
+      : [colorSpecificImage || selectedModel?.image || '/products/t-shirt-reguler/tshirt-reguler-salmon.jpg'];
+
+  const activeImage =
+    isTshirtReguler && colorSpecificImage
+      ? colorSpecificImage
+      : modelImages[activeImageIdx] || modelImages[0];
 
   // Quantity calculations
   const totalQuantity = isMultiSize
@@ -545,29 +562,29 @@ export default function CustomPage() {
   // Data for WhatsApp ContactModal
   const sizesSummaryString = isMultiSize
     ? Object.entries(sizeQuantities)
-        .filter(([, q]) => q > 0)
-        .map(([s, q]) => `${s}(${q})`)
-        .join(', ') || `${activeSize}(1)`
+      .filter(([, q]) => q > 0)
+      .map(([s, q]) => `${s}(${q})`)
+      .join(', ') || `${activeSize}(1)`
     : `${activeSize} (${quickQuantity} pcs)`;
 
   const productDataForModal = selectedModel
     ? {
-        name: `Custom ${selectedModel.name}`,
-        slug: 'custom-order',
-        price: formatPrice(unitPrice),
-        selectedSize: sizesSummaryString,
-        selectedColor: selectedColor?.name || '-',
-        quantity: totalQuantity,
-        customData: {
-          fabric: selectedFabric?.name || '-',
-          printing: selectedPrinting?.name || '-',
-          notes: notes || '-',
-          designFiles:
-            uploadedFiles.length > 0
-              ? uploadedFiles.map((f) => f.name).join(', ')
-              : 'Belum ada file desain',
-        },
-      }
+      name: `Custom ${selectedModel.name}`,
+      slug: 'custom-order',
+      price: formatPrice(unitPrice),
+      selectedSize: sizesSummaryString,
+      selectedColor: selectedColor?.name || '-',
+      quantity: totalQuantity,
+      customData: {
+        fabric: selectedFabric?.name || '-',
+        printing: selectedPrinting?.name || '-',
+        notes: notes || '-',
+        designFiles:
+          uploadedFiles.length > 0
+            ? uploadedFiles.map((f) => f.name).join(', ')
+            : 'Belum ada file desain',
+      },
+    }
     : null;
 
   const customOrderDataForModal = {
@@ -706,18 +723,6 @@ export default function CustomPage() {
                     alt={selectedModel?.name || 'Garment preview'}
                     className="custom-gallery-img"
                   />
-
-                  {/* Real-time Color Tint Overlay */}
-                  {selectedColor && (
-                    <div
-                      className="custom-gallery-color-overlay"
-                      style={{
-                        backgroundColor: selectedColor.hex,
-                        mixBlendMode: 'multiply',
-                        opacity: 0.62,
-                      }}
-                    />
-                  )}
                 </div>
 
                 {/* Live Spec Pill Banner */}
@@ -746,22 +751,6 @@ export default function CustomPage() {
                   ))}
                 </div>
               )}
-
-              {/* Trust and Assurance Badges */}
-              <div className="custom-gallery-trust">
-                <div className="trust-item">
-                  <ShieldCheck size={16} />
-                  <span>Bahan & Sablon Standar Distro</span>
-                </div>
-                <div className="trust-item">
-                  <Sparkles size={16} />
-                  <span>Pengerjaan Cepat (2–4 Hari)</span>
-                </div>
-                <div className="trust-item">
-                  <MapPin size={16} />
-                  <span>Kirim Seluruh Indonesia</span>
-                </div>
-              </div>
             </div>
 
             {/* RIGHT COLUMN: SINGLE-FRAME SCANNABLE CONFIGURATION PANEL */}
@@ -783,375 +772,365 @@ export default function CustomPage() {
                 </div>
               </div>
 
-            {/* WORKSHOP & LOCATION NOTICE (CITITEX STYLE) */}
-            <div className="custom-location-box">
-              <div className="location-box-title">
-                <MapPin size={14} />
-                <span>Workshop Produksi: <strong>Rinjani Clothing Studio</strong></span>
-              </div>
-              <p className="location-box-desc">
-                Diproduksi langsung oleh tim konveksi & sablon Rinjani Clothing. Melayani pengiriman ke seluruh kota di Indonesia via JNE, J&T, Kargo.
-              </p>
-            </div>
-
-            {/* ============================================================ */}
-            {/* 1. WARNA KAIN (ROUND COLOR SWATCHES LIKE CITITEX) */}
-            {/* ============================================================ */}
-            <div className="custom-section">
-              <div className="custom-section-header">
-                <span className="custom-section-label">
-                  Color: <strong className="selected-val-highlight">{selectedColor?.name}</strong>
-                </span>
-                <span className="custom-section-count">{COLORS.length} Pilihan Warna</span>
-              </div>
-
-              <div className="cititex-color-swatches-grid">
-                {COLORS.map((col) => {
-                  const isSelected = selectedColor?.id === col.id;
-                  const isLight = ['putih', 'cream', 'kuning', 'baby-blue', 'abu-muda', 'pink', 'salmon', 'sage-green', 'lilac'].includes(col.id);
-
-                  return (
-                    <button
-                      key={col.id}
-                      type="button"
-                      className={`cititex-color-circle ${isSelected ? 'active' : ''}`}
-                      onClick={() => setSelectedColor(col)}
-                      title={`Warna: ${col.name}`}
-                      style={{ backgroundColor: col.hex }}
-                    >
-                      {isSelected && (
-                        <Check
-                          size={14}
-                          color={isLight ? '#111111' : '#FFFFFF'}
-                          strokeWidth={3}
-                        />
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* ============================================================ */}
-            {/* 2. PILIH JENIS KAIN (FABRIC) */}
-            {/* ============================================================ */}
-            <div className="custom-section">
-              <div className="custom-section-header">
-                <span className="custom-section-label">
-                  Jenis Kain: <strong className="selected-val-highlight">{selectedFabric?.name}</strong>
-                </span>
-                <span className="custom-section-weight">{selectedFabric?.weight}</span>
-              </div>
-
-              <div className="custom-pill-grid">
-                {FABRICS.map((fab) => {
-                  const isSelected = selectedFabric?.id === fab.id;
-                  return (
-                    <button
-                      key={fab.id}
-                      type="button"
-                      className={`custom-pill-item ${isSelected ? 'active' : ''}`}
-                      onClick={() => setSelectedFabric(fab)}
-                    >
-                      <div className="pill-item-top">
-                        <span className="pill-item-name">{fab.name}</span>
-                        {isSelected && <Check size={12} />}
-                      </div>
-                      <span className="pill-item-sub">{fab.weight} • {fab.texture}</span>
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="custom-sub-desc">
-                💡 {selectedFabric?.description}
-              </p>
-            </div>
-
-            {/* ============================================================ */}
-            {/* 3. PILIH METODE CETAK (PRINTING METHOD) */}
-            {/* ============================================================ */}
-            <div className="custom-section">
-              <div className="custom-section-header">
-                <span className="custom-section-label">
-                  Metode Cetak / Sablon: <strong className="selected-val-highlight">{selectedPrinting?.name}</strong>
-                </span>
-                <span className="custom-section-weight">Min. {selectedPrinting?.min_order}</span>
-              </div>
-
-              <div className="custom-printing-chips">
-                {PRINTING_METHODS.map((method) => {
-                  const isSelected = selectedPrinting?.id === method.id;
-                  return (
-                    <button
-                      key={method.id}
-                      type="button"
-                      className={`custom-printing-chip ${isSelected ? 'active' : ''}`}
-                      onClick={() => setSelectedPrinting(method)}
-                    >
-                      <span className="printing-chip-icon">{method.icon}</span>
-                      <div className="printing-chip-text">
-                        <div className="printing-chip-title-row">
-                          <span className="printing-chip-title">{method.name}</span>
-                          <span className="printing-chip-min">Min. {method.min_order}</span>
-                        </div>
-                        <span className="printing-chip-tagline">{method.tagline}</span>
-                      </div>
-                      {isSelected && <Check size={14} className="printing-chip-check" />}
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="custom-sub-desc">
-                💡 {selectedPrinting?.description}
-              </p>
-            </div>
-
-            {/* ============================================================ */}
-            {/* 4. UKURAN & JUMLAH (SIZE & QUANTITY - CITITEX STYLE) */}
-            {/* ============================================================ */}
-            <div className="custom-section">
-              <div className="custom-section-header">
-                <span className="custom-section-label">
-                  Size:{' '}
-                  <strong className="selected-val-highlight">
-                    {isMultiSize ? 'Kombinasi Banyak Ukuran' : activeSize}
-                  </strong>
-                </span>
-                <button
-                  type="button"
-                  className="size-guide-btn"
-                  onClick={() => setIsSizeGuideOpen(true)}
-                >
-                  <Ruler size={13} />
-                  <span>Size Guide (Panduan Ukuran)</span>
-                </button>
-              </div>
-
-              {/* Size Buttons Row */}
-              <div className="cititex-sizes-row">
-                {SIZES.map((sz) => {
-                  const isSelected = isMultiSize ? (sizeQuantities[sz] || 0) > 0 : activeSize === sz;
-                  const qtyVal = sizeQuantities[sz] || 0;
-
-                  return (
-                    <button
-                      key={sz}
-                      type="button"
-                      className={`cititex-size-box ${isSelected ? 'active' : ''}`}
-                      onClick={() => handleSelectSize(sz)}
-                    >
-                      <span className="size-label">{sz}</span>
-                      {isMultiSize && qtyVal > 0 && (
-                        <span className="size-qty-badge">{qtyVal} pcs</span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Mode Toggle: Single size stepper vs Multi-size breakdown */}
-              <div className="multi-size-toggle-row">
-                <button
-                  type="button"
-                  className="multi-size-toggle-btn"
-                  onClick={handleToggleMultiSize}
-                >
-                  {isMultiSize ? '← Gunakan Ukuran Tunggal Sederhana' : '+ Pesan Berbagai Ukuran Sekaligus (S, M, L...)'}
-                </button>
-              </div>
-
-              {/* Multi-Size Detailed Counter Table */}
-              {isMultiSize ? (
-                <div className="multi-size-grid">
-                  {SIZES.map((sz) => (
-                    <div key={sz} className="multi-size-row-item">
-                      <span className="multi-size-name">{sz}</span>
-                      <div className="stepper-box">
-                        <button
-                          type="button"
-                          className="stepper-btn"
-                          onClick={() => handleSizeQtyChange(sz, -1)}
-                          disabled={(sizeQuantities[sz] || 0) <= 0}
-                        >
-                          <Minus size={12} />
-                        </button>
-                        <span className="stepper-val">{sizeQuantities[sz] || 0}</span>
-                        <button
-                          type="button"
-                          className="stepper-btn"
-                          onClick={() => handleSizeQtyChange(sz, 1)}
-                        >
-                          <Plus size={12} />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+              {/* ============================================================ */}
+              {/* 1. WARNA KAIN (ROUND COLOR SWATCHES LIKE CITITEX) */}
+              {/* ============================================================ */}
+              <div className="custom-section">
+                <div className="custom-section-header">
+                  <span className="custom-section-label">
+                    Color: <strong className="selected-val-highlight">{selectedColor?.name}</strong>
+                  </span>
+                  <span className="custom-section-count">{COLORS.length} Pilihan Warna</span>
                 </div>
-              ) : (
-                /* Single Size Quantity Stepper (Cititex Style) */
-                <div className="cititex-qty-row">
-                  <span className="qty-label">Jumlah Pesanan (Ukuran {activeSize}):</span>
-                  <div className="stepper-box stepper-box-lg">
-                    <button
-                      type="button"
-                      className="stepper-btn"
-                      onClick={() => handleQuickQtyChange(-1)}
-                      disabled={quickQuantity <= 1}
-                    >
-                      <Minus size={14} />
-                    </button>
-                    <span className="stepper-val stepper-val-lg">{quickQuantity}</span>
-                    <button
-                      type="button"
-                      className="stepper-btn"
-                      onClick={() => handleQuickQtyChange(1)}
-                    >
-                      <Plus size={14} />
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
 
-            {/* ============================================================ */}
-            {/* 5. UPLOAD FILE DESAIN */}
-            {/* ============================================================ */}
-            <div className="custom-section">
-              <div className="custom-section-header">
-                <span className="custom-section-label">
-                  Upload Desain Sablon:{' '}
-                  <span className="custom-section-subtext">(PNG, JPG, PDF, AI, PSD, SVG)</span>
-                </span>
-                <span className="custom-section-weight">
-                  {uploadedFiles.length} / {MAX_FILES} File
-                </span>
-              </div>
+                <div className="cititex-color-swatches-grid">
+                  {COLORS.map((col) => {
+                    const isSelected = selectedColor?.id === col.id;
+                    const isLight = ['putih', 'cream', 'kuning', 'baby-blue', 'abu-muda', 'pink', 'salmon', 'sage-green', 'lilac'].includes(col.id);
 
-              {/* Dropzone */}
-              <div
-                className={`compact-dropzone ${isDragging ? 'dragging' : ''} ${uploadedFiles.length >= MAX_FILES ? 'disabled' : ''}`}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-                onClick={() => uploadedFiles.length < MAX_FILES && fileInputRef.current?.click()}
-              >
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  accept=".png,.jpg,.jpeg,.webp,.svg,.pdf,.ai,.psd"
-                  multiple
-                  onChange={handleFileInputChange}
-                  style={{ display: 'none' }}
-                />
-                <div className="dropzone-inner">
-                  <Upload size={20} className="dropzone-icon" />
-                  <div className="dropzone-text">
-                    <strong>Klik untuk pilih file</strong> atau drag & drop file desain ke sini
-                  </div>
-                  <span className="dropzone-hint">Format resolusi tinggi / transparan, maks 10MB per file</span>
-                </div>
-              </div>
-
-              {/* Uploaded Files Chips */}
-              {uploadedFiles.length > 0 && (
-                <div className="compact-file-list">
-                  {uploadedFiles.map((f) => (
-                    <div key={f.id} className="compact-file-chip">
-                      <div className="file-chip-thumb">
-                        {f.isImage && f.preview ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={f.preview} alt={f.name} />
-                        ) : (
-                          <FileText size={14} />
+                    return (
+                      <button
+                        key={col.id}
+                        type="button"
+                        className={`cititex-color-circle ${isSelected ? 'active' : ''}`}
+                        onClick={() => {
+                          setSelectedColor(col);
+                          setActiveImageIdx(0);
+                        }}
+                        title={`Warna: ${col.name}`}
+                        style={{ backgroundColor: col.hex }}
+                      >
+                        {isSelected && (
+                          <Check
+                            size={14}
+                            color={isLight ? '#111111' : '#FFFFFF'}
+                            strokeWidth={3}
+                          />
                         )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* ============================================================ */}
+              {/* 2. PILIH JENIS KAIN (FABRIC) */}
+              {/* ============================================================ */}
+              <div className="custom-section">
+                <div className="custom-section-header">
+                  <span className="custom-section-label">
+                    Jenis Kain: <strong className="selected-val-highlight">{selectedFabric?.name}</strong>
+                  </span>
+                  <span className="custom-section-weight">{selectedFabric?.weight}</span>
+                </div>
+
+                <div className="custom-pill-grid">
+                  {FABRICS.map((fab) => {
+                    const isSelected = selectedFabric?.id === fab.id;
+                    return (
+                      <button
+                        key={fab.id}
+                        type="button"
+                        className={`custom-pill-item ${isSelected ? 'active' : ''}`}
+                        onClick={() => setSelectedFabric(fab)}
+                      >
+                        <div className="pill-item-top">
+                          <span className="pill-item-name">{fab.name}</span>
+                          {isSelected && <Check size={12} />}
+                        </div>
+                        <span className="pill-item-sub">{fab.weight} • {fab.texture}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* ============================================================ */}
+              {/* 3. PILIH METODE CETAK (PRINTING METHOD) */}
+              {/* ============================================================ */}
+              <div className="custom-section">
+                <div className="custom-section-header">
+                  <span className="custom-section-label">
+                    Metode Cetak / Sablon: <strong className="selected-val-highlight">{selectedPrinting?.name}</strong>
+                  </span>
+                  <span className="custom-section-weight">Min. {selectedPrinting?.min_order}</span>
+                </div>
+
+                <div className="custom-printing-chips">
+                  {PRINTING_METHODS.map((method) => {
+                    const isSelected = selectedPrinting?.id === method.id;
+                    return (
+                      <button
+                        key={method.id}
+                        type="button"
+                        className={`custom-printing-chip ${isSelected ? 'active' : ''}`}
+                        onClick={() => setSelectedPrinting(method)}
+                      >
+                        <span className="printing-chip-icon">{method.icon}</span>
+                        <div className="printing-chip-text">
+                          <div className="printing-chip-title-row">
+                            <span className="printing-chip-title">{method.name}</span>
+                            <span className="printing-chip-min">Min. {method.min_order}</span>
+                          </div>
+                          <span className="printing-chip-tagline">{method.tagline}</span>
+                        </div>
+                        {isSelected && <Check size={14} className="printing-chip-check" />}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* ============================================================ */}
+              {/* 4. UKURAN & JUMLAH (SIZE & QUANTITY - CITITEX STYLE) */}
+              {/* ============================================================ */}
+              <div className="custom-section">
+                <div className="custom-section-header">
+                  <span className="custom-section-label">
+                    Size:{' '}
+                    <strong className="selected-val-highlight">
+                      {isMultiSize ? 'Kombinasi Banyak Ukuran' : activeSize}
+                    </strong>
+                  </span>
+                  <button
+                    type="button"
+                    className="size-guide-btn"
+                    onClick={() => setIsSizeGuideOpen(true)}
+                  >
+                    <Ruler size={13} />
+                    <span>Size Guide (Panduan Ukuran)</span>
+                  </button>
+                </div>
+
+                {/* Size Buttons Row */}
+                <div className="cititex-sizes-row">
+                  {SIZES.map((sz) => {
+                    const isSelected = isMultiSize ? (sizeQuantities[sz] || 0) > 0 : activeSize === sz;
+                    const qtyVal = sizeQuantities[sz] || 0;
+
+                    return (
+                      <button
+                        key={sz}
+                        type="button"
+                        className={`cititex-size-box ${isSelected ? 'active' : ''}`}
+                        onClick={() => handleSelectSize(sz)}
+                      >
+                        <span className="size-label">{sz}</span>
+                        {isMultiSize && qtyVal > 0 && (
+                          <span className="size-qty-badge">{qtyVal} pcs</span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Mode Toggle: Single size stepper vs Multi-size breakdown */}
+                <div className="multi-size-toggle-row">
+                  <button
+                    type="button"
+                    className="multi-size-toggle-btn"
+                    onClick={handleToggleMultiSize}
+                  >
+                    {isMultiSize ? '← Gunakan Ukuran Tunggal Sederhana' : '+ Pesan Berbagai Ukuran Sekaligus (S, M, L...)'}
+                  </button>
+                </div>
+
+                {/* Multi-Size Detailed Counter Table */}
+                {isMultiSize ? (
+                  <div className="multi-size-grid">
+                    {SIZES.map((sz) => (
+                      <div key={sz} className="multi-size-row-item">
+                        <span className="multi-size-name">{sz}</span>
+                        <div className="stepper-box">
+                          <button
+                            type="button"
+                            className="stepper-btn"
+                            onClick={() => handleSizeQtyChange(sz, -1)}
+                            disabled={(sizeQuantities[sz] || 0) <= 0}
+                          >
+                            <Minus size={12} />
+                          </button>
+                          <span className="stepper-val">{sizeQuantities[sz] || 0}</span>
+                          <button
+                            type="button"
+                            className="stepper-btn"
+                            onClick={() => handleSizeQtyChange(sz, 1)}
+                          >
+                            <Plus size={12} />
+                          </button>
+                        </div>
                       </div>
-                      <span className="file-chip-name">{f.name}</span>
-                      <span className="file-chip-size">({formatFileSize(f.size)})</span>
+                    ))}
+                  </div>
+                ) : (
+                  /* Single Size Quantity Stepper (Cititex Style) */
+                  <div className="cititex-qty-row">
+                    <span className="qty-label">Jumlah Pesanan (Ukuran {activeSize}):</span>
+                    <div className="stepper-box stepper-box-lg">
                       <button
                         type="button"
-                        className="file-chip-remove"
-                        onClick={() => handleRemoveFile(f.id)}
-                        title="Hapus file"
+                        className="stepper-btn"
+                        onClick={() => handleQuickQtyChange(-1)}
+                        disabled={quickQuantity <= 1}
                       >
-                        <X size={12} />
+                        <Minus size={14} />
+                      </button>
+                      <span className="stepper-val stepper-val-lg">{quickQuantity}</span>
+                      <button
+                        type="button"
+                        className="stepper-btn"
+                        onClick={() => handleQuickQtyChange(1)}
+                      >
+                        <Plus size={14} />
                       </button>
                     </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* ============================================================ */}
-            {/* 6. CATATAN TAMBAHAN (OPTIONAL NOTES) */}
-            {/* ============================================================ */}
-            <div className="custom-section">
-              <label htmlFor="order-notes" className="custom-section-label" style={{ display: 'block', marginBottom: 8 }}>
-                Catatan Tambahan (Opsional):
-              </label>
-              <textarea
-                id="order-notes"
-                className="custom-notes-input"
-                placeholder="Contoh: Sablon logo di dada kiri ukuran 8x8 cm, sablon belakang punggung A3, posisi jahitan khusus, dll."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                rows={2}
-              />
-            </div>
-
-            {/* ============================================================ */}
-            {/* 7. RINGKASAN HARGA & ORDER CTA (BOTTOM ACTION BAR) */}
-            {/* ============================================================ */}
-            <div className="custom-action-footer">
-              <div className="custom-footer-summary">
-                <div className="footer-summary-row">
-                  <span className="footer-summary-label">Total Pesanan:</span>
-                  <span className="footer-summary-pcs">
-                    <strong>{totalQuantity}</strong> pcs
-                  </span>
-                </div>
-                <div className="footer-summary-row">
-                  <span className="footer-summary-label">Estimasi Biaya:</span>
-                  <span className="footer-summary-price">
-                    {formatPrice(totalPrice)}
-                  </span>
-                </div>
+                  </div>
+                )}
               </div>
 
-              <div className="custom-footer-buttons">
-                <button
-                  type="button"
-                  className="btn btn-secondary cititex-cart-btn"
-                  onClick={(e) => handleAddToCartCustom(e)}
-                  title="Simpan konfigurasi custom ini ke keranjang"
-                  style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-                >
-                  <ShoppingBag size={18} />
-                  <span>+ SIMPAN KE KERANJANG</span>
-                </button>
+              {/* ============================================================ */}
+              {/* 5. UPLOAD FILE DESAIN */}
+              {/* ============================================================ */}
+              <div className="custom-section">
+                <div className="custom-section-header">
+                  <span className="custom-section-label">
+                    Upload Desain Sablon:{' '}
+                    <span className="custom-section-subtext">(PNG, JPG, PDF, AI, PSD, SVG)</span>
+                  </span>
+                  <span className="custom-section-weight">
+                    {uploadedFiles.length} / {MAX_FILES} File
+                  </span>
+                </div>
 
-                <button
-                  type="button"
-                  className="btn btn-primary cititex-checkout-btn"
-                  onClick={() => setIsModalOpen(true)}
+                {/* Dropzone */}
+                <div
+                  className={`compact-dropzone ${isDragging ? 'dragging' : ''} ${uploadedFiles.length >= MAX_FILES ? 'disabled' : ''}`}
+                  onDragOver={handleDragOver}
+                  onDragLeave={handleDragLeave}
+                  onDrop={handleDrop}
+                  onClick={() => uploadedFiles.length < MAX_FILES && fileInputRef.current?.click()}
                 >
-                  <Send size={18} />
-                  <span>PESAN CUSTOM VIA WHATSAPP</span>
-                </button>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".png,.jpg,.jpeg,.webp,.svg,.pdf,.ai,.psd"
+                    multiple
+                    onChange={handleFileInputChange}
+                    style={{ display: 'none' }}
+                  />
+                  <div className="dropzone-inner">
+                    <Upload size={20} className="dropzone-icon" />
+                    <div className="dropzone-text">
+                      <strong>Klik untuk pilih file</strong> atau drag & drop file desain ke sini
+                    </div>
+                    <span className="dropzone-hint">Format resolusi tinggi / transparan, maks 10MB per file</span>
+                  </div>
+                </div>
 
-                <button
-                  type="button"
-                  className="btn btn-secondary cititex-reset-btn"
-                  onClick={handleResetAll}
-                  title="Kembalikan semua pilihan ke awal"
-                >
-                  <RotateCcw size={16} />
-                </button>
+                {/* Uploaded Files Chips */}
+                {uploadedFiles.length > 0 && (
+                  <div className="compact-file-list">
+                    {uploadedFiles.map((f) => (
+                      <div key={f.id} className="compact-file-chip">
+                        <div className="file-chip-thumb">
+                          {f.isImage && f.preview ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={f.preview} alt={f.name} />
+                          ) : (
+                            <FileText size={14} />
+                          )}
+                        </div>
+                        <span className="file-chip-name">{f.name}</span>
+                        <span className="file-chip-size">({formatFileSize(f.size)})</span>
+                        <button
+                          type="button"
+                          className="file-chip-remove"
+                          onClick={() => handleRemoveFile(f.id)}
+                          title="Hapus file"
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* ============================================================ */}
+              {/* 6. CATATAN TAMBAHAN (OPTIONAL NOTES) */}
+              {/* ============================================================ */}
+              <div className="custom-section">
+                <label htmlFor="order-notes" className="custom-section-label" style={{ display: 'block', marginBottom: 8 }}>
+                  Catatan Tambahan (Opsional):
+                </label>
+                <textarea
+                  id="order-notes"
+                  className="custom-notes-input"
+                  placeholder="Contoh: Sablon logo di dada kiri ukuran 8x8 cm, sablon belakang punggung A3, posisi jahitan khusus, dll."
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  rows={2}
+                />
+              </div>
+
+              {/* ============================================================ */}
+              {/* 7. RINGKASAN HARGA & ORDER CTA (BOTTOM ACTION BAR) */}
+              {/* ============================================================ */}
+              <div className="custom-action-footer">
+                <div className="custom-footer-summary">
+                  <div className="footer-summary-row">
+                    <span className="footer-summary-label">Total Pesanan:</span>
+                    <span className="footer-summary-pcs">
+                      <strong>{totalQuantity}</strong> pcs
+                    </span>
+                  </div>
+                  <div className="footer-summary-row">
+                    <span className="footer-summary-label">Estimasi Biaya:</span>
+                    <span className="footer-summary-price">
+                      {formatPrice(totalPrice)}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="custom-footer-buttons flex flex-col gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-secondary cititex-cart-btn"
+                    onClick={(e) => handleAddToCartCustom(e)}
+                    title="Simpan konfigurasi custom ini ke keranjang"
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%' }}
+                  >
+                    <ShoppingBag size={18} />
+                    <span>+ SIMPAN KE KERANJANG</span>
+                  </button>
+
+                  <div className="custom-footer-buttons-row" style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+                    <button
+                      type="button"
+                      className="btn btn-primary cititex-checkout-btn"
+                      onClick={() => setIsModalOpen(true)}
+                      style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
+                    >
+                      <Send size={18} />
+                      <span>PESAN CUSTOM VIA WHATSAPP</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn btn-secondary cititex-reset-btn"
+                      onClick={handleResetAll}
+                      title="Kembalikan semua pilihan ke awal"
+                      style={{ flexShrink: 0 }}
+                    >
+                      <RotateCcw size={16} />
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-    </div>
+        </section>
+      </div>
 
       {/* ============================================================ */}
       {/* SIZE GUIDE MODAL POPUP */}
@@ -1233,3 +1212,4 @@ export default function CustomPage() {
     </div>
   );
 }
+

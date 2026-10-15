@@ -53,18 +53,6 @@ function runFlyToCartAnimation(sourceEl, item, onComplete) {
     img.style.objectFit = 'cover';
     flyer.appendChild(img);
 
-    // If color overlay exists (for custom garments)
-    if (item.colorHex) {
-      const tint = document.createElement('div');
-      tint.style.position = 'absolute';
-      tint.style.inset = '0';
-      tint.style.backgroundColor = item.colorHex;
-      tint.style.mixBlendMode = 'multiply';
-      tint.style.opacity = '0.62';
-      tint.style.pointerEvents = 'none';
-      flyer.appendChild(tint);
-    }
-
     document.body.appendChild(flyer);
 
     // Calculate curve arch: parabolic throw effect
@@ -212,7 +200,6 @@ export function CartProvider({ children }) {
         });
 
         triggerCartBump();
-        showToast(`"${item.name}" berhasil ditambahkan ke keranjang`);
       };
 
       if (typeof window !== 'undefined' && sourceEl) {
@@ -221,7 +208,7 @@ export function CartProvider({ children }) {
         performAdd();
       }
     },
-    [showToast, triggerCartBump]
+    [triggerCartBump]
   );
 
   // Remove item by ID
