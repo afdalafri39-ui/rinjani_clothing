@@ -965,7 +965,7 @@ export default function CustomPage() {
                 ) : (
                   /* Single Size Quantity Stepper (Cititex Style) */
                   <div className="cititex-qty-row">
-                    <span className="qty-label">Jumlah Pesanan (Ukuran {activeSize}):</span>
+                    <span className="qty-label">Jumlah (Ukuran {activeSize}):</span>
                     <div className="stepper-box stepper-box-lg">
                       <button
                         type="button"
@@ -1092,24 +1092,22 @@ export default function CustomPage() {
                   </div>
                 </div>
 
-                <div className="custom-footer-buttons flex flex-col gap-2">
+                <div className="custom-footer-buttons">
                   <button
                     type="button"
                     className="btn btn-secondary cititex-cart-btn"
                     onClick={(e) => handleAddToCartCustom(e)}
                     title="Simpan konfigurasi custom ini ke keranjang"
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', width: '100%' }}
                   >
                     <ShoppingBag size={18} />
                     <span>+ SIMPAN KE KERANJANG</span>
                   </button>
 
-                  <div className="custom-footer-buttons-row" style={{ display: 'flex', alignItems: 'center', gap: '8px', width: '100%' }}>
+                  <div className="custom-footer-buttons-row">
                     <button
                       type="button"
                       className="btn btn-primary cititex-checkout-btn"
                       onClick={() => setIsModalOpen(true)}
-                      style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
                     >
                       <Send size={18} />
                       <span>PESAN CUSTOM VIA WHATSAPP</span>
@@ -1120,7 +1118,6 @@ export default function CustomPage() {
                       className="btn btn-secondary cititex-reset-btn"
                       onClick={handleResetAll}
                       title="Kembalikan semua pilihan ke awal"
-                      style={{ flexShrink: 0 }}
                     >
                       <RotateCcw size={16} />
                     </button>

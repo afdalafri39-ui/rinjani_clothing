@@ -1430,9 +1430,11 @@ h3,
 
   .modal {
     margin: 0;
-    max-width: 100%;
+    max-width: 100% !important;
+    max-height: 88vh;
+    overflow-y: auto;
     border-radius: 16px 16px 0 0;
-    padding: var(--space-6) var(--space-5) var(--space-8);
+    padding: var(--space-5) var(--space-4) var(--space-7);
   }
 }
 
@@ -4828,14 +4830,15 @@ h3,
    COLOR SWATCHES: EXACT CITITEX CIRCLES WITH RING GAP
    ------------------------------------------------------------ */
 .cititex-color-swatches-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(32px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: 10px;
+  align-items: center;
 }
 
 .cititex-color-circle {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
   border: 1px solid rgba(0, 0, 0, 0.15);
   cursor: pointer;
@@ -4845,6 +4848,7 @@ h3,
   padding: 0;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   position: relative;
+  flex-shrink: 0;
 }
 
 .cititex-color-circle:hover {
@@ -5363,6 +5367,20 @@ h3,
   min-width: 280px;
 }
 
+.cititex-cart-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 46px;
+  padding: 0 20px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  border-radius: 10px;
+  transition: all var(--transition-fast);
+}
+
 .custom-footer-buttons-row {
   display: flex;
   align-items: center;
@@ -5374,8 +5392,8 @@ h3,
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  padding: 14px 28px;
+  gap: 8px;
+  padding: 12px 20px;
   font-size: 0.9375rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -5385,6 +5403,8 @@ h3,
   border: none;
   cursor: pointer;
   transition: all var(--transition-fast);
+  flex: 1;
+  min-width: 0;
 }
 
 .cititex-checkout-btn:hover {
@@ -5394,13 +5414,14 @@ h3,
 }
 
 .cititex-reset-btn {
-  width: 48px;
-  height: 48px;
+  width: 46px;
+  height: 46px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 10px;
   padding: 0;
+  flex-shrink: 0;
 }
 
 /* ------------------------------------------------------------
@@ -5536,6 +5557,493 @@ h3,
 .size-guide-footer {
   padding: 16px 22px;
   border-top: 1px solid var(--color-gray-200);
+}
+
+/* ============================================================
+   RESPONSIVE OVERHAUL: CUSTOM UNIFIED STUDIO (MOBILE AUDIT & FIXES)
+   ============================================================ */
+
+@media (max-width: 768px) {
+  .custom-unified-page {
+    padding-top: calc(72px + var(--space-4));
+    padding-bottom: var(--space-7);
+  }
+
+  .custom-breadcrumb {
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 2px;
+  }
+
+  .custom-breadcrumb::-webkit-scrollbar {
+    display: none;
+  }
+
+  .custom-catalog-shop-section {
+    margin-bottom: var(--space-6);
+  }
+
+  .custom-catalog-card {
+    border-radius: 16px;
+  }
+
+  /* Single frame container on mobile */
+  .custom-single-frame {
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+    padding: 16px;
+    border-radius: 16px;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.03);
+  }
+
+  /* Product Preview Image */
+  .custom-gallery-main {
+    border-radius: 12px;
+  }
+
+  .custom-gallery-img-container {
+    aspect-ratio: 1 / 1;
+    max-height: 330px;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .custom-gallery-img {
+    object-fit: contain;
+    padding: 10px;
+  }
+
+  .custom-gallery-live-spec {
+    padding: 8px 10px;
+    font-size: 0.6875rem;
+    line-height: 1.35;
+    gap: 6px;
+  }
+
+  .live-spec-dot {
+    width: 10px;
+    height: 10px;
+  }
+
+  /* Gallery Thumbnails */
+  .custom-gallery-thumbnails {
+    gap: 6px;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .custom-gallery-thumbnails::-webkit-scrollbar {
+    display: none;
+  }
+
+  .custom-thumb-btn {
+    width: 52px;
+    height: 52px;
+    border-radius: 8px;
+  }
+
+  /* Panel Header */
+  .custom-panel-head {
+    padding-bottom: var(--space-3);
+  }
+
+  .custom-panel-title {
+    font-size: 1.35rem;
+    margin-bottom: 4px;
+  }
+
+  .custom-panel-desc {
+    font-size: 0.8125rem;
+    margin-bottom: 8px;
+  }
+
+  .price-amount {
+    font-size: 1.5rem;
+  }
+
+  .custom-panel-price-hint {
+    font-size: 0.75rem;
+  }
+
+  /* Section Spacing */
+  .custom-section {
+    gap: 8px;
+    padding-bottom: var(--space-4);
+  }
+
+  .custom-section-label {
+    font-size: 0.8125rem;
+  }
+
+  .custom-section-count,
+  .custom-section-weight,
+  .custom-section-subtext {
+    font-size: 0.6875rem;
+  }
+
+  /* Swatches */
+  .cititex-color-swatches-grid {
+    gap: 8px;
+  }
+
+  .cititex-color-circle {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Fabric & Printing Chips */
+  .custom-pill-grid {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .custom-pill-item {
+    padding: 8px 12px;
+    border-radius: 8px;
+  }
+
+  .pill-item-name {
+    font-size: 0.8125rem;
+  }
+
+  .pill-item-sub {
+    font-size: 0.6875rem;
+  }
+
+  .custom-printing-chips {
+    grid-template-columns: 1fr;
+    gap: 6px;
+  }
+
+  .custom-printing-chip {
+    padding: 8px 12px;
+    border-radius: 8px;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .printing-chip-icon {
+    font-size: 1.25rem;
+  }
+
+  .printing-chip-text {
+    min-width: 0;
+  }
+
+  .printing-chip-title {
+    font-size: 0.8125rem;
+  }
+
+  .printing-chip-min {
+    font-size: 0.625rem;
+    padding: 1px 5px;
+  }
+
+  .printing-chip-tagline {
+    font-size: 0.6875rem;
+  }
+
+  /* Sizing 7-column layout */
+  .cititex-sizes-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 5px;
+    width: 100%;
+  }
+
+  .cititex-size-box {
+    min-width: 0;
+    width: 100%;
+    height: 40px;
+    padding: 0 2px;
+    border-radius: 7px;
+  }
+
+  .size-label {
+    font-size: 0.75rem;
+  }
+
+  .size-qty-badge {
+    font-size: 0.5625rem;
+  }
+
+  /* Quantity Stepper Row */
+  .cititex-qty-row {
+    padding: 8px 12px;
+    border-radius: 10px;
+  }
+
+  .qty-label {
+    font-size: 0.75rem;
+  }
+
+  .stepper-box-lg {
+    height: 36px;
+  }
+
+  .stepper-btn {
+    width: 32px;
+  }
+
+  .stepper-val-lg {
+    font-size: 0.875rem;
+    min-width: 32px;
+  }
+
+  /* Multi-size counter */
+  .multi-size-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .multi-size-row-item {
+    padding: 4px 6px;
+  }
+
+  .multi-size-name {
+    font-size: 0.75rem;
+  }
+
+  /* Dropzone & file list */
+  .compact-dropzone {
+    padding: 12px 10px;
+    border-radius: 10px;
+  }
+
+  .dropzone-text {
+    font-size: 0.75rem;
+  }
+
+  .dropzone-hint {
+    font-size: 0.6875rem;
+  }
+
+  .compact-file-chip {
+    padding: 5px 8px;
+  }
+
+  .file-chip-thumb {
+    width: 24px;
+    height: 24px;
+  }
+
+  .file-chip-name {
+    font-size: 0.6875rem;
+  }
+
+  /* Input fields */
+  .custom-notes-input {
+    font-size: 16px;
+    padding: 8px 10px;
+    border-radius: 8px;
+  }
+
+  /* Action footer */
+  .custom-action-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding-top: var(--space-4);
+  }
+
+  .custom-footer-summary {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fafc;
+    border: 1px solid var(--color-gray-200);
+    border-radius: 12px;
+    padding: 10px 14px;
+    box-sizing: border-box;
+  }
+
+  .footer-summary-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1px;
+  }
+
+  .footer-summary-row:last-child {
+    align-items: flex-end;
+  }
+
+  .footer-summary-label {
+    font-size: 0.6875rem;
+  }
+
+  .footer-summary-pcs {
+    font-size: 0.8125rem;
+  }
+
+  .footer-summary-price {
+    font-size: 1.25rem;
+    line-height: 1.2;
+  }
+
+  .custom-footer-buttons {
+    width: 100%;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .cititex-cart-btn {
+    width: 100% !important;
+    height: 44px;
+    padding: 0 14px;
+    font-size: 0.8125rem;
+    border-radius: 10px;
+  }
+
+  .custom-footer-buttons-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .cititex-checkout-btn {
+    flex: 1;
+    min-width: 0;
+    height: 44px;
+    padding: 0 10px;
+    font-size: clamp(0.75rem, 2.7vw, 0.875rem);
+    border-radius: 10px;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .cititex-checkout-btn svg {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+  }
+
+  .cititex-checkout-btn span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .cititex-reset-btn {
+    flex-shrink: 0;
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 10px;
+    padding: 0;
+  }
+
+  /* Size guide modal */
+  .size-guide-modal {
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    margin: 12px;
+  }
+
+  .size-guide-header {
+    padding: 12px 16px;
+  }
+
+  .size-guide-body {
+    padding: 14px;
+    overflow-y: auto;
+    flex: 1;
+  }
+
+  .size-guide-footer {
+    padding: 12px 16px;
+  }
+
+  .size-guide-table th,
+  .size-guide-table td {
+    padding: 8px 10px;
+    font-size: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .custom-single-frame {
+    padding: 12px;
+    border-radius: 14px;
+    gap: 12px;
+  }
+
+  .custom-gallery-img-container {
+    max-height: 270px;
+  }
+
+  .custom-thumb-btn {
+    width: 46px;
+    height: 46px;
+  }
+
+  .custom-panel-price-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+  }
+
+  .custom-footer-summary {
+    padding: 8px 12px;
+  }
+
+  .footer-summary-price {
+    font-size: 1.15rem;
+  }
+
+  .product-grid {
+    gap: 10px;
+  }
+
+  .custom-catalog-card .product-card-info {
+    padding: 10px;
+  }
+
+  .custom-catalog-card .product-card-name {
+    font-size: 0.8125rem;
+  }
+
+  .custom-catalog-card .product-card-price {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (max-width: 380px) {
+  .cititex-sizes-row {
+    gap: 3px;
+  }
+
+  .cititex-size-box {
+    height: 38px;
+  }
+
+  .cititex-size-box .size-label {
+    font-size: 0.6875rem;
+  }
+
+  .cititex-checkout-btn {
+    font-size: 0.6875rem;
+    gap: 4px;
+    padding: 0 6px;
+  }
+
+  .cititex-checkout-btn svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .cititex-reset-btn {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+  }
 }
 
 /* ========================================
