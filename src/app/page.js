@@ -48,6 +48,11 @@ async function getHomepageData() {
   }
 }
 
+const HERO_BG_IMAGE =
+  process.env.NEXT_PUBLIC_SUPABASE_URL
+    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/site-assets/background.png`
+    : '/background.png';
+
 export default async function Home() {
   const { featuredProducts, newArrivals } = await getHomepageData();
 
@@ -58,7 +63,7 @@ export default async function Home() {
         <div className="hero-image">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/background.png"
+            src={HERO_BG_IMAGE}
             alt="Rinjani Clothing Hero"
           />
         </div>
