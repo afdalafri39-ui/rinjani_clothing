@@ -280,9 +280,6 @@ export default function CustomPage() {
     '3XL': 0,
   });
 
-  // Images & Gallery
-  const [activeImageIdx, setActiveImageIdx] = useState(0);
-
   // Design Files & Notes
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
@@ -327,7 +324,6 @@ export default function CustomPage() {
   // When user clicks a model in the catalog grid, select it and smoothly scroll to the selection section
   const handleSelectModel = (model) => {
     setSelectedModel(model);
-    setActiveImageIdx(0);
     setTimeout(() => {
       if (selectionSectionRef.current) {
         selectionSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -354,7 +350,7 @@ export default function CustomPage() {
   const activeImage =
     isTshirtReguler && colorSpecificImage
       ? colorSpecificImage
-      : modelImages[activeImageIdx] || modelImages[0];
+      : modelImages[0] || selectedModel?.image || '/products/t-shirt-reguler/tshirt-reguler-salmon.jpg';
 
   // Quantity calculations
   const totalQuantity = isMultiSize
@@ -733,24 +729,6 @@ export default function CustomPage() {
                   </span>
                 </div>
               </div>
-
-              {/* Thumbnail Angle Selectors */}
-              {modelImages.length > 1 && (
-                <div className="custom-gallery-thumbnails">
-                  {modelImages.map((imgUrl, idx) => (
-                    <button
-                      key={idx}
-                      type="button"
-                      className={`custom-thumb-btn ${activeImageIdx === idx ? 'active' : ''}`}
-                      onClick={() => setActiveImageIdx(idx)}
-                      title={`Lihat foto ${idx + 1}`}
-                    >
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={imgUrl} alt={`Thumbnail ${idx + 1}`} />
-                    </button>
-                  ))}
-                </div>
-              )}
             </div>
 
             {/* RIGHT COLUMN: SINGLE-FRAME SCANNABLE CONFIGURATION PANEL */}
@@ -795,7 +773,6 @@ export default function CustomPage() {
                         className={`cititex-color-circle ${isSelected ? 'active' : ''}`}
                         onClick={() => {
                           setSelectedColor(col);
-                          setActiveImageIdx(0);
                         }}
                         title={`Warna: ${col.name}`}
                         style={{ backgroundColor: col.hex }}

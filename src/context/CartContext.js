@@ -214,8 +214,7 @@ export function CartProvider({ children }) {
   // Remove item by ID
   const removeFromCart = useCallback((itemId) => {
     setCart((prev) => prev.filter((item) => item.id !== itemId));
-    showToast('Item dihapus dari keranjang');
-  }, [showToast]);
+  }, []);
 
   // Update item quantity
   const updateQuantity = useCallback((itemId, newQuantity) => {
@@ -233,8 +232,7 @@ export function CartProvider({ children }) {
   // Clear all items in cart
   const clearCart = useCallback(() => {
     setCart([]);
-    showToast('Keranjang pesanan telah dikosongkan');
-  }, [showToast]);
+  }, []);
 
   // Total quantity of units
   const totalItems = cart.reduce((sum, item) => sum + (item.quantity || 1), 0);
