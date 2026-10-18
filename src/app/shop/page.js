@@ -1,3 +1,5 @@
+
+
 'use client';
 
 import { useState, useEffect, Suspense } from 'react';
@@ -66,7 +68,7 @@ function ShopContent() {
         <div className="section-label">RINJANI CATALOG</div>
         <h1 className="section-title">ALL PRODUCTS</h1>
         <p className="section-desc">
-          Jelajahi koleksi pakaian berkualitas tinggi Rinjani Clothing. Hubungi admin untuk informasi stok dan pemesanan cepat.
+          Jelajahi koleksi terbaik dari rinjani clothing, hasil dari Ide, proses yang dituang dalam katalog Rinjani Base.
         </p>
       </div>
 

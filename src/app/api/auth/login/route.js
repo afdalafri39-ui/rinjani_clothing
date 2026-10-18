@@ -5,24 +5,47 @@ import { generateToken, setAuthCookie } from '@/lib/auth';
 
 export async function POST(request) {
   try {
-    const { email, password } = await request.json();
+    const body = await request.json();
+    const identifier = (body.email || body.username || '').toLowerCase().trim();
+    const password = body.password;
 
-    if (!email || !password) {
+    if (!identifier || !password) {
       return NextResponse.json(
-        { error: 'Email dan password wajib diisi' },
+        { error: 'Username/email dan password wajib diisi' },
         { status: 400 }
       );
     }
 
-    const { data: user } = await supabase
+    // Try finding user by email
+    let { data: user } = await supabase
       .from('User')
       .select('*')
-      .eq('email', email.toLowerCase().trim())
+      .eq('email', identifier)
       .maybeSingle();
+
+    // If not found, try finding by name (username)
+    if (!user) {
+      const { data: userByName } = await supabase
+        .from('User')
+        .select('*')
+        .ilike('name', identifier)
+        .maybeSingle();
+      user = userByName;
+    }
+
+    // If still not found and doesn't contain '@', try with default domain
+    if (!user && !identifier.includes('@')) {
+      const { data: userByDomain } = await supabase
+        .from('User')
+        .select('*')
+        .eq('email', `${identifier}@rinjani.com`)
+        .maybeSingle();
+      user = userByDomain;
+    }
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Email atau password salah' },
+        { error: 'Username atau password salah' },
         { status: 401 }
       );
     }
@@ -30,7 +53,7 @@ export async function POST(request) {
     const isMatch = await bcrypt.compare(password, user.passwordHash);
     if (!isMatch) {
       return NextResponse.json(
-        { error: 'Email atau password salah' },
+        { error: 'Username atau password salah' },
         { status: 401 }
       );
     }

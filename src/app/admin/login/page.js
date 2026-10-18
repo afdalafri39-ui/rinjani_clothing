@@ -3,11 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Lock, Mail } from 'lucide-react';
+import { ArrowLeft, Lock, User } from 'lucide-react';
 import LogoRC from '@/components/LogoRC';
 
 export default function AdminLoginPage() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -22,13 +22,13 @@ export default function AdminLoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Login gagal. Periksa kembali email dan password.');
+        setError(data.error || 'Login gagal. Periksa kembali username dan password.');
         setLoading(false);
         return;
       }
@@ -39,11 +39,6 @@ export default function AdminLoginPage() {
       setError('Terjadi kesalahan koneksi server.');
       setLoading(false);
     }
-  };
-
-  const handleUseDemo = () => {
-    setEmail('admin@rinjani.com');
-    setPassword('admin123');
   };
 
   return (
@@ -78,21 +73,22 @@ export default function AdminLoginPage() {
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label className="form-label" htmlFor="email">
-              EMAIL ADMIN
+            <label className="form-label" htmlFor="username">
+              USERNAME / EMAIL ADMIN
             </label>
             <div style={{ position: 'relative' }}>
               <input
-                id="email"
-                type="email"
+                id="username"
+                type="text"
                 className="form-input"
                 style={{ paddingLeft: '38px' }}
-                placeholder="admin@rinjani.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="Username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
+                autoComplete="username"
               />
-              <Mail size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
+              <User size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
             </div>
           </div>
 
@@ -110,6 +106,7 @@ export default function AdminLoginPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                autoComplete="current-password"
               />
               <Lock size={16} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#888' }} />
             </div>
@@ -123,27 +120,6 @@ export default function AdminLoginPage() {
             {loading ? 'MEMPROSES MASUK...' : 'MASUK DASHBOARD ADMIN'}
           </button>
         </form>
-
-        <div style={{ marginTop: '24px', paddingTop: '16px', borderTop: '1px solid #E5E5E2', textAlign: 'center' }}>
-          <div style={{ fontSize: '0.75rem', color: '#666', marginBottom: '8px' }}>
-            Akun Akun Default Admin:
-          </div>
-          <div
-            onClick={handleUseDemo}
-            style={{
-              padding: '8px 12px',
-              backgroundColor: '#F1F1EF',
-              fontSize: '0.75rem',
-              cursor: 'pointer',
-              border: '1px dashed #A3A3A0',
-              color: '#111',
-              fontWeight: '500',
-            }}
-            title="Klik untuk mengisi otomatis"
-          >
-            <code>admin@rinjani.com</code> / <code>admin123</code> (Klik untuk isi otomatis)
-          </div>
-        </div>
       </div>
     </div>
   );

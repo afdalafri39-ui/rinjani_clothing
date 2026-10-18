@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { Package, Grid, Settings, LogOut, LayoutDashboard, Menu, X, ExternalLink, ClipboardList, Shirt, ShoppingBag } from 'lucide-react';
 import LogoRC from '@/components/LogoRC';
+import AdminNotificationBell from '@/components/AdminNotificationBell';
 
 export default function AdminLayout({ children }) {
   const pathname = usePathname();
@@ -152,8 +153,11 @@ export default function AdminLayout({ children }) {
             </h1>
           </div>
 
-          <div style={{ fontSize: '0.8125rem', color: '#666' }}>
-            User: <strong>{user?.email}</strong>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ fontSize: '0.8125rem', color: '#666' }}>
+              User: <strong>{user?.email}</strong>
+            </div>
+            <AdminNotificationBell />
           </div>
         </div>
 

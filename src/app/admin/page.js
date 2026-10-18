@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { formatPrice, getTotalStock, getStockStatus, getProductImage } from '@/lib/utils';
-import { Plus, Package, Grid, Settings, ArrowRight, ClipboardList, Shirt, User, Clock, ShoppingBag } from 'lucide-react';
+import { ArrowRight, ClipboardList, Shirt, User, Clock } from 'lucide-react';
 
 export const revalidate = 0; // Dynamic
 
@@ -104,46 +104,20 @@ export default async function AdminDashboardPage() {
         </div>
 
         <div className="admin-stat-card">
-          <div className="admin-stat-label">STOK HABIS (SOLD OUT)</div>
+          <div className="admin-stat-label">STOK HABIS</div>
           <div className="admin-stat-value" style={{ color: stats.outOfStockCount > 0 ? '#C53030' : 'inherit' }}>
             {stats.outOfStockCount}
           </div>
         </div>
 
-        <div className="admin-stat-card" style={{ borderLeft: '3px solid #3B82F6' }}>
+        <div className="admin-stat-card">
           <div className="admin-stat-label">PESANAN CUSTOM</div>
-          <div className="admin-stat-value" style={{ color: '#3B82F6' }}>{stats.totalCustomOrders}</div>
-          <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '4px' }}>
-            {stats.newCustomOrders > 0 && (
-              <span style={{ color: '#3B82F6', fontWeight: 600 }}>
-                {stats.newCustomOrders} baru
-              </span>
-            )}
-            {stats.newCustomOrders > 0 && stats.inProgressOrders > 0 && ' · '}
-            {stats.inProgressOrders > 0 && (
-              <span style={{ color: '#F59E0B', fontWeight: 600 }}>
-                {stats.inProgressOrders} diproses
-              </span>
-            )}
-          </div>
+          <div className="admin-stat-value">{stats.totalCustomOrders}</div>
         </div>
 
-        <div className="admin-stat-card" style={{ borderLeft: '3px solid #10B981' }}>
-          <div className="admin-stat-label">PESANAN PRODUK (SHOP)</div>
-          <div className="admin-stat-value" style={{ color: '#10B981' }}>{stats.totalProductOrders}</div>
-          <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '4px' }}>
-            {stats.newProductOrders > 0 && (
-              <span style={{ color: '#10B981', fontWeight: 600 }}>
-                {stats.newProductOrders} baru
-              </span>
-            )}
-            {stats.newProductOrders > 0 && stats.inProgressProductOrders > 0 && ' · '}
-            {stats.inProgressProductOrders > 0 && (
-              <span style={{ color: '#F59E0B', fontWeight: 600 }}>
-                {stats.inProgressProductOrders} diproses
-              </span>
-            )}
-          </div>
+        <div className="admin-stat-card">
+          <div className="admin-stat-label">PESANAN PRODUK</div>
+          <div className="admin-stat-value">{stats.totalProductOrders}</div>
         </div>
 
         <div className="admin-stat-card">
@@ -152,55 +126,7 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
-      {/* QUICK ACTIONS */}
-      <div style={{ marginBottom: '32px' }}>
-        <div style={{ fontSize: '0.8125rem', fontWeight: '600', letterSpacing: '0.06em', textTransform: 'uppercase', color: '#666', marginBottom: '16px' }}>
-          AKSES CEPAT
-        </div>
-        <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
-          <Link href="/admin/custom-orders" className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <ClipboardList size={16} /> PESANAN CUSTOM
-            {stats.newCustomOrders > 0 && (
-              <span style={{
-                backgroundColor: '#EF4444',
-                color: '#FFF',
-                fontSize: '0.6875rem',
-                fontWeight: 700,
-                padding: '1px 7px',
-                borderRadius: '10px',
-                marginLeft: '4px',
-              }}>
-                {stats.newCustomOrders}
-              </span>
-            )}
-          </Link>
-          <Link href="/admin/product-orders" className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px', borderColor: '#10B981', color: '#047857' }}>
-            <ShoppingBag size={16} /> PESANAN PRODUK
-            {stats.newProductOrders > 0 && (
-              <span style={{
-                backgroundColor: '#10B981',
-                color: '#FFF',
-                fontSize: '0.6875rem',
-                fontWeight: 700,
-                padding: '1px 7px',
-                borderRadius: '10px',
-                marginLeft: '4px',
-              }}>
-                {stats.newProductOrders}
-              </span>
-            )}
-          </Link>
-          <Link href="/admin/products/new" className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Plus size={16} /> TAMBAH PRODUK BARU
-          </Link>
-          <Link href="/admin/categories" className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Grid size={16} /> KELOLA KATEGORI
-          </Link>
-          <Link href="/admin/settings" className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Settings size={16} /> PENGATURAN TOKO
-          </Link>
-        </div>
-      </div>
+
 
       {/* RECENT CUSTOM ORDERS */}
       {stats.recentCustomOrders.length > 0 && (

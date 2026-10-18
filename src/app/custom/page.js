@@ -949,16 +949,18 @@ export default function CustomPage() {
                         className="stepper-btn"
                         onClick={() => handleQuickQtyChange(-1)}
                         disabled={quickQuantity <= 1}
+                        aria-label="Kurangi jumlah"
                       >
-                        <Minus size={14} />
+                        -
                       </button>
                       <span className="stepper-val stepper-val-lg">{quickQuantity}</span>
                       <button
                         type="button"
                         className="stepper-btn"
                         onClick={() => handleQuickQtyChange(1)}
+                        aria-label="Tambah jumlah"
                       >
-                        <Plus size={14} />
+                        +
                       </button>
                     </div>
                   </div>
