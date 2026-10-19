@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import ProductCard from '@/components/ProductCard';
+import HeroSlideshow from '@/components/HeroSlideshow';
 
 export const revalidate = 60; // SSR with 60s revalidation
 
@@ -48,39 +49,13 @@ async function getHomepageData() {
   }
 }
 
-const HERO_BG_IMAGE =
-  process.env.NEXT_PUBLIC_SUPABASE_URL
-    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/site-assets/background.webp`
-    : '/background.webp';
-
 export default async function Home() {
   const { featuredProducts, newArrivals } = await getHomepageData();
 
   return (
     <div>
-      {/* 1. HERO SECTION */}
-      <section className="hero">
-        <div className="hero-image">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={HERO_BG_IMAGE}
-            alt="Rinjani Clothing Hero"
-          />
-        </div>
-        <div className="hero-overlay" />
-        <div className="hero-content">
-          <div className="section-label" style={{ color: 'rgba(255,255,255,0.8)' }}>
-            NEW COLLECTION 2026
-          </div>
-          <h1 className="hero-title">MADE FOR THE JOURNEY</h1>
-          <p className="hero-subtitle">
-            Pakaian harian berbahan premium terinspirasi dari alam, petualangan, dan kultur kontemporer.
-          </p>
-          <Link href="/shop" className="btn">
-            EXPLORE COLLECTION
-          </Link>
-        </div>
-      </section>
+      {/* 1. HERO SLIDESHOW SECTION */}
+      <HeroSlideshow />
 
       {/* 2. BRAND STATEMENT */}
       <section className="brand-statement">
