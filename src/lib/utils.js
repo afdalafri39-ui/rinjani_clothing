@@ -62,28 +62,28 @@ export function generateTelegramUrl(username) {
   return `https://t.me/${cleanUsername}`;
 }
 
-// Koleksi gambar apparel & streetwear acak berkualitas tinggi
+// Koleksi gambar apparel & streetwear acak berkualitas tinggi (WebP format)
 export const RANDOM_APPAREL_IMAGES = [
-  'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&q=80', // White Tee
-  'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&q=80', // Black Graphic Tee
-  'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80', // Black Artwork Tee
-  'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&q=80', // Grey Hoodie
-  'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&q=80', // Dark Long Sleeve
-  'https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=800&q=80', // Navy Polo Shirt
-  'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&q=80', // Minimal Cream Sweatshirt
-  'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=800&q=80', // Cap Streetwear
-  'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&q=80', // Outdoor Jacket
-  'https://images.unsplash.com/photo-1516257984-b1b4d707412e?w=800&q=80', // Flannel Casual
-  'https://images.unsplash.com/photo-1580089595767-98745d7025c5?w=800&q=80', // Sport Jersey
-  'https://images.unsplash.com/photo-1562157873-818bc0726f68?w=800&q=80', // Raglan Vintage
-  'https://images.unsplash.com/photo-1618354691229-88d47f285158?w=800&q=80', // Black Basic
-  'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=800&q=80', // Streetwear Bold
-  'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&q=80', // Hoodie Outdoor
-  'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80', // Urban Knit
-  'https://images.unsplash.com/photo-1527719327859-c6ce80353573?w=800&q=80', // Casual White
-  'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&q=80', // Street Style
-  'https://images.unsplash.com/photo-1544441893-675973e31985?w=800&q=80', // Clothing Hanger
-  'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80', // Streetwear Modern
+  'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&q=80&fm=webp', // White Tee
+  'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&q=80&fm=webp', // Black Graphic Tee
+  'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80&fm=webp', // Black Artwork Tee
+  'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&q=80&fm=webp', // Grey Hoodie
+  'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&q=80&fm=webp', // Dark Long Sleeve
+  'https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=800&q=80&fm=webp', // Navy Polo Shirt
+  'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&q=80&fm=webp', // Minimal Cream Sweatshirt
+  'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=800&q=80&fm=webp', // Cap Streetwear
+  'https://images.unsplash.com/photo-1591047139829-d91aecb6caea?w=800&q=80&fm=webp', // Outdoor Jacket
+  'https://images.unsplash.com/photo-1516257984-b1b4d707412e?w=800&q=80&fm=webp', // Flannel Casual
+  'https://images.unsplash.com/photo-1580089595767-98745d7025c5?w=800&q=80&fm=webp', // Sport Jersey
+  'https://images.unsplash.com/photo-1562157873-818bc0726f68?w=800&q=80&fm=webp', // Raglan Vintage
+  'https://images.unsplash.com/photo-1618354691229-88d47f285158?w=800&q=80&fm=webp', // Black Basic
+  'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=800&q=80&fm=webp', // Streetwear Bold
+  'https://images.unsplash.com/photo-1578632767115-351597cf2477?w=800&q=80&fm=webp', // Hoodie Outdoor
+  'https://images.unsplash.com/photo-1576566588028-4147f3842f27?w=800&q=80&fm=webp', // Urban Knit
+  'https://images.unsplash.com/photo-1527719327859-c6ce80353573?w=800&q=80&fm=webp', // Casual White
+  'https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800&q=80&fm=webp', // Street Style
+  'https://images.unsplash.com/photo-1544441893-675973e31985?w=800&q=80&fm=webp', // Clothing Hanger
+  'https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80&fm=webp', // Streetwear Modern
 ];
 
 export function getRandomApparelImage() {
@@ -94,43 +94,46 @@ export function getRandomApparelImage() {
 export function getProductImage(product) {
   if (!product) return getRandomApparelImage();
 
-  const firstImg =
+  let firstImg =
     product.images?.[0]?.url ||
     (typeof product.image === 'string' ? product.image : null);
+
+  if (firstImg && firstImg.includes('images.unsplash.com') && !firstImg.includes('fm=webp')) {
+    firstImg = `${firstImg}&fm=webp`;
+  }
 
   const slug = (product.slug || product.name || '').toLowerCase();
 
   // Kustomisasi visual sesuai nama/kategori produk awal
   if (slug.includes('cap') || slug.includes('topi')) {
-    return 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=800&q=80';
+    return 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?w=800&q=80&fm=webp';
   }
   if (slug.includes('hoodie')) {
-    return 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&q=80';
+    return 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&q=80&fm=webp';
   }
   if (slug.includes('long-sleeve') || slug.includes('long sleeve')) {
-    return 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&q=80';
+    return 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&q=80&fm=webp';
   }
   if (slug.includes('wilderness')) {
-    return 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&q=80';
+    return 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&q=80&fm=webp';
   }
   if (slug.includes('urban')) {
-    return 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80';
+    return 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80&fm=webp';
   }
   if (slug.includes('summit')) {
-    return 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&q=80';
+    return 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&q=80&fm=webp';
   }
   if (slug.includes('rinjani')) {
-    return 'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=800&q=80';
+    return 'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=800&q=80&fm=webp';
   }
   if (slug.includes('polo')) {
-    return 'https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=800&q=80';
+    return 'https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=800&q=80&fm=webp';
   }
 
   // Jika produk sudah memiliki gambar sendiri yang bukan duplikat lama
   if (
     firstImg &&
-    firstImg !==
-      'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&q=80'
+    !firstImg.includes('photo-1521572267360-ee0c2909d518')
   ) {
     return firstImg;
   }

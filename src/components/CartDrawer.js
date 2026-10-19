@@ -316,7 +316,7 @@ Mohon konfirmasi pesanan dan ketersediaan stok/slot pengerjaan. Terima kasih!`;
                           <img
                             src={
                               item.image ||
-                              'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&q=80'
+                              'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&q=80&fm=webp'
                             }
                             alt={item.name}
                             loading="lazy"

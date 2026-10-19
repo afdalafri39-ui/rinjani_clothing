@@ -46,7 +46,7 @@ function runFlyToCartAnimation(sourceEl, item, onComplete) {
     const img = document.createElement('img');
     img.src =
       item.image ||
-      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&q=80';
+      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=400&q=80&fm=webp';
     img.alt = item.name || 'Product';
     img.style.width = '100%';
     img.style.height = '100%';

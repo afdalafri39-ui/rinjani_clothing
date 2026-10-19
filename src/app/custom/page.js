@@ -41,15 +41,15 @@ const GARMENT_MODELS = [
     price: 42000,
     tagline: 'Koleksi Esensial Harian',
     description: 'Kaos katun combed potongan reguler fit, sangat lembut dan nyaman untuk harian, seragam, atau merchandise clothing.',
-    image: '/products/t-shirt-reguler/tshirt-reguler-salmon.jpg',
+    image: '/products/t-shirt-reguler/tshirt-reguler-salmon.webp',
     images: [
-      '/products/t-shirt-reguler/tshirt-reguler-salmon.jpg',
-      '/products/t-shirt-reguler/tshirt-reguler-hitam.jpg',
-      '/products/t-shirt-reguler/tshirt-reguler-putih.jpg',
-      '/products/t-shirt-reguler/tshirt-reguler-navy.jpg',
-      '/products/t-shirt-reguler/tshirt-reguler-sage-green.jpg',
-      '/products/t-shirt-reguler/tshirt-reguler-maroon.jpg',
-      '/products/t-shirt-reguler/tshirt-reguler-kuning.jpg',
+      '/products/t-shirt-reguler/tshirt-reguler-salmon.webp',
+      '/products/t-shirt-reguler/tshirt-reguler-hitam.webp',
+      '/products/t-shirt-reguler/tshirt-reguler-putih.webp',
+      '/products/t-shirt-reguler/tshirt-reguler-navy.webp',
+      '/products/t-shirt-reguler/tshirt-reguler-sage-green.webp',
+      '/products/t-shirt-reguler/tshirt-reguler-maroon.webp',
+      '/products/t-shirt-reguler/tshirt-reguler-kuning.webp',
     ],
   },
   {
@@ -59,10 +59,10 @@ const GARMENT_MODELS = [
     price: 52000,
     tagline: 'Streetwear Modern',
     description: 'Kaos boxy oversize dengan drop shoulder kontemporer. Tampilan modern untuk streetwear & distro brand.',
-    image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80&fm=webp',
     images: [
-      'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80',
-      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80',
+      'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80&fm=webp',
+      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80&fm=webp',
     ],
   },
   {
@@ -72,9 +72,9 @@ const GARMENT_MODELS = [
     price: 65000,
     tagline: 'Elegan & Kasual',
     description: 'Polo shirt berkerah dengan bahan Lacoste Pique bertekstur. Sangat cocok untuk seragam kantor dan casual wear.',
-    image: 'https://images.unsplash.com/photo-1625910513413-5fc421e0fd4f?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1625910513413-5fc421e0fd4f?w=800&q=80&fm=webp',
     images: [
-      'https://images.unsplash.com/photo-1625910513413-5fc421e0fd4f?w=800&q=80',
+      'https://images.unsplash.com/photo-1625910513413-5fc421e0fd4f?w=800&q=80&fm=webp',
     ],
   },
   {
@@ -84,9 +84,9 @@ const GARMENT_MODELS = [
     price: 49000,
     tagline: 'Nyaman & Sejuk',
     description: 'Kaos lengan panjang dengan rib manset elastis. Cocok untuk cuaca sejuk, layering, maupun seragam event.',
-    image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&q=80&fm=webp',
     images: [
-      'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&q=80',
+      'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&q=80&fm=webp',
     ],
   },
   {
@@ -96,9 +96,9 @@ const GARMENT_MODELS = [
     price: 125000,
     tagline: 'Hangat & Tebal',
     description: 'Hoodie pullover dengan kangaroo pocket bahan fleece tebal 280-320 gsm. Bagian dalam berbulu lembut dan hangat.',
-    image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&q=80&fm=webp',
     images: [
-      'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&q=80',
+      'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&q=80&fm=webp',
     ],
   },
   {
@@ -108,9 +108,9 @@ const GARMENT_MODELS = [
     price: 68000,
     tagline: 'Performa Olahraga',
     description: 'Jersey olahraga bahan Dri-Fit mikro ventilasi. Ringan, cepat kering, dan breathable untuk futsal, running, dan esport.',
-    image: 'https://images.unsplash.com/photo-1580089595767-98745d7025c5?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1580089595767-98745d7025c5?w=800&q=80&fm=webp',
     images: [
-      'https://images.unsplash.com/photo-1580089595767-98745d7025c5?w=800&q=80',
+      'https://images.unsplash.com/photo-1580089595767-98745d7025c5?w=800&q=80&fm=webp',
     ],
   },
   {
@@ -120,9 +120,9 @@ const GARMENT_MODELS = [
     price: 52000,
     tagline: 'Gaya Vintage Baseball',
     description: 'Kaos raglan lengan 3/4 dengan perpaduan warna badan dan lengan kontras. Desain vintage baseball klasik.',
-    image: 'https://images.unsplash.com/photo-1562157873-818bc0726f68?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1562157873-818bc0726f68?w=800&q=80&fm=webp',
     images: [
-      'https://images.unsplash.com/photo-1562157873-818bc0726f68?w=800&q=80',
+      'https://images.unsplash.com/photo-1562157873-818bc0726f68?w=800&q=80&fm=webp',
     ],
   },
   {
@@ -132,9 +132,9 @@ const GARMENT_MODELS = [
     price: 38000,
     tagline: 'Ringan & Bebas Gerak',
     description: 'Tank top tanpa lengan untuk olahraga, cuaca panas, dan aktivitas outdoor dengan sirkulasi udara maksimal.',
-    image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&q=80',
+    image: 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&q=80&fm=webp',
     images: [
-      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&q=80',
+      'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&q=80&fm=webp',
     ],
   },
 ];
@@ -345,12 +345,12 @@ export default function CustomPage() {
   const modelImages =
     selectedModel?.images && selectedModel.images.length > 0
       ? selectedModel.images
-      : [colorSpecificImage || selectedModel?.image || '/products/t-shirt-reguler/tshirt-reguler-salmon.jpg'];
+      : [colorSpecificImage || selectedModel?.image || '/products/t-shirt-reguler/tshirt-reguler-salmon.webp'];
 
   const activeImage =
     isTshirtReguler && colorSpecificImage
       ? colorSpecificImage
-      : modelImages[0] || selectedModel?.image || '/products/t-shirt-reguler/tshirt-reguler-salmon.jpg';
+      : modelImages[0] || selectedModel?.image || '/products/t-shirt-reguler/tshirt-reguler-salmon.webp';
 
   // Quantity calculations
   const totalQuantity = isMultiSize

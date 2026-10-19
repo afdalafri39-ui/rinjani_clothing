@@ -50,8 +50,8 @@ async function getHomepageData() {
 
 const HERO_BG_IMAGE =
   process.env.NEXT_PUBLIC_SUPABASE_URL
-    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/site-assets/background.png`
-    : '/background.png';
+    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/site-assets/background.webp`
+    : '/background.webp';
 
 export default async function Home() {
   const { featuredProducts, newArrivals } = await getHomepageData();
@@ -179,7 +179,7 @@ export default async function Home() {
         <div className="custom-cta-bg">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://images.unsplash.com/photo-1562157873-818bc0726f68?w=1400&q=80"
+            src="https://images.unsplash.com/photo-1562157873-818bc0726f68?w=1400&q=80&fm=webp"
             alt="Custom Printing Service"
           />
         </div>
