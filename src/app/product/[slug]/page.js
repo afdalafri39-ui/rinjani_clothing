@@ -6,6 +6,32 @@ import { formatPrice, getStockStatus, getProductImage } from '@/lib/utils';
 import ContactModal from '@/components/ContactModal';
 import { ChevronRight, ArrowLeft, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
+import tshirtColorData from '@/data/tshirt_colors.json';
+
+function getOversizeImageForColor(colorName) {
+  if (!colorName) return null;
+  const col = colorName.toLowerCase().replace(/[^a-z0-9-]/g, ' ').trim();
+  const oversizeMap = tshirtColorData?.oversizeUrls || {};
+
+  // Direct match or partial match against all 22 colors
+  for (const [key, url] of Object.entries(oversizeMap)) {
+    if (col === key || col.includes(key) || key.includes(col)) {
+      return url;
+    }
+  }
+  // Specific aliases
+  if (col.includes('black') || col.includes('hitam')) return oversizeMap['hitam'];
+  if (col.includes('white') || col.includes('putih')) return oversizeMap['putih'];
+  if (col.includes('grey') || col.includes('gray') || col.includes('abu') || col.includes('misty')) return oversizeMap['abu-muda'];
+  if (col.includes('khaki') || col.includes('krem') || col.includes('cream')) return oversizeMap['cream'];
+  if (col.includes('blue') || col.includes('navy')) return oversizeMap['navy'];
+  if (col.includes('green') || col.includes('sage')) return oversizeMap['sage-green'];
+  if (col.includes('merah') || col.includes('red')) return oversizeMap['merah'];
+  if (col.includes('brown') || col.includes('cokelat') || col.includes('coklat')) return oversizeMap['coklat'];
+  if (col.includes('purple') || col.includes('violet') || col.includes('ungu')) return oversizeMap['ungu'];
+  if (col.includes('yellow') || col.includes('kuning')) return oversizeMap['kuning'];
+  return null;
+}
 
 export default function ProductDetailPage({ params }) {
   const { slug } = use(params);
@@ -33,7 +59,15 @@ export default function ProductDetailPage({ params }) {
           const colors = Array.from(new Set(p.variants.map((v) => v.color).filter(Boolean)));
 
           if (sizes.length > 0) setSelectedSize(sizes[0]);
-          if (colors.length > 0) setSelectedColor(colors[0]);
+          if (colors.length > 0) {
+            const initialColor = colors[0];
+            setSelectedColor(initialColor);
+            const isOversize = (slug || '').includes('oversize') || (p.category?.slug || '').includes('oversize');
+            if (isOversize) {
+              const matched = getOversizeImageForColor(initialColor);
+              if (matched) setSelectedImage(matched);
+            }
+          }
         }
         setLoading(false);
       })
@@ -82,6 +116,17 @@ export default function ProductDetailPage({ params }) {
 
   const availableSizes = Array.from(new Set(product.variants?.map((v) => v.size).filter(Boolean)));
   const availableColors = Array.from(new Set(product.variants?.map((v) => v.color).filter(Boolean)));
+
+  const handleColorSelect = (color) => {
+    setSelectedColor(color);
+    const colorLower = (color || '').toLowerCase().trim();
+    const isOversize = (slug || '').includes('oversize') || (product?.category?.slug || '').includes('oversize');
+
+    if (isOversize) {
+      const matched = getOversizeImageForColor(color);
+      if (matched) setSelectedImage(matched);
+    }
+  };
 
   const productDataForModal = {
     name: product.name,
@@ -172,7 +217,7 @@ export default function ProductDetailPage({ params }) {
                   <button
                     key={color}
                     className={`color-btn ${selectedColor === color ? 'active' : ''}`}
-                    onClick={() => setSelectedColor(color)}
+                    onClick={() => handleColorSelect(color)}
                   >
                     {color}
                   </button>

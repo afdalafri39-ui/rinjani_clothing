@@ -114,14 +114,11 @@ export function getProductImage(product) {
   if (slug.includes('long-sleeve') || slug.includes('long sleeve')) {
     return 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&q=80&fm=webp';
   }
-  if (slug.includes('wilderness')) {
-    return 'https://images.unsplash.com/photo-1503342217505-b0a15ec3261c?w=800&q=80&fm=webp';
-  }
-  if (slug.includes('urban')) {
-    return 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80&fm=webp';
+  if (slug.includes('oversize')) {
+    return '/products/t-shirt-oversize/tshirt-oversize-hitam.jpg';
   }
   if (slug.includes('summit')) {
-    return 'https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800&q=80&fm=webp';
+    return '/products/t-shirt-oversize/tshirt-oversize-cream.jpg';
   }
   if (slug.includes('rinjani')) {
     return 'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=800&q=80&fm=webp';

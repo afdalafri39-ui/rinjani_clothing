@@ -59,10 +59,15 @@ const GARMENT_MODELS = [
     price: 52000,
     tagline: 'Streetwear Modern',
     description: 'Kaos boxy oversize dengan drop shoulder kontemporer. Tampilan modern untuk streetwear & distro brand.',
-    image: 'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80&fm=webp',
+    image: '/products/t-shirt-oversize/tshirt-oversize-hitam.jpg',
     images: [
-      'https://images.unsplash.com/photo-1583743814966-8936f5b7be1a?w=800&q=80&fm=webp',
-      'https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?w=800&q=80&fm=webp',
+      '/products/t-shirt-oversize/tshirt-oversize-hitam.jpg',
+      '/products/t-shirt-oversize/tshirt-oversize-putih.jpg',
+      '/products/t-shirt-oversize/tshirt-oversize-sage-green.jpg',
+      '/products/t-shirt-oversize/tshirt-oversize-cream.jpg',
+      '/products/t-shirt-oversize/tshirt-oversize-navy.jpg',
+      '/products/t-shirt-oversize/tshirt-oversize-maroon.jpg',
+      '/products/t-shirt-oversize/tshirt-oversize-abu-muda.jpg',
     ],
   },
   {
@@ -337,20 +342,28 @@ export default function CustomPage() {
     selectedModel?.slug === 't-shirt-reguler' ||
     selectedModel?.name?.toLowerCase().includes('reguler');
 
+  const isTshirtOversize =
+    selectedModel?.id === 'tshirt-oversize' ||
+    selectedModel?.slug === 't-shirt-oversize' ||
+    selectedModel?.name?.toLowerCase().includes('oversize');
+
   const colorSpecificImage =
     isTshirtReguler && selectedColor?.id
       ? (tshirtColorData?.localUrls?.[selectedColor.id] || tshirtColorData?.storageUrls?.[selectedColor.id])
+      : isTshirtOversize && selectedColor?.id && tshirtColorData?.oversizeUrls?.[selectedColor.id]
+      ? tshirtColorData.oversizeUrls[selectedColor.id]
       : null;
 
   const modelImages =
     selectedModel?.images && selectedModel.images.length > 0
       ? selectedModel.images
-      : [colorSpecificImage || selectedModel?.image || '/products/t-shirt-reguler/tshirt-reguler-salmon.webp'];
+      : [colorSpecificImage || selectedModel?.image || (isTshirtOversize ? '/products/t-shirt-oversize/tshirt-oversize-hitam.jpg' : '/products/t-shirt-reguler/tshirt-reguler-salmon.webp')];
 
   const activeImage =
-    isTshirtReguler && colorSpecificImage
-      ? colorSpecificImage
-      : modelImages[0] || selectedModel?.image || '/products/t-shirt-reguler/tshirt-reguler-salmon.webp';
+    colorSpecificImage ||
+    modelImages[0] ||
+    selectedModel?.image ||
+    (isTshirtOversize ? '/products/t-shirt-oversize/tshirt-oversize-hitam.jpg' : '/products/t-shirt-reguler/tshirt-reguler-salmon.webp');
 
   // Quantity calculations
   const totalQuantity = isMultiSize

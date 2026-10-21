@@ -26,18 +26,118 @@ export default function AboutPage() {
         />
       </div>
 
-      <div className="section">
+      <div className="section" style={{ paddingTop: 'var(--space-6)' }}>
+        {/* PROFIL RINJANI */}
+        <div
+          style={{
+            marginBottom: 'var(--space-9)',
+            paddingBottom: 'var(--space-9)',
+            borderBottom: '1px solid var(--color-gray-200)',
+            width: '100%',
+          }}
+        >
+          <div style={{ width: '100%' }}>
+            <h3
+              className="about-block-title"
+              style={{
+                fontSize: '24px',
+                lineHeight: '32px',
+                marginBottom: '24px',
+                textAlign: 'center',
+                letterSpacing: '0.06em',
+              }}
+            >
+              PROFIL RINJANI
+            </h3>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '24px',
+                textAlign: 'left',
+                width: '100%',
+              }}
+            >
+              <p
+                className="about-block-text"
+                style={{
+                  fontSize: '16px',
+                  lineHeight: '32px',
+                  color: 'var(--color-gray-700, #404040)',
+                }}
+              >
+                Rinjani Clothing merupakan brand clothing asal Luwu Timur yang bergerak di bidang custom apparel dan jasa sablon pakaian. Rinjani Clothing hadir untuk memenuhi kebutuhan individu, komunitas, organisasi, hingga bisnis dalam menciptakan pakaian dengan desain yang unik, personal, dan sesuai identitas pelanggan.
+              </p>
+              <p
+                className="about-block-text"
+                style={{
+                  fontSize: '16px',
+                  lineHeight: '32px',
+                  color: 'var(--color-gray-700, #404040)',
+                }}
+              >
+                Dengan mengedepankan kualitas hasil sablon, ketelitian dalam proses produksi, serta kreativitas dalam desain, Rinjani Clothing berkomitmen memberikan produk yang tidak hanya nyaman digunakan, tetapi juga memiliki karakter dan nilai visual yang kuat.
+              </p>
+              <p
+                className="about-block-text"
+                style={{
+                  fontSize: '16px',
+                  lineHeight: '32px',
+                  color: 'var(--color-gray-700, #404040)',
+                }}
+              >
+                Nama &ldquo;Rinjani&rdquo; merepresentasikan semangat untuk terus berkembang, memiliki karakter yang kuat, dan menghadirkan karya yang dapat menjadi bagian dari identitas setiap pelanggan.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* PENDEKATAN DESAIN & KOMITMEN KUALITAS */}
         <div className="about-grid">
           <div>
-            <h3 className="about-block-title">PENDEKATAN DESAIN</h3>
-            <p className="about-block-text">
+            <h3
+              className="about-block-title"
+              style={{
+                fontSize: '24px',
+                lineHeight: '32px',
+                marginBottom: '24px',
+                letterSpacing: '0.04em',
+              }}
+            >
+              PENDEKATAN DESAIN
+            </h3>
+            <p
+              className="about-block-text"
+              style={{
+                fontSize: '16px',
+                lineHeight: '32px',
+                color: 'var(--color-gray-700, #404040)',
+              }}
+            >
               Kami menghindari ornamen berlebihan dan tren sesaat. Fokus utama Rinjani Clothing adalah siluet yang nyaman (relaxed fit), potongan presisi, serta pemilihan warna monokrom dan earth-tone yang abadi.
             </p>
           </div>
 
           <div>
-            <h3 className="about-block-title">KOMITMEN KUALITAS</h3>
-            <p className="about-block-text">
+            <h3
+              className="about-block-title"
+              style={{
+                fontSize: '24px',
+                lineHeight: '32px',
+                marginBottom: '24px',
+                letterSpacing: '0.04em',
+              }}
+            >
+              KOMITMEN KUALITAS
+            </h3>
+            <p
+              className="about-block-text"
+              style={{
+                fontSize: '16px',
+                lineHeight: '32px',
+                color: 'var(--color-gray-700, #404040)',
+              }}
+            >
               Setiap produk dikembangkan menggunakan serat kain katun combed pilihan (24s & 30s), jahitan rantai berstandar ekspor, dan jahitan kerah yang tidak mudah melar setelah pencucian berulang.
             </p>
           </div>
