@@ -224,7 +224,7 @@ export default function AdminSettingsPage() {
               <input
                 type="email"
                 className="form-input"
-                placeholder="hello@rinjaniclothing.com"
+                placeholder="rinjaniclothing17@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />

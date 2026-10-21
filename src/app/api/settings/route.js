@@ -19,7 +19,7 @@ export async function GET() {
         telegramUsername: '',
         telegramEnabled: false,
         instagramUrl: 'http://instagram.com/rinjani.clothing',
-        email: 'hello@rinjaniclothing.com',
+        email: 'rinjaniclothing17@gmail.com',
         address: 'Lombok, Nusa Tenggara Barat, Indonesia',
         orderMessageTemplate: 'Halo Rinjani Clothing,\n\nSaya ingin memesan:\n\nProduk: {{product_name}}\nUkuran: {{size}}\nWarna: {{color}}\nJumlah: {{quantity}}\n\nLink produk:\n{{product_url}}',
         currency: 'IDR',
