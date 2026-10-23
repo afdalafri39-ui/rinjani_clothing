@@ -89,9 +89,15 @@ const GARMENT_MODELS = [
     price: 49000,
     tagline: 'Nyaman & Sejuk',
     description: 'Kaos lengan panjang dengan rib manset elastis. Cocok untuk cuaca sejuk, layering, maupun seragam event.',
-    image: 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&q=80&fm=webp',
+    image: '/products/long-sleeve/long-sleeve-hitam.webp',
     images: [
-      'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&q=80&fm=webp',
+      '/products/long-sleeve/long-sleeve-hitam.webp',
+      '/products/long-sleeve/long-sleeve-putih.webp',
+      '/products/long-sleeve/long-sleeve-navy.webp',
+      '/products/long-sleeve/long-sleeve-sage-green.webp',
+      '/products/long-sleeve/long-sleeve-maroon.webp',
+      '/products/long-sleeve/long-sleeve-mustard.webp',
+      '/products/long-sleeve/long-sleeve-abu-muda.webp',
     ],
   },
   {
@@ -225,7 +231,6 @@ const PRINTING_METHODS = [
     id: 'dtf',
     name: 'DTF (Digital Transfer Film)',
     tagline: 'Paling Populer',
-    icon: '🖨️',
     description: 'Cetak digital full-color detail tinggi ke film khusus. Sangat tajam untuk gradasi, foto, dan desain kompleks tanpa batas warna.',
     min_order: '1 pcs',
   },
@@ -233,7 +238,6 @@ const PRINTING_METHODS = [
     id: 'polyflex',
     name: 'Polyflex (Vinyl Cutting)',
     tagline: 'Warna Solid & Rapi',
-    icon: '✂️',
     description: 'Material vinyl solid presisi tinggi. Hasil rapi, kuat, dan anti luntur. Sangat ideal untuk nama, nomor punggung, atau logo 1–2 warna.',
     min_order: '1 pcs',
   },
@@ -241,7 +245,6 @@ const PRINTING_METHODS = [
     id: 'manual',
     name: 'Sablon Manual (Plastisol)',
     tagline: 'Standar Distro Grosir',
-    icon: '🎨',
     description: 'Teknik sablon screen printing klasik dengan tinta plastisol premium. Paling awet, tahan cuci bertahun-tahun, pilihan utama produksi massal.',
     min_order: '24 pcs',
   },
@@ -347,23 +350,37 @@ export default function CustomPage() {
     selectedModel?.slug === 't-shirt-oversize' ||
     selectedModel?.name?.toLowerCase().includes('oversize');
 
+  const isLongSleeve =
+    selectedModel?.id === 'long-sleeve' ||
+    selectedModel?.slug === 'long-sleeve' ||
+    selectedModel?.name?.toLowerCase().includes('long sleeve') ||
+    selectedModel?.category?.toLowerCase().includes('long sleeve');
+
   const colorSpecificImage =
     isTshirtReguler && selectedColor?.id
       ? (tshirtColorData?.localUrls?.[selectedColor.id] || tshirtColorData?.storageUrls?.[selectedColor.id])
       : isTshirtOversize && selectedColor?.id && tshirtColorData?.oversizeUrls?.[selectedColor.id]
-      ? tshirtColorData.oversizeUrls[selectedColor.id]
-      : null;
+        ? tshirtColorData.oversizeUrls[selectedColor.id]
+        : isLongSleeve && selectedColor?.id && tshirtColorData?.longSleeveUrls?.[selectedColor.id]
+          ? tshirtColorData.longSleeveUrls[selectedColor.id]
+          : null;
+
+  const defaultFallbackImage = isTshirtOversize
+    ? '/products/t-shirt-oversize/tshirt-oversize-hitam.jpg'
+    : isLongSleeve
+      ? '/products/long-sleeve/long-sleeve-hitam.webp'
+      : '/products/t-shirt-reguler/tshirt-reguler-salmon.webp';
 
   const modelImages =
     selectedModel?.images && selectedModel.images.length > 0
       ? selectedModel.images
-      : [colorSpecificImage || selectedModel?.image || (isTshirtOversize ? '/products/t-shirt-oversize/tshirt-oversize-hitam.jpg' : '/products/t-shirt-reguler/tshirt-reguler-salmon.webp')];
+      : [colorSpecificImage || selectedModel?.image || defaultFallbackImage];
 
   const activeImage =
     colorSpecificImage ||
     modelImages[0] ||
     selectedModel?.image ||
-    (isTshirtOversize ? '/products/t-shirt-oversize/tshirt-oversize-hitam.jpg' : '/products/t-shirt-reguler/tshirt-reguler-salmon.webp');
+    defaultFallbackImage;
 
   // Quantity calculations
   const totalQuantity = isMultiSize
@@ -856,7 +873,6 @@ export default function CustomPage() {
                         className={`custom-printing-chip ${isSelected ? 'active' : ''}`}
                         onClick={() => setSelectedPrinting(method)}
                       >
-                        <span className="printing-chip-icon">{method.icon}</span>
                         <div className="printing-chip-text">
                           <div className="printing-chip-title-row">
                             <span className="printing-chip-title">{method.name}</span>

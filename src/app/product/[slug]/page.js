@@ -33,6 +33,31 @@ function getOversizeImageForColor(colorName) {
   return null;
 }
 
+function getLongSleeveImageForColor(colorName) {
+  if (!colorName) return null;
+  const col = colorName.toLowerCase().replace(/[^a-z0-9-]/g, ' ').trim();
+  const longSleeveMap = tshirtColorData?.longSleeveUrls || {};
+
+  // Direct match or partial match against all 22 colors
+  for (const [key, url] of Object.entries(longSleeveMap)) {
+    if (col === key || col.includes(key) || key.includes(col)) {
+      return url;
+    }
+  }
+  // Specific aliases
+  if (col.includes('black') || col.includes('hitam')) return longSleeveMap['hitam'];
+  if (col.includes('white') || col.includes('putih')) return longSleeveMap['putih'];
+  if (col.includes('grey') || col.includes('gray') || col.includes('abu') || col.includes('misty')) return longSleeveMap['abu-muda'];
+  if (col.includes('khaki') || col.includes('krem') || col.includes('cream')) return longSleeveMap['cream'];
+  if (col.includes('blue') || col.includes('navy')) return longSleeveMap['navy'];
+  if (col.includes('green') || col.includes('sage')) return longSleeveMap['sage-green'];
+  if (col.includes('merah') || col.includes('red')) return longSleeveMap['merah'];
+  if (col.includes('brown') || col.includes('cokelat') || col.includes('coklat')) return longSleeveMap['coklat'];
+  if (col.includes('purple') || col.includes('violet') || col.includes('ungu')) return longSleeveMap['ungu'];
+  if (col.includes('yellow') || col.includes('kuning')) return longSleeveMap['kuning'];
+  return null;
+}
+
 export default function ProductDetailPage({ params }) {
   const { slug } = use(params);
   const [product, setProduct] = useState(null);
@@ -63,8 +88,12 @@ export default function ProductDetailPage({ params }) {
             const initialColor = colors[0];
             setSelectedColor(initialColor);
             const isOversize = (slug || '').includes('oversize') || (p.category?.slug || '').includes('oversize');
+            const isLongSleeve = (slug || '').includes('long-sleeve') || (slug || '').includes('longsleeve') || (p.category?.slug || '').includes('long-sleeve');
             if (isOversize) {
               const matched = getOversizeImageForColor(initialColor);
+              if (matched) setSelectedImage(matched);
+            } else if (isLongSleeve) {
+              const matched = getLongSleeveImageForColor(initialColor);
               if (matched) setSelectedImage(matched);
             }
           }
@@ -121,9 +150,13 @@ export default function ProductDetailPage({ params }) {
     setSelectedColor(color);
     const colorLower = (color || '').toLowerCase().trim();
     const isOversize = (slug || '').includes('oversize') || (product?.category?.slug || '').includes('oversize');
+    const isLongSleeve = (slug || '').includes('long-sleeve') || (slug || '').includes('longsleeve') || (product?.category?.slug || '').includes('long-sleeve');
 
     if (isOversize) {
       const matched = getOversizeImageForColor(color);
+      if (matched) setSelectedImage(matched);
+    } else if (isLongSleeve) {
+      const matched = getLongSleeveImageForColor(color);
       if (matched) setSelectedImage(matched);
     }
   };

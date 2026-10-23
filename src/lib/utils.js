@@ -112,7 +112,7 @@ export function getProductImage(product) {
     return 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=800&q=80&fm=webp';
   }
   if (slug.includes('long-sleeve') || slug.includes('long sleeve')) {
-    return 'https://images.unsplash.com/photo-1618354691373-d851c5c3a990?w=800&q=80&fm=webp';
+    return '/products/long-sleeve/long-sleeve-hitam.webp';
   }
   if (slug.includes('oversize')) {
     return '/products/t-shirt-oversize/tshirt-oversize-hitam.jpg';
