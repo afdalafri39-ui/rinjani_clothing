@@ -1569,28 +1569,7 @@ h3,
 }
 
 .product-gallery-thumbs {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: var(--space-2);
-}
-
-.product-gallery-thumb {
-  aspect-ratio: 1;
-  overflow: hidden;
-  cursor: pointer;
-  border: 2px solid transparent;
-  transition: border-color var(--transition-fast);
-  background-color: var(--color-gray-100);
-}
-
-.product-gallery-thumb.active {
-  border-color: var(--color-black);
-}
-
-.product-gallery-thumb img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  display: none !important;
 }
 
 .product-info {
@@ -5366,6 +5345,33 @@ h3,
   color: var(--color-black);
 }
 
+.printing-chip-price-badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.printing-chip-price-badge.paid {
+  background: #eef2ff;
+  color: #4338ca;
+  border: 1px solid #c7d2fe;
+}
+
+.printing-chip-price-badge.contact {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+.printing-chip-sub-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
 .printing-chip-min {
   font-size: 0.625rem;
   font-weight: 600;
@@ -5373,6 +5379,7 @@ h3,
   background: var(--color-gray-100);
   border-radius: 0;
   color: var(--color-gray-600);
+  flex-shrink: 0;
 }
 
 .printing-chip-tagline {
@@ -5385,9 +5392,176 @@ h3,
   flex-shrink: 0;
 }
 
+.printing-manual-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  margin-top: 8px;
+}
+
+.printing-manual-callout.warning {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  color: #92400e;
+}
+
+.printing-manual-callout.ok {
+  background: #ecfdf5;
+  border: 1px solid #a7f3d0;
+  color: #065f46;
+}
+
+.callout-icon-warn {
+  color: #d97706;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.callout-icon-ok {
+  color: #10b981;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.manual-printing-asterisk {
+  color: #d97706;
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-left: 2px;
+}
+
+.footer-manual-note {
+  font-size: 0.6875rem;
+  color: #b45309;
+  margin-top: 4px;
+  display: block;
+  line-height: 1.35;
+}
+
+/* ------------------------------------------------------------
+   SLEEVE SELECTION CHIPS / CARDS
+   ------------------------------------------------------------ */
+.custom-sleeve-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 10px;
+}
+
+@media (max-width: 640px) {
+  .custom-sleeve-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.custom-sleeve-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border: 1.5px solid var(--color-gray-200);
+  border-radius: 0;
+  background: var(--color-white);
+  cursor: pointer;
+  text-align: left;
+  transition: all var(--transition-fast);
+}
+
+.custom-sleeve-card:hover {
+  border-color: var(--color-gray-400);
+  background: var(--color-gray-50);
+}
+
+.custom-sleeve-card.active {
+  border-color: var(--color-black);
+  background: #fdfdfd;
+  box-shadow: 0 0 0 1.5px var(--color-black);
+}
+
+.sleeve-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.sleeve-card-title {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-black);
+}
+
+.sleeve-card-check {
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+.sleeve-card-desc {
+  font-size: 0.75rem;
+  color: var(--color-gray-600);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.sleeve-card-footer {
+  margin-top: 4px;
+}
+
+.sleeve-price-tag {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
+.sleeve-price-tag.free {
+  background: var(--color-gray-100);
+  color: var(--color-gray-600);
+}
+
+.sleeve-price-tag.surcharge {
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+}
+
+/* Surcharge Indicator Badge */
+.surcharge-indicator-badge {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  padding: 2px 7px;
+  border-radius: 4px;
+  display: inline-block;
+}
+
 /* ------------------------------------------------------------
    SIZES ROW (CITITEX STYLE)
    ------------------------------------------------------------ */
+.size-policy-callout {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 0;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  color: #92400e;
+  line-height: 1.4;
+  margin-bottom: 2px;
+}
+
+.policy-callout-icon {
+  flex-shrink: 0;
+  color: #d97706;
+}
+
 .size-guide-btn {
   display: inline-flex;
   align-items: center;
@@ -5426,6 +5600,25 @@ h3,
   background: var(--color-white);
   cursor: pointer;
   transition: all var(--transition-fast);
+  position: relative;
+}
+
+.cititex-size-box.has-surcharge {
+  border-color: #fde68a;
+}
+
+.size-surcharge-tag {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  font-size: 0.5625rem;
+  font-weight: 800;
+  background: #d97706;
+  color: #ffffff;
+  padding: 0 4px;
+  border-radius: 3px;
+  line-height: 1.4;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
 }
 
 .cititex-size-box:hover {
@@ -5484,10 +5677,22 @@ h3,
   margin-top: 6px;
 }
 
+.qty-label-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
 .qty-label {
   font-size: 0.8125rem;
   font-weight: 600;
   color: var(--color-gray-700);
+}
+
+.qty-surcharge-hint {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  color: #b45309;
 }
 
 .stepper-box {
@@ -5601,10 +5806,31 @@ h3,
   border-radius: 0;
 }
 
+.multi-size-row-item.has-surcharge {
+  border-color: #fde68a;
+  background: #fffdf5;
+}
+
+.multi-size-name-col {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
 .multi-size-name {
   font-size: 0.8125rem;
   font-weight: 700;
   color: var(--color-black);
+}
+
+.multi-size-surcharge-badge {
+  font-size: 0.625rem;
+  font-weight: 800;
+  background: #fef3c7;
+  color: #b45309;
+  border: 1px solid #fde68a;
+  padding: 0 4px;
+  border-radius: 3px;
 }
 
 /* ------------------------------------------------------------
@@ -5740,43 +5966,142 @@ h3,
    ------------------------------------------------------------ */
 .custom-action-footer {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: var(--space-4);
   padding-top: var(--space-4);
   border-top: 2px solid var(--color-gray-200);
-  margin-top: 4px;
+  margin-top: 8px;
+  width: 100%;
 }
 
-.custom-footer-summary {
+/* STRUK RINGKAS ESTIMASI BIAYA (SIMPLE & CLEAN) */
+.custom-receipt-card {
+  width: 100%;
+  background: #f8fafc;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 8px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 10px;
 }
 
-.footer-summary-row {
+.receipt-header-simple {
   display: flex;
-  align-items: baseline;
-  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-gray-200);
 }
 
-.footer-summary-label {
-  font-size: 0.75rem;
-  color: var(--color-gray-500);
+.receipt-title-simple {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--color-gray-700);
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
-.footer-summary-pcs {
-  font-size: 0.875rem;
-  color: var(--color-gray-800);
+.receipt-badge-simple {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  color: var(--color-gray-700);
+  padding: 2px 8px;
+  border-radius: 4px;
 }
 
-.footer-summary-price {
-  font-size: 1.5rem;
+.receipt-body-simple {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.receipt-row-simple {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.receipt-row-desc {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.receipt-item-name {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+}
+
+.receipt-item-sub {
+  font-size: 0.75rem;
+  color: var(--color-gray-500);
+  line-height: 1.3;
+}
+
+.receipt-item-price {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-gray-900);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.receipt-divider-simple {
+  border-top: 1px dashed var(--color-gray-300);
+  margin: 4px 0 2px 0;
+}
+
+.receipt-total-simple {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding-top: 2px;
+}
+
+.receipt-total-label-simple {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--color-black);
+}
+
+.receipt-total-sub-simple {
+  font-size: 0.6875rem;
+  color: var(--color-gray-500);
+  display: block;
+}
+
+.receipt-total-price-simple {
+  font-size: 1.375rem;
   font-weight: 800;
   color: var(--color-black);
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.receipt-manual-pill-simple {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: #b45309;
+  background: #fef3c7;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.receipt-manual-note-simple {
+  font-size: 0.6875rem;
+  color: var(--color-gray-500);
+  font-style: italic;
+  line-height: 1.3;
+  margin-top: 2px;
 }
 
 .custom-footer-buttons {
@@ -6280,40 +6605,16 @@ h3,
     padding-top: var(--space-4);
   }
 
-  .custom-footer-summary {
+  .custom-receipt-card {
     width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: center;
-    background: #f8fafc;
-    border: 1px solid var(--color-gray-200);
-    border-radius: 12px;
-    padding: 10px 14px;
-    box-sizing: border-box;
   }
 
-  .footer-summary-row {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1px;
+  .receipt-body-simple {
+    gap: 6px;
   }
 
-  .footer-summary-row:last-child {
-    align-items: flex-end;
-  }
-
-  .footer-summary-label {
-    font-size: 0.6875rem;
-  }
-
-  .footer-summary-pcs {
-    font-size: 0.8125rem;
-  }
-
-  .footer-summary-price {
+  .receipt-total-price-simple {
     font-size: 1.25rem;
-    line-height: 1.2;
   }
 
   .custom-footer-buttons {

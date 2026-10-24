@@ -89,15 +89,26 @@ export default function CartDrawer() {
             item.sizes && typeof item.sizes === 'object'
               ? Object.entries(item.sizes)
                   .filter(([, q]) => q > 0)
-                  .map(([s, q]) => `${s}: ${q}pcs`)
+                  .map(([s, q]) => {
+                    const isAbove = ['3XL', '4XL', '5XL', 'XXXL', 'XXXXL'].includes(s);
+                    return `${s}${isAbove ? ' (+5k)' : ''}: ${q}pcs`;
+                  })
                   .join(', ')
               : item.selectedSize || '-';
+
+          const sleeveName = item.sleeve || (item.sleeveType === 'panjang' ? 'Lengan Panjang (+5k)' : 'Lengan Pendek');
+          const surchargeInfo = [
+            item.sleeveExtra > 0 ? `Lengan Panjang: +${formatPrice(item.sleeveExtra)}` : null,
+            item.sizeExtra > 0 ? `Size > XXL: +${formatPrice(item.sizeExtra)}` : null,
+          ].filter(Boolean).join(', ');
 
           details = [
             `   • Warna: ${item.selectedColor || '-'}`,
             `   • Kain: ${item.fabric || '-'}`,
+            `   • Lengan: ${sleeveName}`,
             `   • Cetak: ${item.printingMethod || '-'}`,
             `   • Ukuran: ${sizeInfo || '-'}`,
+            surchargeInfo ? `   • Tambahan: ${surchargeInfo}` : null,
             item.notes ? `   • Catatan: ${item.notes}` : null,
             item.designFiles && item.designFiles.length > 0
               ? `   • File: ${item.designFiles.join(', ')}`
@@ -158,20 +169,36 @@ Mohon konfirmasi pesanan dan ketersediaan stok/slot pengerjaan. Terima kasih!`;
       for (const item of cart) {
         if (item.type === 'custom') {
           try {
+            const sleeveText = item.sleeve || (item.sleeveType === 'panjang' ? 'Lengan Panjang (+5k)' : 'Lengan Pendek');
+            const modelWithSleeve = item.name && !item.name.includes('Lengan')
+              ? `${item.name} (${sleeveText})`
+              : item.name;
+
+            const surchargeNotes = [
+              item.sleeveExtra > 0 ? `Tambahan Lengan Panjang: Rp ${item.sleeveExtra.toLocaleString('id-ID')}` : null,
+              item.sizeExtra > 0 ? `Tambahan Size > XXL: Rp ${item.sizeExtra.toLocaleString('id-ID')}` : null,
+            ].filter(Boolean).join(' | ');
+
+            const combinedNotes = [
+              item.notes || null,
+              trimmedNotes || null,
+              surchargeNotes ? `[Biaya Tambahan: ${surchargeNotes}]` : null,
+            ].filter(Boolean).join(' | ');
+
             const res = await fetch('/api/custom-orders', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 customerName: trimmedName,
                 customerPhone: trimmedPhone,
-                garmentModel: item.name,
+                garmentModel: modelWithSleeve,
                 color: item.selectedColor || '-',
                 colorHex: item.colorHex || null,
                 fabric: item.fabric || '-',
                 printingMethod: item.printingMethod || '-',
                 sizes: item.sizes || { [item.selectedSize || 'All']: item.quantity },
                 totalQuantity: item.quantity || 1,
-                notes: item.notes || trimmedNotes || null,
+                notes: combinedNotes || null,
                 designFiles: item.designFiles || [],
               }),
             });
@@ -362,17 +389,21 @@ Mohon konfirmasi pesanan dan ketersediaan stok/slot pengerjaan. Terima kasih!`;
                                   <span>• Bahan: <strong>{item.fabric || '-'}</strong></span>
                                 </div>
                                 <div className="spec-line">
-                                  <span>Metode: <strong>{item.printingMethod || '-'}</strong></span>
+                                  <span>Lengan: <strong>{item.sleeve || 'Lengan Pendek'}</strong></span>
+                                  <span>• Cetak: <strong>{item.printingMethod || '-'}</strong></span>
                                 </div>
                                 {item.sizes && typeof item.sizes === 'object' && (
                                   <div className="spec-sizes-breakdown">
                                     {Object.entries(item.sizes)
                                       .filter(([, q]) => q > 0)
-                                      .map(([s, q]) => (
-                                        <span key={s} className="size-pill">
-                                          {s}: {q}pcs
-                                        </span>
-                                      ))}
+                                      .map(([s, q]) => {
+                                        const isAbove = ['3XL', '4XL', '5XL', 'XXXL', 'XXXXL'].includes(s);
+                                        return (
+                                          <span key={s} className="size-pill">
+                                            {s}: {q}pcs {isAbove && <small style={{ color: '#d97706', fontWeight: 700 }}>(+5k)</small>}
+                                          </span>
+                                        );
+                                      })}
                                   </div>
                                 )}
                                 {item.notes && (

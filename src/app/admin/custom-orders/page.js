@@ -484,11 +484,19 @@ export default function AdminCustomOrdersPage() {
                         <div className="co-sizes-display">
                           <span className="co-detail-label" style={{ marginBottom: '8px', display: 'block' }}>Ukuran & Jumlah:</span>
                           <div className="co-sizes-tags">
-                            {sizeEntries.map(([size, qty]) => (
-                              <span key={size} className="co-size-tag">
-                                {size} <strong>×{qty}</strong>
-                              </span>
-                            ))}
+                            {sizeEntries.map(([size, qty]) => {
+                              const isAbove = ['3XL', '4XL', '5XL', 'XXXL', 'XXXXL'].includes(String(size).toUpperCase().trim());
+                              return (
+                                <span
+                                  key={size}
+                                  className="co-size-tag"
+                                  style={isAbove ? { borderColor: '#fde68a', background: '#fffbeb' } : {}}
+                                >
+                                  {size} <strong>×{qty}</strong>
+                                  {isAbove && <small style={{ color: '#d97706', fontWeight: 700, marginLeft: 4 }}>(+5k)</small>}
+                                </span>
+                              );
+                            })}
                             <span className="co-size-total">Total: <strong>{order.totalQuantity} pcs</strong></span>
                           </div>
                         </div>

@@ -191,21 +191,6 @@ export default function ProductDetailPage({ params }) {
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={selectedImage} alt={product.name} />
           </div>
-
-          {product.images && product.images.length > 1 && (
-            <div className="product-gallery-thumbs">
-              {product.images.map((img) => (
-                <div
-                  key={img.id}
-                  className={`product-gallery-thumb ${selectedImage === img.url ? 'active' : ''}`}
-                  onClick={() => setSelectedImage(img.url)}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={img.url} alt={img.alt || product.name} />
-                </div>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* PRODUCT INFO */}

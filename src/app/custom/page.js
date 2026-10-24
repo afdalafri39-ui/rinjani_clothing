@@ -24,6 +24,8 @@ import {
   ArrowRight,
   CheckCircle2,
   ShoppingBag,
+  AlertCircle,
+  Receipt,
 } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 import { useCart } from '@/context/CartContext';
@@ -231,26 +233,35 @@ const PRINTING_METHODS = [
     id: 'dtf',
     name: 'DTF (Digital Transfer Film)',
     tagline: 'Paling Populer',
+    price: 30000,
+    priceLabel: 'Rp 30.000 / pcs',
     description: 'Cetak digital full-color detail tinggi ke film khusus. Sangat tajam untuk gradasi, foto, dan desain kompleks tanpa batas warna.',
     min_order: '1 pcs',
+    minOrderNum: 1,
   },
   {
     id: 'polyflex',
     name: 'Polyflex (Vinyl Cutting)',
     tagline: 'Warna Solid & Rapi',
+    price: 40000,
+    priceLabel: 'Rp 40.000 / pcs',
     description: 'Material vinyl solid presisi tinggi. Hasil rapi, kuat, dan anti luntur. Sangat ideal untuk nama, nomor punggung, atau logo 1–2 warna.',
     min_order: '1 pcs',
+    minOrderNum: 1,
   },
   {
     id: 'manual',
     name: 'Sablon Manual (Plastisol)',
     tagline: 'Standar Distro Grosir',
-    description: 'Teknik sablon screen printing klasik dengan tinta plastisol premium. Paling awet, tahan cuci bertahun-tahun, pilihan utama produksi massal.',
-    min_order: '24 pcs',
+    price: 0,
+    priceLabel: 'Hubungi Admin',
+    description: 'Teknik sablon screen printing klasik dengan tinta plastisol premium. Hubungi admin untuk detail, minimal pemesanan sebanyak 12 pcs.',
+    min_order: '12 pcs',
+    minOrderNum: 12,
   },
 ];
 
-const SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL'];
+const SIZES = ['XS', 'S', 'M', 'L', 'XL', '2XL', '3XL', '4XL', '5XL'];
 
 const SIZE_CHART = [
   { size: 'XS', width: 44, length: 65, sleeve: 19 },
@@ -260,7 +271,16 @@ const SIZE_CHART = [
   { size: 'XL', width: 56, length: 76, sleeve: 23 },
   { size: '2XL', width: 59, length: 78, sleeve: 24 },
   { size: '3XL', width: 62, length: 81, sleeve: 25 },
+  { size: '4XL', width: 65, length: 83, sleeve: 26 },
+  { size: '5XL', width: 68, length: 85, sleeve: 27 },
 ];
+
+// Helper: Cek apakah ukuran di atas size XXL (3XL, 4XL, 5XL, dst.)
+const isSizeAboveXXL = (size) => {
+  if (!size) return false;
+  const s = String(size).toUpperCase().trim();
+  return ['3XL', '4XL', '5XL', 'XXXL', 'XXXXL', 'XXXXXL'].includes(s);
+};
 
 // ============================================================
 // MAIN COMPONENT: CONCISE SINGLE-FRAME CUSTOM STUDIO
@@ -273,6 +293,7 @@ export default function CustomPage() {
   const [selectedColor, setSelectedColor] = useState(COLORS[0]);
   const [selectedFabric, setSelectedFabric] = useState(FABRICS[0]);
   const [selectedPrinting, setSelectedPrinting] = useState(PRINTING_METHODS[0]);
+  const [sleeveType, setSleeveType] = useState('pendek'); // 'pendek' | 'panjang'
 
   // Size & Quantity
   const [activeSize, setActiveSize] = useState('S');
@@ -286,6 +307,8 @@ export default function CustomPage() {
     XL: 0,
     '2XL': 0,
     '3XL': 0,
+    '4XL': 0,
+    '5XL': 0,
   });
 
   // Design Files & Notes
@@ -332,6 +355,14 @@ export default function CustomPage() {
   // When user clicks a model in the catalog grid, select it and smoothly scroll to the selection section
   const handleSelectModel = (model) => {
     setSelectedModel(model);
+    if (
+      model?.id === 'long-sleeve' ||
+      model?.slug === 'long-sleeve' ||
+      model?.name?.toLowerCase().includes('long sleeve') ||
+      model?.category?.toLowerCase().includes('long sleeve')
+    ) {
+      setSleeveType('panjang');
+    }
     setTimeout(() => {
       if (selectionSectionRef.current) {
         selectionSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -356,18 +387,20 @@ export default function CustomPage() {
     selectedModel?.name?.toLowerCase().includes('long sleeve') ||
     selectedModel?.category?.toLowerCase().includes('long sleeve');
 
+  const shouldUseLongSleeveImage = sleeveType === 'panjang' || isLongSleeve;
+
   const colorSpecificImage =
-    isTshirtReguler && selectedColor?.id
-      ? (tshirtColorData?.localUrls?.[selectedColor.id] || tshirtColorData?.storageUrls?.[selectedColor.id])
-      : isTshirtOversize && selectedColor?.id && tshirtColorData?.oversizeUrls?.[selectedColor.id]
-        ? tshirtColorData.oversizeUrls[selectedColor.id]
-        : isLongSleeve && selectedColor?.id && tshirtColorData?.longSleeveUrls?.[selectedColor.id]
-          ? tshirtColorData.longSleeveUrls[selectedColor.id]
+    shouldUseLongSleeveImage && selectedColor?.id && tshirtColorData?.longSleeveUrls?.[selectedColor.id]
+      ? tshirtColorData.longSleeveUrls[selectedColor.id]
+      : isTshirtReguler && selectedColor?.id
+        ? (tshirtColorData?.localUrls?.[selectedColor.id] || tshirtColorData?.storageUrls?.[selectedColor.id])
+        : isTshirtOversize && selectedColor?.id && tshirtColorData?.oversizeUrls?.[selectedColor.id]
+          ? tshirtColorData.oversizeUrls[selectedColor.id]
           : null;
 
   const defaultFallbackImage = isTshirtOversize
     ? '/products/t-shirt-oversize/tshirt-oversize-hitam.jpg'
-    : isLongSleeve
+    : shouldUseLongSleeveImage
       ? '/products/long-sleeve/long-sleeve-hitam.webp'
       : '/products/t-shirt-reguler/tshirt-reguler-salmon.webp';
 
@@ -387,8 +420,46 @@ export default function CustomPage() {
     ? Object.values(sizeQuantities).reduce((acc, qty) => acc + (qty > 0 ? qty : 0), 0) || 1
     : quickQuantity;
 
-  const unitPrice = selectedModel?.price && selectedModel.price > 0 ? selectedModel.price : 42000;
-  const totalPrice = unitPrice * totalQuantity;
+  const baseUnitPrice = selectedModel?.price && selectedModel.price > 0 ? selectedModel.price : 42000;
+
+  // Harga metode cetak: DTF = 30k, Polyflex = 40k, Sablon Manual = Hubungi Admin (0 pada estimasi sistem)
+  const isPrintingManual = selectedPrinting?.id === 'manual';
+  const printingPricePerPcs = selectedPrinting?.price || 0;
+  const totalPrintingPrice = printingPricePerPcs * totalQuantity;
+
+  // Harga tambahan request lengan panjang (+Rp 5.000 / pakaian)
+  const sleeveExtraPerPcs = sleeveType === 'panjang' ? 5000 : 0;
+  const totalSleeveExtra = sleeveExtraPerPcs * totalQuantity;
+
+  // Harga tambahan ukuran diatas size XXL (+Rp 5.000 / pakaian)
+  const totalSizeExtra = isMultiSize
+    ? Object.entries(sizeQuantities).reduce((acc, [sz, qty]) => {
+        return acc + (isSizeAboveXXL(sz) ? 5000 * Math.max(0, qty) : 0);
+      }, 0)
+    : (isSizeAboveXXL(activeSize) ? 5000 * quickQuantity : 0);
+
+  // Helper label ringkas untuk struk
+  const compactSizesLabel = isMultiSize
+    ? Object.entries(sizeQuantities)
+        .filter(([, q]) => q > 0)
+        .map(([s, q]) => `${s}:${q}`)
+        .join(', ') || activeSize
+    : activeSize;
+
+  const compactAboveXXLLabel = isMultiSize
+    ? Object.entries(sizeQuantities)
+        .filter(([s, q]) => isSizeAboveXXL(s) && q > 0)
+        .map(([s, q]) => `${s}:${q}`)
+        .join(', ')
+    : activeSize;
+
+  const totalAboveXXLQty = isMultiSize
+    ? Object.entries(sizeQuantities).reduce((acc, [s, q]) => acc + (isSizeAboveXXL(s) ? q : 0), 0)
+    : (isSizeAboveXXL(activeSize) ? quickQuantity : 0);
+
+  const totalBasePrice = baseUnitPrice * totalQuantity;
+  const totalPrice = totalBasePrice + totalPrintingPrice + totalSleeveExtra + totalSizeExtra;
+  const effectiveUnitPrice = totalQuantity > 0 ? Math.round(totalPrice / totalQuantity) : (baseUnitPrice + printingPricePerPcs);
 
   // Single-size quantity stepper
   const handleQuickQtyChange = (delta) => {
@@ -554,10 +625,21 @@ export default function CustomPage() {
     setSelectedColor(COLORS[0]);
     setSelectedFabric(FABRICS[0]);
     setSelectedPrinting(PRINTING_METHODS[0]);
+    setSleeveType('pendek');
     setActiveSize('S');
     setQuickQuantity(1);
     setIsMultiSize(false);
-    setSizeQuantities({ XS: 0, S: 1, M: 0, L: 0, XL: 0, '2XL': 0, '3XL': 0 });
+    setSizeQuantities({
+      XS: 0,
+      S: 1,
+      M: 0,
+      L: 0,
+      XL: 0,
+      '2XL': 0,
+      '3XL': 0,
+      '4XL': 0,
+      '5XL': 0,
+    });
     setUploadedFiles([]);
     setNotes('');
   };
@@ -565,18 +647,29 @@ export default function CustomPage() {
   // Add configured custom garment to cart cache
   const handleAddToCartCustom = (e) => {
     if (!selectedModel) return;
+    const sleeveLabelText = sleeveType === 'panjang' ? 'Lengan Panjang (+5k)' : 'Lengan Pendek';
     addToCart(
       {
         type: 'custom',
         id: `custom_${selectedModel.id}_${Date.now()}`,
         name: selectedModel.name,
-        price: unitPrice,
+        price: effectiveUnitPrice,
+        basePrice: baseUnitPrice,
+        effectiveUnitPrice,
+        sleeve: sleeveLabelText,
+        sleeveType,
+        sleeveExtra: totalSleeveExtra,
+        sizeExtra: totalSizeExtra,
+        printingPrice: totalPrintingPrice,
+        printingPricePerPcs,
+        isPrintingManual,
+        totalPrice,
         quantity: totalQuantity,
         image: activeImage,
         selectedColor: selectedColor?.name || 'Standard',
         colorHex: selectedColor?.hex || null,
         fabric: selectedFabric?.name || 'Cotton Combed',
-        printingMethod: selectedPrinting?.name || 'DTF',
+        printingMethod: `${selectedPrinting?.name} (${selectedPrinting?.priceLabel || 'Standar'})`,
         sizes: isMultiSize ? sizeQuantities : { [activeSize]: quickQuantity },
         notes: notes || '',
         designFiles: uploadedFiles.map((f) => f.name),
@@ -589,21 +682,26 @@ export default function CustomPage() {
   const sizesSummaryString = isMultiSize
     ? Object.entries(sizeQuantities)
       .filter(([, q]) => q > 0)
-      .map(([s, q]) => `${s}(${q})`)
+      .map(([s, q]) => `${s}${isSizeAboveXXL(s) ? ' (+5k)' : ''}(${q})`)
       .join(', ') || `${activeSize}(1)`
-    : `${activeSize} (${quickQuantity} pcs)`;
+    : `${activeSize}${isSizeAboveXXL(activeSize) ? ' (+5k)' : ''} (${quickQuantity} pcs)`;
+
+  const sleeveLabel = sleeveType === 'panjang' ? 'Lengan Panjang (+Rp 5.000 / pcs)' : 'Lengan Pendek (Standar)';
+  const printingLabel = `${selectedPrinting?.name} (${selectedPrinting?.priceLabel})`;
 
   const productDataForModal = selectedModel
     ? {
       name: `Custom ${selectedModel.name}`,
       slug: 'custom-order',
-      price: formatPrice(unitPrice),
+      price: formatPrice(effectiveUnitPrice),
+      rawPrice: effectiveUnitPrice,
       selectedSize: sizesSummaryString,
       selectedColor: selectedColor?.name || '-',
       quantity: totalQuantity,
       customData: {
         fabric: selectedFabric?.name || '-',
-        printing: selectedPrinting?.name || '-',
+        sleeve: sleeveLabel,
+        printing: printingLabel,
         notes: notes || '-',
         designFiles:
           uploadedFiles.length > 0
@@ -620,9 +718,19 @@ export default function CustomPage() {
     colorHex: selectedColor?.hex || '',
     fabric: selectedFabric?.name || '',
     fabricWeight: selectedFabric?.weight || '',
-    printingMethod: selectedPrinting?.name || '',
+    printingMethod: printingLabel,
+    printingPricePerPcs: printingPricePerPcs,
+    totalPrintingPrice: totalPrintingPrice,
+    isPrintingManual: isPrintingManual,
+    sleeve: sleeveLabel,
+    sleeveType: sleeveType,
     sizes: isMultiSize ? sizeQuantities : { [activeSize]: quickQuantity },
     totalQuantity: totalQuantity,
+    baseUnitPrice: baseUnitPrice,
+    totalBasePrice: totalBasePrice,
+    totalSleeveExtra: totalSleeveExtra,
+    totalSizeExtra: totalSizeExtra,
+    totalPrice: totalPrice,
     notes: notes || '',
     designFiles: uploadedFiles.map((f) => ({
       name: f.name,
@@ -755,7 +863,7 @@ export default function CustomPage() {
                 <div className="custom-gallery-live-spec">
                   <div className="live-spec-dot" style={{ backgroundColor: selectedColor?.hex || '#111' }} />
                   <span>
-                    <strong>{selectedModel?.name}</strong> • Warna: {selectedColor?.name} • {selectedFabric?.name} • {selectedPrinting?.name}
+                    <strong>{selectedModel?.name}</strong> • {sleeveType === 'panjang' ? 'Lengan Panjang (+5k)' : 'Lengan Pendek'} • Warna: {selectedColor?.name} • {selectedFabric?.name} • {selectedPrinting?.name}
                   </span>
                 </div>
               </div>
@@ -771,11 +879,14 @@ export default function CustomPage() {
                 {/* Price Block */}
                 <div className="custom-panel-price-row">
                   <div className="custom-panel-price">
-                    <span className="price-amount">{formatPrice(unitPrice)}</span>
-                    <span className="price-unit">/ pcs</span>
+                    <span className="price-amount">{formatPrice(effectiveUnitPrice)}</span>
+                    <span className="price-unit">/ pcs {isPrintingManual && '(estimasi kaos)'}</span>
                   </div>
                   <div className="custom-panel-price-hint">
-                    Diskon khusus untuk pemesanan partai besar & komunitas • <strong>Min. 1 pcs</strong>
+                    Kaos {formatPrice(baseUnitPrice)} + Cetak {selectedPrinting?.priceLabel}
+                    {sleeveType === 'panjang' && ' • +Lengan Panjang (Rp 5.000)'}
+                    {totalSizeExtra > 0 && ' • +Tambahan Size > XXL (Rp 5.000/pcs)'}
+                    {isPrintingManual && ' • Min. 12 pcs'}
                   </div>
                 </div>
               </div>
@@ -860,12 +971,15 @@ export default function CustomPage() {
                   <span className="custom-section-label">
                     Metode Cetak / Sablon: <strong className="selected-val-highlight">{selectedPrinting?.name}</strong>
                   </span>
-                  <span className="custom-section-weight">Min. {selectedPrinting?.min_order}</span>
+                  <span className="custom-section-weight">
+                    {selectedPrinting?.priceLabel} • Min. {selectedPrinting?.min_order}
+                  </span>
                 </div>
 
                 <div className="custom-printing-chips">
                   {PRINTING_METHODS.map((method) => {
                     const isSelected = selectedPrinting?.id === method.id;
+                    const isManual = method.id === 'manual';
                     return (
                       <button
                         key={method.id}
@@ -876,19 +990,96 @@ export default function CustomPage() {
                         <div className="printing-chip-text">
                           <div className="printing-chip-title-row">
                             <span className="printing-chip-title">{method.name}</span>
-                            <span className="printing-chip-min">Min. {method.min_order}</span>
+                            <span className={`printing-chip-price-badge ${isManual ? 'contact' : 'paid'}`}>
+                              {method.priceLabel}
+                            </span>
                           </div>
-                          <span className="printing-chip-tagline">{method.tagline}</span>
+                          <div className="printing-chip-sub-row">
+                            <span className="printing-chip-min">Min. {method.min_order}</span>
+                            <span className="printing-chip-tagline">{method.tagline}</span>
+                          </div>
                         </div>
                         {isSelected && <Check size={14} className="printing-chip-check" />}
                       </button>
                     );
                   })}
                 </div>
+
+                {/* Callout untuk Sablon Manual (Minimal 12 pcs & Hubungi Admin) */}
+                {isPrintingManual && (
+                  <div className={`printing-manual-callout ${totalQuantity < 12 ? 'warning' : 'ok'}`}>
+                    {totalQuantity < 12 ? (
+                      <>
+                        <AlertCircle size={16} className="callout-icon-warn" />
+                        <span>
+                          <strong>Perhatian:</strong> Sablon Manual memerlukan minimal pemesanan sebanyak <strong>12 pcs</strong> (pesanan saat ini: <strong>{totalQuantity} pcs</strong>). Silakan tambah kuantitas atau hubungi admin untuk konsultasi.
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <Check size={16} className="callout-icon-ok" />
+                        <span>
+                          Jumlah pesanan (<strong>{totalQuantity} pcs</strong>) memenuhi syarat minimal Sablon Manual (12 pcs). Rincian biaya akhir akan dikonfirmasi langsung oleh admin via WhatsApp sesuai detail desain Anda.
+                        </span>
+                      </>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* ============================================================ */}
-              {/* 4. UKURAN & JUMLAH (SIZE & QUANTITY - CITITEX STYLE) */}
+              {/* 4. PILIH MODEL LENGAN (SLEEVE TYPE) */}
+              {/* ============================================================ */}
+              <div className="custom-section">
+                <div className="custom-section-header">
+                  <span className="custom-section-label">
+                    Pilihan Lengan:{' '}
+                    <strong className="selected-val-highlight">
+                      {sleeveType === 'panjang' ? 'Lengan Panjang (+Rp 5.000 / pakaian)' : 'Lengan Pendek (Standar)'}
+                    </strong>
+                  </span>
+                  {sleeveType === 'panjang' ? (
+                    <span className="surcharge-indicator-badge">+Rp 5.000 / pakaian</span>
+                  ) : (
+                    <span className="custom-section-weight">Standar (Rp 0)</span>
+                  )}
+                </div>
+
+                <div className="custom-sleeve-grid">
+                  <button
+                    type="button"
+                    className={`custom-sleeve-card ${sleeveType === 'pendek' ? 'active' : ''}`}
+                    onClick={() => setSleeveType('pendek')}
+                  >
+                    <div className="sleeve-card-header">
+                      <span className="sleeve-card-title">Lengan Pendek</span>
+                      {sleeveType === 'pendek' && <Check size={14} className="sleeve-card-check" />}
+                    </div>
+                    <p className="sleeve-card-desc">Potongan pendek standar esensial, adem dan kasual untuk harian</p>
+                    <div className="sleeve-card-footer">
+                      <span className="sleeve-price-tag free">Standar (Rp 0)</span>
+                    </div>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`custom-sleeve-card ${sleeveType === 'panjang' ? 'active' : ''}`}
+                    onClick={() => setSleeveType('panjang')}
+                  >
+                    <div className="sleeve-card-header">
+                      <span className="sleeve-card-title">Lengan Panjang</span>
+                      {sleeveType === 'panjang' && <Check size={14} className="sleeve-card-check" />}
+                    </div>
+                    <p className="sleeve-card-desc">Potongan lengan panjang dengan rib manset elastis premium</p>
+                    <div className="sleeve-card-footer">
+                      <span className="sleeve-price-tag surcharge">+Rp 5.000 / pakaian</span>
+                    </div>
+                  </button>
+                </div>
+              </div>
+
+              {/* ============================================================ */}
+              {/* 5. UKURAN & JUMLAH (SIZE & QUANTITY - CITITEX STYLE) */}
               {/* ============================================================ */}
               <div className="custom-section">
                 <div className="custom-section-header">
@@ -897,6 +1088,11 @@ export default function CustomPage() {
                     <strong className="selected-val-highlight">
                       {isMultiSize ? 'Kombinasi Banyak Ukuran' : activeSize}
                     </strong>
+                    {!isMultiSize && isSizeAboveXXL(activeSize) && (
+                      <span className="surcharge-indicator-badge" style={{ marginLeft: 8 }}>
+                        +Rp 5.000 (Ukuran &gt; XXL)
+                      </span>
+                    )}
                   </span>
                   <button
                     type="button"
@@ -908,20 +1104,31 @@ export default function CustomPage() {
                   </button>
                 </div>
 
+                {/* Surcharge policy callout */}
+                <div className="size-policy-callout">
+                  <Info size={14} className="policy-callout-icon" />
+                  <span>
+                    <strong>Biaya Tambahan Ukuran:</strong> Pemesanan ukuran di atas <strong>XXL</strong> (<strong>3XL, 4XL, 5XL</strong>) dikenakan tambahan <strong>+Rp 5.000</strong> per pakaian.
+                  </span>
+                </div>
+
                 {/* Size Buttons Row */}
                 <div className="cititex-sizes-row">
                   {SIZES.map((sz) => {
                     const isSelected = isMultiSize ? (sizeQuantities[sz] || 0) > 0 : activeSize === sz;
                     const qtyVal = sizeQuantities[sz] || 0;
+                    const isAbove = isSizeAboveXXL(sz);
 
                     return (
                       <button
                         key={sz}
                         type="button"
-                        className={`cititex-size-box ${isSelected ? 'active' : ''}`}
+                        className={`cititex-size-box ${isSelected ? 'active' : ''} ${isAbove ? 'has-surcharge' : ''}`}
                         onClick={() => handleSelectSize(sz)}
+                        title={isAbove ? `Ukuran ${sz} (+Rp 5.000 / pakaian)` : `Ukuran ${sz}`}
                       >
                         <span className="size-label">{sz}</span>
+                        {isAbove && <span className="size-surcharge-tag">+5k</span>}
                         {isMultiSize && qtyVal > 0 && (
                           <span className="size-qty-badge">{qtyVal} pcs</span>
                         )}
@@ -944,34 +1151,45 @@ export default function CustomPage() {
                 {/* Multi-Size Detailed Counter Table */}
                 {isMultiSize ? (
                   <div className="multi-size-grid">
-                    {SIZES.map((sz) => (
-                      <div key={sz} className="multi-size-row-item">
-                        <span className="multi-size-name">{sz}</span>
-                        <div className="stepper-box">
-                          <button
-                            type="button"
-                            className="stepper-btn"
-                            onClick={() => handleSizeQtyChange(sz, -1)}
-                            disabled={(sizeQuantities[sz] || 0) <= 0}
-                          >
-                            <Minus size={12} />
-                          </button>
-                          <span className="stepper-val">{sizeQuantities[sz] || 0}</span>
-                          <button
-                            type="button"
-                            className="stepper-btn"
-                            onClick={() => handleSizeQtyChange(sz, 1)}
-                          >
-                            <Plus size={12} />
-                          </button>
+                    {SIZES.map((sz) => {
+                      const isAbove = isSizeAboveXXL(sz);
+                      return (
+                        <div key={sz} className={`multi-size-row-item ${isAbove ? 'has-surcharge' : ''}`}>
+                          <div className="multi-size-name-col">
+                            <span className="multi-size-name">{sz}</span>
+                            {isAbove && <span className="multi-size-surcharge-badge">+5k</span>}
+                          </div>
+                          <div className="stepper-box">
+                            <button
+                              type="button"
+                              className="stepper-btn"
+                              onClick={() => handleSizeQtyChange(sz, -1)}
+                              disabled={(sizeQuantities[sz] || 0) <= 0}
+                            >
+                              <Minus size={12} />
+                            </button>
+                            <span className="stepper-val">{sizeQuantities[sz] || 0}</span>
+                            <button
+                              type="button"
+                              className="stepper-btn"
+                              onClick={() => handleSizeQtyChange(sz, 1)}
+                            >
+                              <Plus size={12} />
+                            </button>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   /* Single Size Quantity Stepper (Cititex Style) */
                   <div className="cititex-qty-row">
-                    <span className="qty-label">Jumlah (Ukuran {activeSize}):</span>
+                    <div className="qty-label-col">
+                      <span className="qty-label">Jumlah (Ukuran {activeSize}):</span>
+                      {isSizeAboveXXL(activeSize) && (
+                        <span className="qty-surcharge-hint">+Rp 5.000 / pakaian (Ukuran &gt; XXL)</span>
+                      )}
+                    </div>
                     <div className="stepper-box stepper-box-lg">
                       <button
                         type="button"
@@ -997,7 +1215,7 @@ export default function CustomPage() {
               </div>
 
               {/* ============================================================ */}
-              {/* 5. UPLOAD FILE DESAIN */}
+              {/* 6. UPLOAD FILE DESAIN */}
               {/* ============================================================ */}
               <div className="custom-section">
                 <div className="custom-section-header">
@@ -1065,7 +1283,7 @@ export default function CustomPage() {
               </div>
 
               {/* ============================================================ */}
-              {/* 6. CATATAN TAMBAHAN (OPTIONAL NOTES) */}
+              {/* 7. CATATAN TAMBAHAN (OPTIONAL NOTES) */}
               {/* ============================================================ */}
               <div className="custom-section">
                 <label htmlFor="order-notes" className="custom-section-label" style={{ display: 'block', marginBottom: 8 }}>
@@ -1082,21 +1300,102 @@ export default function CustomPage() {
               </div>
 
               {/* ============================================================ */}
-              {/* 7. RINGKASAN HARGA & ORDER CTA (BOTTOM ACTION BAR) */}
+              {/* 8. STRUK RINGKAS ESTIMASI BIAYA & ORDER CTA                 */}
               {/* ============================================================ */}
               <div className="custom-action-footer">
-                <div className="custom-footer-summary">
-                  <div className="footer-summary-row">
-                    <span className="footer-summary-label">Total Pesanan:</span>
-                    <span className="footer-summary-pcs">
-                      <strong>{totalQuantity}</strong> pcs
-                    </span>
+                {/* STRUK RINGKAS ESTIMASI BIAYA (SIMPLE & CLEAN) */}
+                <div className="custom-receipt-card" id="custom-receipt-summary">
+                  {/* Simple Header */}
+                  <div className="receipt-header-simple">
+                    <span className="receipt-title-simple">Rincian Estimasi Biaya</span>
+                    <span className="receipt-badge-simple">{totalQuantity} pcs total</span>
                   </div>
-                  <div className="footer-summary-row">
-                    <span className="footer-summary-label">Estimasi Biaya:</span>
-                    <span className="footer-summary-price">
-                      {formatPrice(totalPrice)}
-                    </span>
+
+                  {/* Simple Item List */}
+                  <div className="receipt-body-simple">
+                    {/* 1. Kaos Dasar */}
+                    <div className="receipt-row-simple">
+                      <div className="receipt-row-desc">
+                        <span className="receipt-item-name">{selectedModel?.name} ({compactSizesLabel})</span>
+                        <span className="receipt-item-sub">
+                          {selectedColor?.name || 'Warna'} • {selectedFabric?.name} • {totalQuantity} × {formatPrice(baseUnitPrice)}
+                        </span>
+                      </div>
+                      <div className="receipt-item-price">
+                        {formatPrice(totalBasePrice)}
+                      </div>
+                    </div>
+
+                    {/* 2. Metode Cetak */}
+                    <div className="receipt-row-simple">
+                      <div className="receipt-row-desc">
+                        <span className="receipt-item-name">Cetak: {selectedPrinting?.name}</span>
+                        <span className="receipt-item-sub">
+                          {isPrintingManual ? 'Min. pemesanan 12 pcs' : `${totalQuantity} × ${formatPrice(printingPricePerPcs)}`}
+                        </span>
+                      </div>
+                      <div className="receipt-item-price">
+                        {isPrintingManual ? (
+                          <span className="receipt-manual-pill-simple">Hubungi Admin</span>
+                        ) : (
+                          `+${formatPrice(totalPrintingPrice)}`
+                        )}
+                      </div>
+                    </div>
+
+                    {/* 3. Lengan Panjang (jika ada) */}
+                    {sleeveType === 'panjang' && (
+                      <div className="receipt-row-simple">
+                        <div className="receipt-row-desc">
+                          <span className="receipt-item-name">Lengan Panjang</span>
+                          <span className="receipt-item-sub">
+                            {totalQuantity} × Rp 5.000
+                          </span>
+                        </div>
+                        <div className="receipt-item-price">
+                          +{formatPrice(totalSleeveExtra)}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* 4. Tambahan Size > XXL (jika ada) */}
+                    {totalSizeExtra > 0 && (
+                      <div className="receipt-row-simple">
+                        <div className="receipt-row-desc">
+                          <span className="receipt-item-name">Tambahan Size &gt; XXL ({compactAboveXXLLabel})</span>
+                          <span className="receipt-item-sub">
+                            {totalAboveXXLQty} × Rp 5.000
+                          </span>
+                        </div>
+                        <div className="receipt-item-price">
+                          +{formatPrice(totalSizeExtra)}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Simple Divider */}
+                    <div className="receipt-divider-simple" />
+
+                    {/* Total Row */}
+                    <div className="receipt-total-simple">
+                      <div>
+                        <span className="receipt-total-label-simple">Total Estimasi</span>
+                        <span className="receipt-total-sub-simple">
+                          {isPrintingManual ? '*Belum termasuk cetak manual' : `${totalQuantity} pcs pakaian`}
+                        </span>
+                      </div>
+                      <div className="receipt-total-price-simple">
+                        {formatPrice(totalPrice)}
+                        {isPrintingManual && <span className="receipt-manual-asterisk">*</span>}
+                      </div>
+                    </div>
+
+                    {/* Notice Sablon Manual (if manual) */}
+                    {isPrintingManual && (
+                      <div className="receipt-manual-note-simple">
+                        *Biaya sablon manual (min. 12 pcs) akan dikonfirmasi admin via WhatsApp.
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -1186,10 +1485,12 @@ export default function CustomPage() {
               </div>
 
               <div className="size-guide-tips">
-                <strong>💡 Tips Menentukan Ukuran:</strong>
+                <strong>💡 Ketentuan Ukuran &amp; Tambahan Biaya:</strong>
                 <ul>
-                  <li>Ukur kaos favorit yang paling pas di badan Anda dari ketiak kiri ke ketiak kanan (Lebar Dada).</li>
+                  <li>Ukur pakaian favorit yang paling pas di badan Anda dari ketiak kiri ke ketiak kanan (Lebar Dada).</li>
                   <li>Jika Anda menyukai gaya santai atau sedikit longgar, pilih satu tingkat ukuran di atasnya.</li>
+                  <li><strong>Ukuran Di Atas XXL (3XL, 4XL, 5XL):</strong> Dikenakan biaya tambahan sebesar <strong>Rp 5.000 per pakaian</strong> karena membutuhkan konsumsi bahan kain ekstra.</li>
+                  <li><strong>Request Lengan Panjang:</strong> Dikenakan biaya tambahan sebesar <strong>Rp 5.000 per pakaian</strong> lengkap dengan rib manset elastis.</li>
                 </ul>
               </div>
             </div>

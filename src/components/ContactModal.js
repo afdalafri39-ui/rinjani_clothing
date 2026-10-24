@@ -78,6 +78,22 @@ export default function ContactModal({ isOpen, onClose, productData = null, cust
     setError('');
 
     try {
+      const d = customOrderData || {};
+      const sleeveText = d.sleeve || (d.sleeveType === 'panjang' ? 'Lengan Panjang (+5k)' : 'Lengan Pendek');
+      const garmentModelFormatted = d.garmentModel && !d.garmentModel.includes('Lengan')
+        ? `${d.garmentModel} (${sleeveText})`
+        : d.garmentModel || '';
+
+      const surchargeNotes = [
+        d.totalSleeveExtra > 0 ? `Tambahan Lengan Panjang: Rp ${d.totalSleeveExtra.toLocaleString('id-ID')}` : null,
+        d.totalSizeExtra > 0 ? `Tambahan Size > XXL: Rp ${d.totalSizeExtra.toLocaleString('id-ID')}` : null,
+      ].filter(Boolean).join(' | ');
+
+      const combinedNotes = [
+        d.notes || null,
+        surchargeNotes ? `[Biaya Tambahan: ${surchargeNotes}]` : null,
+      ].filter(Boolean).join(' | ');
+
       const res = await fetch('/api/custom-orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -85,7 +101,9 @@ export default function ContactModal({ isOpen, onClose, productData = null, cust
           customerName: customerName.trim(),
           customerPhone: customerPhone.trim(),
           customerEmail: customerEmail.trim() || null,
-          ...customOrderData,
+          ...d,
+          garmentModel: garmentModelFormatted,
+          notes: combinedNotes || null,
         }),
       });
 
@@ -115,10 +133,35 @@ export default function ContactModal({ isOpen, onClose, productData = null, cust
   };
 
   const buildCustomOrderMessage = (orderNum) => {
-    const d = customOrderData;
+    const d = customOrderData || {};
     const sizeStr = d.sizes && typeof d.sizes === 'object'
-      ? Object.entries(d.sizes).filter(([, q]) => q > 0).map(([s, q]) => `${s}: ${q}pcs`).join(', ')
+      ? Object.entries(d.sizes)
+          .filter(([, q]) => q > 0)
+          .map(([s, q]) => {
+            const isAbove = ['3XL', '4XL', '5XL', 'XXXL', 'XXXXL'].includes(s);
+            return `${s}${isAbove ? ' (+5k)' : ''}: ${q}pcs`;
+          })
+          .join(', ')
       : '-';
+
+    const priceBreakdown = [];
+    if (d.totalPrice) {
+      if (d.totalBasePrice) {
+        priceBreakdown.push(`• Harga Pakaian: Rp ${d.totalBasePrice.toLocaleString('id-ID')}`);
+      }
+      if (d.isPrintingManual) {
+        priceBreakdown.push(`• Biaya Cetak: Sablon Manual (Hubungi Admin - Min. 12 pcs)`);
+      } else if (d.totalPrintingPrice > 0) {
+        priceBreakdown.push(`• Biaya Cetak: +Rp ${d.totalPrintingPrice.toLocaleString('id-ID')}`);
+      }
+      if (d.totalSleeveExtra > 0) {
+        priceBreakdown.push(`• Tambahan Lengan Panjang: +Rp ${d.totalSleeveExtra.toLocaleString('id-ID')} (+5k/pcs)`);
+      }
+      if (d.totalSizeExtra > 0) {
+        priceBreakdown.push(`• Tambahan Ukuran > XXL: +Rp ${d.totalSizeExtra.toLocaleString('id-ID')} (+5k/pcs)`);
+      }
+      priceBreakdown.push(`• Total Estimasi: *Rp ${d.totalPrice.toLocaleString('id-ID')}*${d.isPrintingManual ? ' (+ Biaya Sablon Manual)' : ''}`);
+    }
 
     return `Halo Rinjani Clothing,
 
@@ -132,11 +175,12 @@ Saya ingin memesan CUSTOM ORDER:
 • Model: ${d.garmentModel || '-'}
 • Warna: ${d.color || '-'}
 • Kain: ${d.fabric || '-'}
+• Lengan: ${d.sleeve || 'Lengan Pendek'}
 • Cetak: ${d.printingMethod || '-'}
 • Ukuran: ${sizeStr}
 • Total: ${d.totalQuantity || 1} pcs
 
-${d.notes ? `📝 Catatan: ${d.notes}\n` : ''}${d.designFiles && d.designFiles.length > 0 ? `🎨 File Desain: ${d.designFiles.map((f) => (typeof f === 'string' ? f : f.name)).join(', ')}\n` : ''}
+${priceBreakdown.length > 0 ? `💰 ESTIMASI BIAYA:\n${priceBreakdown.join('\n')}\n\n` : ''}${d.notes ? `📝 Catatan: ${d.notes}\n` : ''}${d.designFiles && d.designFiles.length > 0 ? `🎨 File Desain: ${d.designFiles.map((f) => (typeof f === 'string' ? f : f.name)).join(', ')}\n` : ''}
 Mohon konfirmasi pesanan saya. Terima kasih!`;
   };
 
