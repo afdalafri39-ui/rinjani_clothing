@@ -61,11 +61,16 @@ const AUTO_PLAY_INTERVAL = 3000;
 
 export default function HeroSlideshow() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [prevIndex, setPrevIndex] = useState(null);
+  const [direction, setDirection] = useState('left');
+  const [isPaused, setIsPaused] = useState(false);
   const [imgSources, setImgSources] = useState(() =>
     SLIDES.map((s) => s.image)
   );
+
   const touchStartX = useRef(0);
   const touchEndX = useRef(0);
+  const transitionTimerRef = useRef(null);
 
   // Preload background images & setup Supabase storage fallback
   useEffect(() => {
@@ -94,22 +99,56 @@ export default function HeroSlideshow() {
     });
   };
 
+  const changeSlide = useCallback((newIndex, newDirection = 'left') => {
+    if (newIndex === currentIndex) return;
+
+    if (transitionTimerRef.current) {
+      clearTimeout(transitionTimerRef.current);
+    }
+
+    setPrevIndex(currentIndex);
+    setDirection(newDirection);
+    setCurrentIndex(newIndex);
+
+    transitionTimerRef.current = setTimeout(() => {
+      setPrevIndex(null);
+    }, 850);
+  }, [currentIndex]);
+
   const nextSlide = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % SLIDES.length);
-  }, []);
+    const nextIdx = (currentIndex + 1) % SLIDES.length;
+    changeSlide(nextIdx, 'left');
+  }, [currentIndex, changeSlide]);
 
   const prevSlide = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + SLIDES.length) % SLIDES.length);
-  }, []);
+    const prevIdx = (currentIndex - 1 + SLIDES.length) % SLIDES.length;
+    changeSlide(prevIdx, 'right');
+  }, [currentIndex, changeSlide]);
 
-  // Auto-play timer: berganti otomatis setiap 5 detik secara kontinu
+  const goToSlide = useCallback((idx) => {
+    if (idx === currentIndex) return;
+    changeSlide(idx, idx > currentIndex ? 'left' : 'right');
+  }, [currentIndex, changeSlide]);
+
+  // Auto-play timer: berganti otomatis setiap 3 detik bergeser dari kanan ke kiri
   useEffect(() => {
+    if (isPaused) return;
+
     const timer = setInterval(() => {
       nextSlide();
     }, AUTO_PLAY_INTERVAL);
 
     return () => clearInterval(timer);
-  }, [nextSlide, currentIndex]);
+  }, [nextSlide, isPaused]);
+
+  // Cleanup transition timer on unmount
+  useEffect(() => {
+    return () => {
+      if (transitionTimerRef.current) {
+        clearTimeout(transitionTimerRef.current);
+      }
+    };
+  }, []);
 
   // Touch swipe support untuk mobile
   const handleTouchStart = (e) => {
@@ -131,6 +170,8 @@ export default function HeroSlideshow() {
   return (
     <section
       className="hero hero-slideshow"
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -140,10 +181,19 @@ export default function HeroSlideshow() {
       <div className="hero-slides-track">
         {SLIDES.map((slide, idx) => {
           const isActive = idx === currentIndex;
+          const isExiting = idx === prevIndex;
+
+          let animClass = '';
+          if (isActive && prevIndex !== null) {
+            animClass = direction === 'right' ? 'is-entering-right' : 'is-entering-left';
+          } else if (isExiting) {
+            animClass = direction === 'right' ? 'is-exiting-right' : 'is-exiting-left';
+          }
+
           return (
             <div
               key={slide.id}
-              className={`hero-slide-item ${isActive ? 'is-active' : ''}`}
+              className={`hero-slide-item ${isActive ? 'is-active' : ''} ${animClass}`}
               aria-hidden={!isActive}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -152,7 +202,7 @@ export default function HeroSlideshow() {
                 alt={slide.title}
                 onError={() => handleImgError(idx)}
                 className="hero-slide-img"
-                loading="eager"
+                loading={idx === 0 ? 'eager' : 'lazy'}
               />
             </div>
           );
@@ -164,7 +214,10 @@ export default function HeroSlideshow() {
 
       {/* Slide Content */}
       <div className="hero-content hero-slideshow-content">
-        <div key={currentSlide.id} className="hero-text-anim">
+        <div
+          key={currentSlide.id}
+          className={`hero-text-anim ${direction === 'left' ? 'anim-slide-left' : 'anim-slide-right'}`}
+        >
           <h1 className="hero-title">{currentSlide.title}</h1>
           <p className="hero-subtitle">{currentSlide.subtitle}</p>
 
@@ -179,6 +232,41 @@ export default function HeroSlideshow() {
             )}
           </div>
         </div>
+      </div>
+
+      {/* Navigation Arrows */}
+      <button
+        type="button"
+        className="hero-nav-btn hero-nav-prev"
+        onClick={prevSlide}
+        aria-label="Previous Slide"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="15 18 9 12 15 6" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        className="hero-nav-btn hero-nav-next"
+        onClick={nextSlide}
+        aria-label="Next Slide"
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      </button>
+
+      {/* Slide Indicators / Dots */}
+      <div className="hero-indicators">
+        {SLIDES.map((slide, idx) => (
+          <button
+            key={slide.id}
+            type="button"
+            className={`hero-indicator-dot ${idx === currentIndex ? 'is-active' : ''}`}
+            onClick={() => goToSlide(idx)}
+            aria-label={`Pindah ke slide ${idx + 1}`}
+          />
+        ))}
       </div>
     </section>
   );
