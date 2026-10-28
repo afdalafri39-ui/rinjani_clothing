@@ -60,25 +60,25 @@ export default async function Home() {
       {/* 2. BRAND STATEMENT */}
       <section className="brand-statement">
         <div className="container">
-          <div className="section-label">FILOSOFI RINJANI</div>
-          <h2 className="brand-statement-title">
+          <div className="section-label reveal-on-scroll">FILOSOFI RINJANI</div>
+          <h2 className="brand-statement-title reveal-on-scroll reveal-delay-1">
             SIMPLISITAS & DAYA TAHAN PADA SETIAP DETAIL.
           </h2>
           <div className="brand-statement-cta">
           </div>
-          <p className="brand-statement-text">
+          <p className="brand-statement-text reveal-on-scroll reveal-delay-2">
             Kami meyakini pakaian bukan sekadar tampilan, melainkan teman dalam setiap perjalanan. Rinjani Clothing mengombinasikan desain minimalis, potongan ergonomis, dan daya tahan material terbaik.
           </p>
 
           {/* ALUR PEMESANAN CUSTOM */}
           <div style={{ maxWidth: '800px', margin: 'var(--space-9) auto 0', textAlign: 'left' }}>
-            <div className="section-header" style={{ textAlign: 'center', marginBottom: 'var(--space-7)' }}>
+            <div className="section-header reveal-on-scroll" style={{ textAlign: 'center', marginBottom: 'var(--space-7)' }}>
               <div className="section-label">ALUR PEMESANAN</div>
               <h3 className="section-title" style={{ fontSize: '1.75rem' }}>CARA MEMESAN CUSTOM APPAREL</h3>
             </div>
 
-            <div className="custom-steps">
-              <div className="custom-step">
+            <div className="custom-steps reveal-stagger">
+              <div className="custom-step reveal-on-scroll">
                 <div className="custom-step-number" />
                 <div>
                   <h4 className="custom-step-title">Konfigurasi Spesifikasi</h4>
@@ -88,7 +88,7 @@ export default async function Home() {
                 </div>
               </div>
 
-              <div className="custom-step">
+              <div className="custom-step reveal-on-scroll">
                 <div className="custom-step-number" />
                 <div>
                   <h4 className="custom-step-title">Kirim Desain ke Admin</h4>
@@ -98,7 +98,7 @@ export default async function Home() {
                 </div>
               </div>
 
-              <div className="custom-step">
+              <div className="custom-step reveal-on-scroll">
                 <div className="custom-step-number" />
                 <div>
                   <h4 className="custom-step-title">Konfirmasi Mockup & Harga</h4>
@@ -108,7 +108,7 @@ export default async function Home() {
                 </div>
               </div>
 
-              <div className="custom-step">
+              <div className="custom-step reveal-on-scroll">
                 <div className="custom-step-number" />
                 <div>
                   <h4 className="custom-step-title">Produksi & Pengiriman</h4>
@@ -119,7 +119,7 @@ export default async function Home() {
               </div>
             </div>
 
-            <div style={{ textAlign: 'center', marginTop: 'var(--space-8)' }}>
+            <div className="reveal-on-scroll reveal-delay-2" style={{ textAlign: 'center', marginTop: 'var(--space-8)' }}>
               <Link href="/custom" className="btn btn-primary">
                 MULAI PESANAN CUSTOM
               </Link>
@@ -131,7 +131,7 @@ export default async function Home() {
       {/* 3. OFFICIAL PRODUCT RINJANI CLOTHING */}
       <section className="section">
         <div className="container">
-          <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+          <div className="section-header reveal-on-scroll" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
             <div>
               <div className="section-label">KATALOG PRODUK</div>
               <h2 className="section-title">OFFCIAL PRODUCT </h2>
@@ -141,16 +141,16 @@ export default async function Home() {
             </Link>
           </div>
 
-          <div className="product-grid">
+          <div className="product-grid reveal-stagger">
             {newArrivals.map((product) => (
-              <ProductCard key={product.id} product={product} />
+              <ProductCard key={product.id} product={product} className="reveal-on-scroll reveal-scale" />
             ))}
           </div>
         </div>
       </section>
 
       {/* 5. CUSTOM PRINTING BANNER */}
-      <section className="custom-cta">
+      <section className="custom-cta reveal-on-scroll reveal-fade">
         <div className="custom-cta-bg">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -159,7 +159,7 @@ export default async function Home() {
           />
         </div>
         <div className="custom-cta-overlay" />
-        <div className="custom-cta-content">
+        <div className="custom-cta-content reveal-on-scroll reveal-up reveal-delay-1">
           <div className="section-label" style={{ color: 'rgba(255,255,255,0.8)' }}>
             CUSTOM APPAREL
           </div>

@@ -98,7 +98,8 @@ export default function AdminLoginPage() {
 
         <div className="login-restricted-header">
           <div className="login-restricted-badge">
-            <ShieldAlert size={14} /> AKSES DIBATASI &bull; KHUSUS DESKTOP
+            <ShieldAlert size={14} />
+            <span>AKSES DIBATASI &bull; KHUSUS DESKTOP</span>
           </div>
           <h1 className="login-restricted-title">
             Portal Tidak Dapat Dibuka di Perangkat HP

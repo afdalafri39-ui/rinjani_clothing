@@ -1,13 +1,13 @@
 import Link from 'next/link';
 import { formatPrice, getTotalStock, getStockStatus, getProductImage } from '@/lib/utils';
 
-export default function ProductCard({ product }) {
+export default function ProductCard({ product, className = '' }) {
   const totalStock = getTotalStock(product.variants);
   const stockStatus = getStockStatus(totalStock);
   const mainImage = getProductImage(product);
 
   return (
-    <Link href={`/product/${product.slug}`} className="product-card">
+    <Link href={`/product/${product.slug}`} className={`product-card ${className}`.trim()}>
       <div className="product-card-image">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={mainImage} alt={product.name} loading="lazy" />

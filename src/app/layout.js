@@ -3,6 +3,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { CartProvider } from '@/context/CartContext';
 import CartDrawer from '@/components/CartDrawer';
+import ScrollRevealInit from '@/components/ScrollRevealInit';
 
 export const metadata = {
   title: 'Rinjani Clothing — Made for the Journey',
@@ -33,6 +34,7 @@ export default function RootLayout({ children }) {
       </head>
       <body>
         <CartProvider>
+          <ScrollRevealInit />
           <Header />
           <main>{children}</main>
           <Footer />
