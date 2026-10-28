@@ -126,8 +126,6 @@ export default async function AdminDashboardPage() {
         </div>
       </div>
 
-
-
       {/* RECENT CUSTOM ORDERS */}
       {stats.recentCustomOrders.length > 0 && (
         <div className="admin-table-container" style={{ marginBottom: '32px' }}>

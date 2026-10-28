@@ -2922,7 +2922,7 @@ h3,
 }
 
 /* ========================================
-   ADMIN LOGIN
+   ADMIN LOGIN & ACCESS RESTRICTION
    ======================================== */
 .login-page {
   min-height: 100vh;
@@ -2930,11 +2930,12 @@ h3,
   align-items: center;
   justify-content: center;
   background-color: var(--color-off-white);
+  padding: var(--space-4);
 }
 
 .login-card {
   width: 100%;
-  max-width: 400px;
+  max-width: 420px;
   margin: var(--space-5);
   padding: var(--space-7);
   background: var(--color-white);
@@ -2973,6 +2974,176 @@ h3,
   color: var(--color-error);
   font-size: 0.8125rem;
   border: 1px solid var(--color-error);
+}
+
+/* Mobile Screen Restriction (< 768px) */
+.login-restricted-screen {
+  display: none;
+  width: 100%;
+  max-width: 480px;
+  background: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  padding: 28px 24px;
+  flex-direction: column;
+  gap: 20px;
+}
+
+@media (max-width: 767.98px) {
+  .login-card {
+    display: none !important;
+  }
+  .login-restricted-screen {
+    display: flex !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .login-card {
+    display: block !important;
+  }
+  .login-restricted-screen {
+    display: none !important;
+  }
+}
+
+.login-restricted-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background-color: var(--color-error-light);
+  border: 1px solid rgba(197, 48, 48, 0.25);
+  color: var(--color-error);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  align-self: flex-start;
+}
+
+.login-restricted-header {
+  border-bottom: 1px solid var(--color-gray-100);
+  padding-bottom: 16px;
+}
+
+.login-restricted-title {
+  font-size: 1.1875rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-black);
+  margin-top: 12px;
+  line-height: 1.35;
+}
+
+.login-restricted-desc {
+  font-size: 0.8125rem;
+  color: var(--color-gray-600);
+  line-height: 1.6;
+  margin-top: 8px;
+}
+
+.login-screen-meter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--color-off-white);
+  border: 1px solid var(--color-gray-200);
+  padding: 10px 14px;
+  font-size: 0.75rem;
+}
+
+.login-screen-meter-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  color: var(--color-gray-800);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.login-screen-meter-value {
+  font-weight: 700;
+  color: var(--color-error);
+  font-family: monospace;
+}
+
+.login-screen-meter-target {
+  font-weight: 500;
+  color: var(--color-gray-600);
+  font-family: var(--font-family);
+  margin-left: 4px;
+}
+
+.login-instructions-title {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-gray-400);
+  margin-bottom: 12px;
+}
+
+.login-instruction-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.login-instruction-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--color-gray-200);
+  background: var(--color-white);
+  transition: border-color var(--transition-fast);
+}
+
+.login-instruction-item:hover {
+  border-color: var(--color-black);
+}
+
+.login-instruction-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-off-white);
+  border: 1px solid var(--color-gray-200);
+  color: var(--color-black);
+}
+
+.login-instruction-heading {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--color-black);
+  margin-bottom: 3px;
+}
+
+.login-instruction-text {
+  font-size: 0.75rem;
+  color: var(--color-gray-600);
+  line-height: 1.5;
+}
+
+.login-instruction-steps {
+  margin-top: 6px;
+  padding-left: 16px;
+  list-style: disc;
+  font-size: 0.75rem;
+  color: var(--color-gray-600);
+  line-height: 1.5;
+}
+
+.login-restricted-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-gray-100);
 }
 
 /* ========================================

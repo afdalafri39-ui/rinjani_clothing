@@ -44,11 +44,16 @@ export default function SpreadsheetConfigModal({
 
   useEffect(() => {
     if (isOpen) {
-      setWebhookUrl(savedWebhookUrl || '');
+      const cached =
+        typeof window !== 'undefined'
+          ? localStorage.getItem(`rc_spreadsheet_webhook_${type}`) ||
+            sessionStorage.getItem(`rc_spreadsheet_webhook_${type}`)
+          : '';
+      setWebhookUrl(savedWebhookUrl || cached || '');
       setSyncStatus(null);
       setCopied(false);
     }
-  }, [isOpen, savedWebhookUrl]);
+  }, [isOpen, savedWebhookUrl, type]);
 
   if (!isOpen) return null;
 
@@ -58,18 +63,43 @@ export default function SpreadsheetConfigModal({
     setTimeout(() => setCopied(false), 2500);
   };
 
+  const handleWebhookChange = (val) => {
+    setWebhookUrl(val);
+    if (typeof window !== 'undefined') {
+      try {
+        sessionStorage.setItem(`rc_spreadsheet_webhook_${type}`, val);
+        localStorage.setItem(`rc_spreadsheet_webhook_${type}`, val);
+      } catch (err) {
+        console.error('Storage error:', err);
+      }
+    }
+  };
+
   const handleSave = async () => {
-    if (!onSaveWebhook) return;
-    setSaving(true);
-    setSyncStatus(null);
-    try {
-      await onSaveWebhook(webhookUrl.trim());
-      setSyncStatus({ success: true, message: 'URL Webhook berhasil disimpan!' });
-    } catch (err) {
-      console.error(err);
-      setSyncStatus({ success: false, message: 'Gagal menyimpan URL Webhook.' });
-    } finally {
-      setSaving(false);
+    const trimmed = webhookUrl.trim();
+    if (typeof window !== 'undefined') {
+      try {
+        localStorage.setItem(`rc_spreadsheet_webhook_${type}`, trimmed);
+        sessionStorage.setItem(`rc_spreadsheet_webhook_${type}`, trimmed);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    if (onSaveWebhook) {
+      setSaving(true);
+      setSyncStatus(null);
+      try {
+        await onSaveWebhook(trimmed);
+        setSyncStatus({ success: true, message: 'URL Webhook berhasil disimpan & dijaga di memori sesi!' });
+      } catch (err) {
+        console.error(err);
+        setSyncStatus({ success: false, message: 'Gagal menyimpan URL Webhook.' });
+      } finally {
+        setSaving(false);
+      }
+    } else {
+      setSyncStatus({ success: true, message: 'URL Webhook berhasil disimpan di memori lokal & sesi!' });
     }
   };
 
@@ -247,7 +277,7 @@ export default function SpreadsheetConfigModal({
                   className="form-input"
                   placeholder="https://script.google.com/macros/s/.../exec"
                   value={webhookUrl}
-                  onChange={(e) => setWebhookUrl(e.target.value)}
+                  onChange={(e) => handleWebhookChange(e.target.value)}
                   style={{ width: '100%', fontFamily: 'monospace', fontSize: '0.8125rem' }}
                 />
                 <span style={{ fontSize: '0.75rem', color: '#888', marginTop: '4px', display: 'block' }}>

@@ -34,6 +34,20 @@ export default function AdminCustomOrdersPage() {
   const [configModalOpen, setConfigModalOpen] = useState(false);
   const [sheetWebhook, setSheetWebhook] = useState('');
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('rc_spreadsheet_webhook_custom');
+      if (saved) setSheetWebhook(saved);
+    }
+  }, []);
+
+  const handleSaveWebhook = (url) => {
+    setSheetWebhook(url);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('rc_spreadsheet_webhook_custom', url);
+    }
+  };
+
   const downloadFileAsPng = (fileUrl, fileName) => {
     if (!fileUrl) {
       alert('File gambar tidak tersedia untuk diunduh.');
