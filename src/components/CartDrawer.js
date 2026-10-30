@@ -9,7 +9,6 @@ import {
   Plus,
   Minus,
   Send,
-  ArrowRight,
   ShieldCheck,
   CheckCircle,
   Loader2,

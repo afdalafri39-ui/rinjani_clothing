@@ -3,7 +3,7 @@
 import { useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowLeft, Plus, Trash2, Image as ImageIcon, Upload, Check, Star, AlertCircle } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Image as ImageIcon, Upload, Star, AlertCircle } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 
 const DEFAULT_CATEGORIES = ['T-Shirt', 'Polo', 'Hoodie', 'Jersey', 'Long Sleeve', 'Raglan', 'Tank Top', 'Outerwear', 'Kemeja'];

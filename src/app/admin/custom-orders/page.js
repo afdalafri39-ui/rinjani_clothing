@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { ClipboardList, Search, Filter, Eye, Trash2, X, ChevronDown, ChevronUp, Phone, Mail, User, Shirt, Palette, Layers, Printer, FileText, StickyNote, Clock, Hash, CheckCircle2, AlertCircle, Package, Loader2, Download, FileImage, FileSpreadsheet } from 'lucide-react';
+import { ClipboardList, Search, Filter, Eye, Trash2, X, ChevronDown, ChevronUp, Phone, Mail, User, Shirt, Palette, Layers, Printer, FileText, StickyNote, Clock, Hash, CheckCircle2, AlertCircle, Loader2, Download, FileImage, FileSpreadsheet } from 'lucide-react';
 import { exportCustomOrdersCsv } from '@/lib/spreadsheetExport';
 import SpreadsheetConfigModal from '@/components/SpreadsheetConfigModal';
 

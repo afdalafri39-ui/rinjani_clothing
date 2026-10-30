@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Plus, Trash2, ArrowLeft, Image as ImageIcon, Shuffle } from 'lucide-react';
+import { Plus, Trash2, ArrowLeft, Shuffle } from 'lucide-react';
 import { formatPrice, getRandomApparelImage } from '@/lib/utils';
 
 export default function ProductForm({ initialData = null, isEdit = false }) {

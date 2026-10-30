@@ -5,27 +5,18 @@ import Link from 'next/link';
 import ContactModal from '@/components/ContactModal';
 import {
   Check,
-  Palette,
   Shirt,
-  Layers,
   Send,
   RotateCcw,
-  Sparkles,
   Info,
   Upload,
   X,
-  FileImage,
   FileText,
-  Image as ImageIcon,
   Ruler,
-  ChevronRight,
   Plus,
   Minus,
-  ArrowRight,
-  CheckCircle2,
   ShoppingBag,
   AlertCircle,
-  Receipt,
 } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 import { useCart } from '@/context/CartContext';

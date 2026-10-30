@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Search, X } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { formatPrice, getProductImage } from '@/lib/utils';
 
 export default function SearchOverlay({ isOpen, onClose }) {

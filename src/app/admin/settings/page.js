@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Save, CheckCircle2, MessageSquare, Globe, Mail, MapPin, Banknote } from 'lucide-react';
+import { Save, CheckCircle2, MessageSquare, Banknote } from 'lucide-react';
 import { generateOrderMessage } from '@/lib/utils';
 
 export default function AdminSettingsPage() {

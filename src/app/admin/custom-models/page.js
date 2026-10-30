@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import { Plus, Search, Trash2, Edit, AlertCircle, Shirt, Eye, CheckCircle2, XCircle } from 'lucide-react';
+import { Plus, Search, Trash2, Edit, AlertCircle, Shirt, CheckCircle2, XCircle } from 'lucide-react';
 import { formatPrice } from '@/lib/utils';
 
 export default function AdminCustomModelsPage() {
