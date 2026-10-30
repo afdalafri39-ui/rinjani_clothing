@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
 import { formatPrice, getTotalStock, getStockStatus, getProductImage } from '@/lib/utils';
 import { ArrowRight, ClipboardList, Shirt, User, Clock } from 'lucide-react';
+import DashboardExportButton from '@/components/DashboardExportButton';
 
 export const revalidate = 0; // Dynamic
 
@@ -96,6 +97,31 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
+      {/* HEADER TOOLBAR DENGAN EXPORT SPREADSHEET */}
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '12px',
+          marginBottom: '20px',
+          paddingBottom: '16px',
+          borderBottom: '1px solid var(--color-gray-200)',
+        }}
+      >
+        <div>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0, color: '#111' }}>
+            Dashboard Ringkasan
+          </h2>
+          <p style={{ fontSize: '0.8125rem', color: '#666', margin: '4px 0 0 0' }}>
+            Ringkasan data operasional, statistik KPI toko, pesanan kustomisasi, dan inventaris stok.
+          </p>
+        </div>
+
+        <DashboardExportButton stats={stats} />
+      </div>
+
       {/* STATS GRID */}
       <div className="admin-stats" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(210px, 1fr))' }}>
         <div className="admin-stat-card">
