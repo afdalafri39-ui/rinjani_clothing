@@ -70,7 +70,7 @@ export default function Header() {
             </nav>
 
             <button
-              className="header-search-btn"
+              className={`header-search-btn ${searchOpen ? 'active' : ''}`}
               onClick={() => setSearchOpen(true)}
               aria-label="Cari Produk"
             >

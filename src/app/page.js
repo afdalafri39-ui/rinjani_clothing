@@ -139,7 +139,7 @@ export default async function Home() {
       </section>
 
       {/* 2. ALUR PEMESANAN */}
-      <section className="section" style={{ paddingTop: '0', paddingBottom: '0' }}>
+      <section className="section" style={{ paddingTop: '0', paddingBottom: 'var(--space-9)' }}>
         <div className="container">
           <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'left' }}>
             <div className="section-header reveal-on-scroll" style={{ textAlign: 'center', marginBottom: 'var(--space-7)' }}>
@@ -199,14 +199,12 @@ export default async function Home() {
       </section>
 
       {/* 3. FILOSOFI RINJANI */}
-      <section className="brand-statement" style={{ paddingTop: 'var(--space-6)', paddingBottom: 'var(--space-8)' }}>
+      <section className="brand-statement" style={{ paddingTop: '0', paddingBottom: 'var(--space-9)' }}>
         <div className="container">
           <div className="section-label reveal-on-scroll">FILOSOFI RINJANI</div>
           <h2 className="brand-statement-title reveal-on-scroll reveal-delay-1">
             SIMPLISITAS & DAYA TAHAN PADA SETIAP DETAIL.
           </h2>
-          <div className="brand-statement-cta">
-          </div>
           <p className="brand-statement-text reveal-on-scroll reveal-delay-2">
             Kami meyakini pakaian bukan sekadar tampilan, melainkan teman dalam setiap perjalanan. Rinjani Clothing mengombinasikan desain minimalis, potongan ergonomis, dan daya tahan material terbaik.
           </p>
@@ -214,7 +212,7 @@ export default async function Home() {
       </section>
 
       {/* 4. ULASAN PELANGGAN / TESTIMONIALS SLIDER */}
-      <section className="section" style={{ backgroundColor: 'var(--color-off-white)', paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-5)', overflow: 'hidden' }}>
+      <section className="section" style={{ paddingTop: '0', paddingBottom: 'var(--space-5)', overflow: 'hidden' }}>
         <div className="container">
           <div className="section-header reveal-on-scroll" style={{ textAlign: 'center', marginBottom: 'var(--space-7)' }}>
             <div className="section-label">ULASAN PELANGGAN</div>
