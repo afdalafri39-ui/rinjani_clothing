@@ -60,7 +60,7 @@ export default function Footer() {
 
         <div className="footer-bottom" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
           <div>© {new Date().getFullYear()} Rinjani Clothing. All rights reserved.</div>
-          <Link href="/admin/login" style={{ color: 'var(--color-gray-600)', fontWeight: '500' }}>
+          <Link href="/admin/login" style={{ fontWeight: '500' }}>
             Portal Admin / Login
           </Link>
         </div>

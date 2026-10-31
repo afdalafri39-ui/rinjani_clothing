@@ -1,9 +1,69 @@
 import Link from 'next/link';
+import { Star } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import ProductCard from '@/components/ProductCard';
 import HeroSlideshow from '@/components/HeroSlideshow';
 
 export const revalidate = 60; // SSR with 60s revalidation
+
+const CUSTOMER_REVIEWS = [
+  {
+    id: 1,
+    name: 'Dimas Pratama',
+    role: 'Ketua Komunitas Motor — Luwu Timur',
+    avatar: 'DP',
+    review: 'Hasil sablon DTF sangat presisi dan warna keluar sesuai desain asli. Bahan combed 24s-nya tebal tapi tetap adem dipakai harian. Rekomendasi banget untuk seragam komunitas!',
+    rating: 5,
+  },
+  {
+    id: 2,
+    name: 'Siti Rahmawati',
+    role: 'Panitia Event Kreatif — Makassar',
+    avatar: 'SR',
+    review: 'Pesan 50 pcs kaos oversize custom untuk merchandise event kampus. Jahitan rantainya rapi, sablon tidak mudah pecah, dan proses pengerjaan tepat waktu sebelum hari H.',
+    rating: 5,
+  },
+  {
+    id: 3,
+    name: 'Budi Santoso',
+    role: 'Owner Brand Distro Lokal — Palopo',
+    avatar: 'BS',
+    review: 'Kualitas kain cotton combed dan potongan bajunya pas di badan. Admin WhatsApp sangat ramah dan komunikatif dalam membantu preview mockup desain sebelum dicetak.',
+    rating: 5,
+  },
+  {
+    id: 4,
+    name: 'Anisa Fitriani',
+    role: 'HR & GA PT Nusantara — Jakarta',
+    avatar: 'AF',
+    review: 'Order seragam kemeja & polo bordir untuk gathering kantor 120 orang. Hasilnya rapi, bordirnya rapat, dan pengiriman aman sampai Jakarta tepat waktu.',
+    rating: 5,
+  },
+  {
+    id: 5,
+    name: 'Reza Firmansyah',
+    role: 'Founder Creative Studio — Toraja',
+    avatar: 'RF',
+    review: 'Desain line-art tipis kami berhasil dicetak sangat detail tanpa ada bagian yang blur. Kualitas sablon distro terbaik yang pernah kami pesan online.',
+    rating: 5,
+  },
+  {
+    id: 6,
+    name: 'Kevin Sanjaya',
+    role: 'Koordinator Karang Taruna — Luwu Utara',
+    avatar: 'KS',
+    review: 'Pelayanan cepat dan transparan dari awal konsultasi sampai barang sampai. Bahan kaos awet dan tidak melar setelah dicuci berkali-kali. Mantap Rinjani!',
+    rating: 5,
+  },
+  {
+    id: 7,
+    name: 'Maya Anggraini',
+    role: 'Event Organizer — Surabaya',
+    avatar: 'MA',
+    review: 'Sudah langganan untuk beberapa event clothing di Jawa Timur. Komunikasi selalu responsif dan hasil print kaosnya selalu konsisten memuaskan.',
+    rating: 5,
+  },
+];
 
 async function getHomepageData() {
   try {
@@ -54,24 +114,34 @@ export default async function Home() {
 
   return (
     <div>
-      {/* 1. HERO SLIDESHOW SECTION */}
+      {/* HERO SLIDESHOW SECTION */}
       <HeroSlideshow />
 
-      {/* 2. BRAND STATEMENT */}
-      <section className="brand-statement">
+      {/* 1. KATALOG PRODUK */}
+      <section className="section">
         <div className="container">
-          <div className="section-label reveal-on-scroll">FILOSOFI RINJANI</div>
-          <h2 className="brand-statement-title reveal-on-scroll reveal-delay-1">
-            SIMPLISITAS & DAYA TAHAN PADA SETIAP DETAIL.
-          </h2>
-          <div className="brand-statement-cta">
+          <div className="section-header reveal-on-scroll" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <div>
+              <div className="section-label">KATALOG PRODUK</div>
+              <h2 className="section-title">OFFICIAL PRODUCT</h2>
+            </div>
+            <Link href="/shop" className="btn btn-secondary">
+              LIHAT SEMUA
+            </Link>
           </div>
-          <p className="brand-statement-text reveal-on-scroll reveal-delay-2">
-            Kami meyakini pakaian bukan sekadar tampilan, melainkan teman dalam setiap perjalanan. Rinjani Clothing mengombinasikan desain minimalis, potongan ergonomis, dan daya tahan material terbaik.
-          </p>
 
-          {/* ALUR PEMESANAN CUSTOM */}
-          <div style={{ maxWidth: '800px', margin: 'var(--space-9) auto 0', textAlign: 'left' }}>
+          <div className="product-grid reveal-stagger">
+            {newArrivals.map((product) => (
+              <ProductCard key={product.id} product={product} className="reveal-on-scroll reveal-scale" />
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 2. ALUR PEMESANAN */}
+      <section className="section" style={{ paddingTop: '0', paddingBottom: '0' }}>
+        <div className="container">
+          <div style={{ maxWidth: '800px', margin: '0 auto', textAlign: 'left' }}>
             <div className="section-header reveal-on-scroll" style={{ textAlign: 'center', marginBottom: 'var(--space-7)' }}>
               <div className="section-label">ALUR PEMESANAN</div>
               <h3 className="section-title" style={{ fontSize: '1.75rem' }}>CARA MEMESAN CUSTOM APPAREL</h3>
@@ -119,7 +189,7 @@ export default async function Home() {
               </div>
             </div>
 
-            <div className="reveal-on-scroll reveal-delay-2" style={{ textAlign: 'center', marginTop: 'var(--space-8)' }}>
+            <div className="reveal-on-scroll reveal-delay-2" style={{ textAlign: 'center', marginTop: 'var(--space-6)' }}>
               <Link href="/custom" className="btn btn-primary">
                 MULAI PESANAN CUSTOM
               </Link>
@@ -128,48 +198,59 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* 3. OFFICIAL PRODUCT RINJANI CLOTHING */}
-      <section className="section">
+      {/* 3. FILOSOFI RINJANI */}
+      <section className="brand-statement" style={{ paddingTop: 'var(--space-6)', paddingBottom: 'var(--space-8)' }}>
         <div className="container">
-          <div className="section-header reveal-on-scroll" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
-            <div>
-              <div className="section-label">KATALOG PRODUK</div>
-              <h2 className="section-title">OFFCIAL PRODUCT </h2>
-            </div>
-            <Link href="/shop" className="btn btn-secondary">
-              LIHAT SEMUA
-            </Link>
+          <div className="section-label reveal-on-scroll">FILOSOFI RINJANI</div>
+          <h2 className="brand-statement-title reveal-on-scroll reveal-delay-1">
+            SIMPLISITAS & DAYA TAHAN PADA SETIAP DETAIL.
+          </h2>
+          <div className="brand-statement-cta">
           </div>
-
-          <div className="product-grid reveal-stagger">
-            {newArrivals.map((product) => (
-              <ProductCard key={product.id} product={product} className="reveal-on-scroll reveal-scale" />
-            ))}
-          </div>
+          <p className="brand-statement-text reveal-on-scroll reveal-delay-2">
+            Kami meyakini pakaian bukan sekadar tampilan, melainkan teman dalam setiap perjalanan. Rinjani Clothing mengombinasikan desain minimalis, potongan ergonomis, dan daya tahan material terbaik.
+          </p>
         </div>
       </section>
 
-      {/* 5. CUSTOM PRINTING BANNER */}
-      <section className="custom-cta reveal-on-scroll reveal-fade">
-        <div className="custom-cta-bg">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src="https://images.unsplash.com/photo-1562157873-818bc0726f68?w=1400&q=80&fm=webp"
-            alt="Custom Printing Service"
-          />
-        </div>
-        <div className="custom-cta-overlay" />
-        <div className="custom-cta-content reveal-on-scroll reveal-up reveal-delay-1">
-          <div className="section-label" style={{ color: 'rgba(255,255,255,0.8)' }}>
-            CUSTOM APPAREL
+      {/* 4. ULASAN PELANGGAN / TESTIMONIALS SLIDER */}
+      <section className="section" style={{ backgroundColor: 'var(--color-off-white)', paddingTop: 'var(--space-8)', paddingBottom: 'var(--space-5)', overflow: 'hidden' }}>
+        <div className="container">
+          <div className="section-header reveal-on-scroll" style={{ textAlign: 'center', marginBottom: 'var(--space-7)' }}>
+            <div className="section-label">ULASAN PELANGGAN</div>
+            <h2 className="section-title">APA KATA MEREKA</h2>
+            <p style={{ color: 'var(--color-gray-600)', fontSize: '1rem', marginTop: 'var(--space-2)' }}>
+              Pengalaman nyata dari para pelanggan dan komunitas yang telah mempercayakan pakaian mereka kepada Rinjani Clothing.
+            </p>
           </div>
-          <h2 className="custom-cta-title">CUSTOM SABLON & PRODUKSI KOLEKSI</h2>
-          <p className="custom-cta-text">
-            Menerima pemesanan sablon kaos custom untuk komunitas, brand, event, maupun seragam dengan metode DTF, DTG, dan Sablon Manual kualitas standar distro.
-          </p>
-          <Link href="/custom" className="btn">
-            PELAJARI LAYANAN CUSTOM
-          </Link>
+        </div>
+
+        {/* MARQUEE AUTO SLIDER (KANAN KE KIRI) */}
+        <div className="reviews-marquee-wrapper">
+          <div className="reviews-marquee-track">
+            {[...CUSTOMER_REVIEWS, ...CUSTOMER_REVIEWS].map((item, index) => (
+              <div key={`${item.id}-${index}`} className="review-card-slide">
+                <div>
+                  <div className="review-card-stars">
+                    {[...Array(item.rating)].map((_, i) => (
+                      <Star key={i} size={16} fill="#F59E0B" color="#F59E0B" />
+                    ))}
+                  </div>
+                  <p className="review-card-text">
+                    &ldquo;{item.review}&rdquo;
+                  </p>
+                </div>
+
+                <div className="review-card-author">
+                  <div className="review-card-avatar">{item.avatar}</div>
+                  <div>
+                    <div className="review-card-name">{item.name}</div>
+                    <div className="review-card-role">{item.role}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
     </div>

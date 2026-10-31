@@ -39,9 +39,8 @@ export default function Header() {
 
   if (isAdmin) return null;
 
-  const headerClass = `header header-solid ${
-    isHomepage ? (isScrolled ? 'header-visible' : 'header-hidden') : 'header-visible'
-  }`;
+  const headerClass = `header header-solid ${isHomepage ? (isScrolled ? 'header-visible' : 'header-hidden') : 'header-visible'
+    }`;
 
   return (
     <>
