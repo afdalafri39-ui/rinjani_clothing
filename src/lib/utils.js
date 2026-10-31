@@ -57,11 +57,6 @@ export function generateWhatsAppUrl(phone, message) {
   return `https://wa.me/${cleanPhone}?text=${encodeURIComponent(message)}`;
 }
 
-export function generateTelegramUrl(username) {
-  const cleanUsername = username.replace('@', '');
-  return `https://t.me/${cleanUsername}`;
-}
-
 // Koleksi gambar apparel & streetwear acak berkualitas tinggi (WebP format)
 export const RANDOM_APPAREL_IMAGES = [
   'https://images.unsplash.com/photo-1521572267360-ee0c2909d518?w=800&q=80&fm=webp', // White Tee
