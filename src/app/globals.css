@@ -1433,10 +1433,39 @@ h3,
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform var(--transition-slow);
+  transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.35s ease-in-out;
 }
 
-.product-card:hover .product-card-image img {
+.product-card-img-primary {
+  position: relative;
+  z-index: 1;
+}
+
+.product-card-img-hover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  z-index: 2;
+  transition: opacity 0.35s ease-in-out, transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+  pointer-events: none;
+}
+
+.product-card:hover .product-card-img-primary,
+.product-card-image:hover .product-card-img-primary {
+  transform: scale(1.05);
+}
+
+.product-card.has-hover-back:hover .product-card-img-primary,
+.product-card-image:has(.product-card-img-hover):hover .product-card-img-primary {
+  opacity: 0;
+}
+
+.product-card:hover .product-card-img-hover,
+.product-card-image:hover .product-card-img-hover {
+  opacity: 1;
   transform: scale(1.05);
 }
 
@@ -1758,15 +1787,44 @@ h3,
 }
 
 .product-gallery-main {
+  position: relative;
   aspect-ratio: 4 / 5;
   overflow: hidden;
   background-color: var(--color-gray-100);
+  border-radius: 4px;
 }
 
 .product-gallery-main img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.35s ease-in-out;
+}
+
+.product-gallery-img-front {
+  position: relative;
+  z-index: 1;
+}
+
+.product-gallery-img-back {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  z-index: 2;
+  pointer-events: none;
+  transition: opacity 0.35s ease-in-out, transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+.product-gallery-main:hover .product-gallery-img-back,
+.product-gallery-img-back.is-active {
+  opacity: 1;
+}
+
+.product-gallery-main:hover img {
+  transform: scale(1.03);
 }
 
 .product-gallery-thumbs {
@@ -5766,7 +5824,33 @@ h3,
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.4s ease;
+  transition: transform 0.45s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.35s ease-in-out;
+}
+
+.custom-gallery-img-front {
+  position: relative;
+  z-index: 1;
+}
+
+.custom-gallery-img-hover {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  z-index: 2;
+  transition: opacity 0.35s ease-in-out, transform 0.45s cubic-bezier(0.25, 1, 0.5, 1);
+  pointer-events: none;
+}
+
+.custom-gallery-img-container:hover .custom-gallery-img-hover,
+.custom-gallery-img-hover.is-active {
+  opacity: 1;
+}
+
+.custom-gallery-img-container:hover .custom-gallery-img {
+  transform: scale(1.03);
 }
 
 .custom-gallery-color-overlay {

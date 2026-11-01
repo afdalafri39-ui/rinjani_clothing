@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
-import { formatPrice, getStockStatus, getProductImage } from '@/lib/utils';
+import { formatPrice, getStockStatus, getProductImage, getProductBackImage } from '@/lib/utils';
 import ContactModal from '@/components/ContactModal';
 import { ChevronRight, ArrowLeft, ShoppingBag } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
@@ -30,6 +30,77 @@ function getOversizeImageForColor(colorName) {
   if (col.includes('brown') || col.includes('cokelat') || col.includes('coklat')) return oversizeMap['coklat'];
   if (col.includes('purple') || col.includes('violet') || col.includes('ungu')) return oversizeMap['ungu'];
   if (col.includes('yellow') || col.includes('kuning')) return oversizeMap['kuning'];
+  return null;
+}
+
+function getOversizeBackImageForColor(colorName) {
+  if (!colorName) return null;
+  const col = colorName.toLowerCase().replace(/[^a-z0-9-]/g, ' ').trim();
+  const oversizeBackMap = tshirtColorData?.oversizeBackUrls || {};
+
+  // Direct match or partial match against all 22 colors
+  for (const [key, url] of Object.entries(oversizeBackMap)) {
+    if (col === key || col.includes(key) || key.includes(col)) {
+      return url;
+    }
+  }
+  // Specific aliases
+  if (col.includes('black') || col.includes('hitam')) return oversizeBackMap['hitam'];
+  if (col.includes('white') || col.includes('putih')) return oversizeBackMap['putih'];
+  if (col.includes('grey') || col.includes('gray') || col.includes('abu') || col.includes('misty')) return oversizeBackMap['abu-muda'];
+  if (col.includes('khaki') || col.includes('krem') || col.includes('cream')) return oversizeBackMap['cream'];
+  if (col.includes('blue') || col.includes('navy')) return oversizeBackMap['navy'];
+  if (col.includes('green') || col.includes('sage')) return oversizeBackMap['sage-green'];
+  if (col.includes('merah') || col.includes('red')) return oversizeBackMap['merah'];
+  if (col.includes('brown') || col.includes('cokelat') || col.includes('coklat')) return oversizeBackMap['coklat'];
+  if (col.includes('purple') || col.includes('violet') || col.includes('ungu')) return oversizeBackMap['ungu'];
+  if (col.includes('yellow') || col.includes('kuning')) return oversizeBackMap['kuning'];
+  return null;
+}
+
+function getRegulerImageForColor(colorName) {
+  if (!colorName) return null;
+  const col = colorName.toLowerCase().replace(/[^a-z0-9-]/g, ' ').trim();
+  const regulerMap = tshirtColorData?.localUrls || {};
+
+  for (const [key, url] of Object.entries(regulerMap)) {
+    if (col === key || col.includes(key) || key.includes(col)) {
+      return url;
+    }
+  }
+  if (col.includes('black') || col.includes('hitam')) return regulerMap['hitam'];
+  if (col.includes('white') || col.includes('putih')) return regulerMap['putih'];
+  if (col.includes('grey') || col.includes('gray') || col.includes('abu') || col.includes('misty')) return regulerMap['abu-muda'];
+  if (col.includes('khaki') || col.includes('krem') || col.includes('cream')) return regulerMap['cream'];
+  if (col.includes('blue') || col.includes('navy')) return regulerMap['navy'];
+  if (col.includes('green') || col.includes('sage')) return regulerMap['sage-green'];
+  if (col.includes('merah') || col.includes('red')) return regulerMap['merah'];
+  if (col.includes('brown') || col.includes('cokelat') || col.includes('coklat')) return regulerMap['coklat'];
+  if (col.includes('purple') || col.includes('violet') || col.includes('ungu')) return regulerMap['ungu'];
+  if (col.includes('yellow') || col.includes('kuning')) return regulerMap['kuning'];
+  return null;
+}
+
+function getRegulerBackImageForColor(colorName) {
+  if (!colorName) return null;
+  const col = colorName.toLowerCase().replace(/[^a-z0-9-]/g, ' ').trim();
+  const regulerBackMap = tshirtColorData?.regulerBackUrls || {};
+
+  for (const [key, url] of Object.entries(regulerBackMap)) {
+    if (col === key || col.includes(key) || key.includes(col)) {
+      return url;
+    }
+  }
+  if (col.includes('black') || col.includes('hitam')) return regulerBackMap['hitam'];
+  if (col.includes('white') || col.includes('putih')) return regulerBackMap['putih'];
+  if (col.includes('grey') || col.includes('gray') || col.includes('abu') || col.includes('misty')) return regulerBackMap['abu-muda'];
+  if (col.includes('khaki') || col.includes('krem') || col.includes('cream')) return regulerBackMap['cream'];
+  if (col.includes('blue') || col.includes('navy')) return regulerBackMap['navy'];
+  if (col.includes('green') || col.includes('sage')) return regulerBackMap['sage-green'];
+  if (col.includes('merah') || col.includes('red')) return regulerBackMap['merah'];
+  if (col.includes('brown') || col.includes('cokelat') || col.includes('coklat')) return regulerBackMap['coklat'];
+  if (col.includes('purple') || col.includes('violet') || col.includes('ungu')) return regulerBackMap['ungu'];
+  if (col.includes('yellow') || col.includes('kuning')) return regulerBackMap['kuning'];
   return null;
 }
 
@@ -63,6 +134,7 @@ export default function ProductDetailPage({ params }) {
   const [product, setProduct] = useState(null);
   const [loading, setLoading] = useState(true);
   const [selectedImage, setSelectedImage] = useState('');
+  const [isHoveringImage, setIsHoveringImage] = useState(false);
   const [selectedSize, setSelectedSize] = useState('');
   const [selectedColor, setSelectedColor] = useState('');
   const [quantity, setQuantity] = useState(1);
@@ -88,9 +160,13 @@ export default function ProductDetailPage({ params }) {
             const initialColor = colors[0];
             setSelectedColor(initialColor);
             const isOversize = (slug || '').includes('oversize') || (p.category?.slug || '').includes('oversize');
+            const isReguler = (slug || '').includes('reguler') || (slug || '').includes('regular') || (slug || '').includes('rinjani') || (slug || '').includes('urban') || (p.category?.slug || '').includes('t-shirts') || (p.category?.name || '').toLowerCase().includes('t-shirt');
             const isLongSleeve = (slug || '').includes('long-sleeve') || (slug || '').includes('longsleeve') || (p.category?.slug || '').includes('long-sleeve');
             if (isOversize) {
               const matched = getOversizeImageForColor(initialColor);
+              if (matched) setSelectedImage(matched);
+            } else if (isReguler) {
+              const matched = getRegulerImageForColor(initialColor);
               if (matched) setSelectedImage(matched);
             } else if (isLongSleeve) {
               const matched = getLongSleeveImageForColor(initialColor);
@@ -148,18 +224,35 @@ export default function ProductDetailPage({ params }) {
 
   const handleColorSelect = (color) => {
     setSelectedColor(color);
-    const colorLower = (color || '').toLowerCase().trim();
     const isOversize = (slug || '').includes('oversize') || (product?.category?.slug || '').includes('oversize');
+    const isReguler = (slug || '').includes('reguler') || (slug || '').includes('regular') || (slug || '').includes('rinjani') || (slug || '').includes('urban') || (product?.category?.slug || '').includes('t-shirts') || (product?.category?.name || '').toLowerCase().includes('t-shirt');
     const isLongSleeve = (slug || '').includes('long-sleeve') || (slug || '').includes('longsleeve') || (product?.category?.slug || '').includes('long-sleeve');
 
     if (isOversize) {
-      const matched = getOversizeImageForColor(color);
-      if (matched) setSelectedImage(matched);
+      const front = getOversizeImageForColor(color);
+      if (front) setSelectedImage(front);
+    } else if (isReguler) {
+      const front = getRegulerImageForColor(color);
+      if (front) setSelectedImage(front);
     } else if (isLongSleeve) {
       const matched = getLongSleeveImageForColor(color);
       if (matched) setSelectedImage(matched);
     }
   };
+
+  const isOversize = (slug || '').includes('oversize') || (product?.category?.slug || '').includes('oversize');
+  const isReguler = (slug || '').includes('reguler') || (slug || '').includes('regular') || (slug || '').includes('rinjani') || (slug || '').includes('urban') || (product?.category?.slug || '').includes('t-shirts') || (product?.category?.name || '').toLowerCase().includes('t-shirt');
+  const currentFrontImg = isOversize
+    ? (getOversizeImageForColor(selectedColor) || selectedImage)
+    : isReguler
+    ? (getRegulerImageForColor(selectedColor) || selectedImage)
+    : selectedImage;
+  const currentBackImg = isOversize
+    ? getOversizeBackImageForColor(selectedColor)
+    : isReguler
+    ? getRegulerBackImageForColor(selectedColor)
+    : getProductBackImage(product, selectedImage);
+  const hasBackView = Boolean(currentBackImg);
 
   const productDataForModal = {
     name: product.name,
@@ -187,9 +280,32 @@ export default function ProductDetailPage({ params }) {
       <div className="product-detail-grid">
         {/* GALLERY */}
         <div className="product-gallery">
-          <div className="product-gallery-main">
+          <div
+            className={`product-gallery-main ${hasBackView ? 'has-hover-back' : ''}`}
+            onMouseEnter={() => {
+              if (hasBackView) setIsHoveringImage(true);
+            }}
+            onMouseLeave={() => {
+              setIsHoveringImage(false);
+            }}
+          >
+            {/* Front View */}
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={selectedImage} alt={product.name} />
+            <img
+              src={currentFrontImg || selectedImage}
+              alt={`${product.name} - Tampak Depan`}
+              className={`product-gallery-img product-gallery-img-front ${isHoveringImage && hasBackView ? 'is-hover-faded' : ''}`}
+            />
+
+            {/* Back View (Animated automatically on cursor hover) */}
+            {hasBackView && currentBackImg && (
+              /* eslint-disable-next-line @next/next/no-img-element */
+              <img
+                src={currentBackImg}
+                alt={`${product.name} - Tampak Belakang`}
+                className={`product-gallery-img product-gallery-img-back ${isHoveringImage ? 'is-active' : ''}`}
+              />
+            )}
           </div>
         </div>
 

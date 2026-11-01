@@ -116,7 +116,10 @@ export function getProductImage(product) {
     return '/products/t-shirt-oversize/tshirt-oversize-cream.jpg';
   }
   if (slug.includes('rinjani')) {
-    return 'https://images.unsplash.com/photo-1529374255404-311a2a4f1fd9?w=800&q=80&fm=webp';
+    return '/products/t-shirt-reguler/tshirt-reguler-salmon.webp';
+  }
+  if (slug.includes('urban')) {
+    return '/products/t-shirt-reguler/tshirt-reguler-hitam.webp';
   }
   if (slug.includes('polo')) {
     return 'https://images.unsplash.com/photo-1586363104862-3a5e2ab60d99?w=800&q=80&fm=webp';
@@ -139,4 +142,72 @@ export function getProductImage(product) {
   }
   const index = Math.abs(hash) % RANDOM_APPAREL_IMAGES.length;
   return RANDOM_APPAREL_IMAGES[index];
+}
+
+export function getProductBackImage(product, mainImage) {
+  if (!product && !mainImage) return null;
+
+  const resolvedMain = mainImage || getProductImage(product);
+  if (!resolvedMain) return null;
+
+  // 1. If main image is an oversize front image, resolve directly to its matching back image
+  if (resolvedMain.includes('tshirt-oversize-') && !resolvedMain.includes('-back.')) {
+    const match = resolvedMain.match(/tshirt-oversize-([a-z0-9-]+?)(?:-back)?\.(?:webp|jpg|png|jpeg)/i);
+    const col = match ? match[1] : 'hitam';
+    if (resolvedMain.includes('/site-assets/t-shirt-oversize/')) {
+      return `https://sqmkpznnvpkdecwwizam.supabase.co/storage/v1/object/public/site-assets/t-shirt-oversize/tshirt-oversize-${col}-back.jpg`;
+    }
+    return `/products/t-shirt-oversize/tshirt-oversize-${col}-back.jpg`;
+  }
+
+  // 2. If main image is a regular front image, resolve directly to its matching back image
+  if (resolvedMain.includes('tshirt-reguler-') && !resolvedMain.includes('-back.')) {
+    const match = resolvedMain.match(/tshirt-reguler-([a-z0-9-]+?)(?:-back)?\.(?:webp|jpg|png|jpeg)/i);
+    const col = match ? match[1] : 'salmon';
+    if (resolvedMain.includes('/site-assets/t-shirt-reguler/')) {
+      return `https://sqmkpznnvpkdecwwizam.supabase.co/storage/v1/object/public/site-assets/t-shirt-reguler/tshirt-reguler-${col}-back.webp`;
+    }
+    return `/products/t-shirt-reguler/tshirt-reguler-${col}-back.webp`;
+  }
+
+  // 3. If product has images array and contains a back/belakang image
+  if (product?.images && Array.isArray(product.images)) {
+    const backImg = product.images.find(img => {
+      const url = (img?.url || '').toLowerCase();
+      const alt = (img?.alt || '').toLowerCase();
+      return url.includes('-back') || url.includes('belakang') || alt.includes('belakang') || alt.includes('back');
+    });
+    if (backImg?.url) return backImg.url;
+  }
+
+  // 4. If product name / slug / category contains oversize
+  const slug = (product?.slug || product?.name || '').toLowerCase();
+  const categorySlug = (product?.category?.slug || product?.category?.name || '').toLowerCase();
+  const isOversize = slug.includes('oversize') || categorySlug.includes('oversize');
+
+  if (isOversize) {
+    if (slug.includes('summit')) {
+      return '/products/t-shirt-oversize/tshirt-oversize-cream-back.jpg';
+    }
+    return '/products/t-shirt-oversize/tshirt-oversize-hitam-back.jpg';
+  }
+
+  // 5. If product is regular t-shirt
+  const isReguler = slug.includes('reguler') || slug.includes('regular') || slug.includes('rinjani') || slug.includes('urban') || categorySlug === 't-shirts';
+  if (isReguler) {
+    if (slug.includes('rinjani')) {
+      return '/products/t-shirt-reguler/tshirt-reguler-salmon-back.webp';
+    }
+    return '/products/t-shirt-reguler/tshirt-reguler-hitam-back.webp';
+  }
+
+  // 6. Fallback: if product has a second image in images array, show it on hover
+  if (product?.images && Array.isArray(product.images) && product.images.length > 1) {
+    const secondImg = product.images[1]?.url;
+    if (secondImg && secondImg !== resolvedMain) {
+      return secondImg;
+    }
+  }
+
+  return null;
 }

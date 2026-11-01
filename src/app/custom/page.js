@@ -18,7 +18,7 @@ import {
   ShoppingBag,
   AlertCircle,
 } from 'lucide-react';
-import { formatPrice } from '@/lib/utils';
+import { formatPrice, getProductBackImage } from '@/lib/utils';
 import { useCart } from '@/context/CartContext';
 import tshirtColorData from '@/data/tshirt_colors.json';
 
@@ -37,7 +37,9 @@ const GARMENT_MODELS = [
     image: '/products/t-shirt-reguler/tshirt-reguler-salmon.webp',
     images: [
       '/products/t-shirt-reguler/tshirt-reguler-salmon.webp',
+      '/products/t-shirt-reguler/tshirt-reguler-salmon-back.webp',
       '/products/t-shirt-reguler/tshirt-reguler-hitam.webp',
+      '/products/t-shirt-reguler/tshirt-reguler-hitam-back.webp',
       '/products/t-shirt-reguler/tshirt-reguler-putih.webp',
       '/products/t-shirt-reguler/tshirt-reguler-navy.webp',
       '/products/t-shirt-reguler/tshirt-reguler-sage-green.webp',
@@ -285,6 +287,7 @@ export default function CustomPage() {
   const [selectedFabric, setSelectedFabric] = useState(FABRICS[0]);
   const [selectedPrinting, setSelectedPrinting] = useState(PRINTING_METHODS[0]);
   const [sleeveType, setSleeveType] = useState('pendek'); // 'pendek' | 'panjang'
+  const [isHoveringCustom, setIsHoveringCustom] = useState(false);
 
   // Size & Quantity
   const [activeSize, setActiveSize] = useState('S');
@@ -388,6 +391,13 @@ export default function CustomPage() {
         : isTshirtOversize && selectedColor?.id && tshirtColorData?.oversizeUrls?.[selectedColor.id]
           ? tshirtColorData.oversizeUrls[selectedColor.id]
           : null;
+
+  const colorSpecificBackImage =
+    isTshirtOversize && selectedColor?.id && tshirtColorData?.oversizeBackUrls?.[selectedColor.id]
+      ? tshirtColorData.oversizeBackUrls[selectedColor.id]
+      : isTshirtReguler && selectedColor?.id && (tshirtColorData?.regulerBackUrls?.[selectedColor.id] || tshirtColorData?.regulerBackStorageUrls?.[selectedColor.id])
+        ? (tshirtColorData?.regulerBackUrls?.[selectedColor.id] || tshirtColorData.regulerBackStorageUrls[selectedColor.id])
+        : null;
 
   const defaultFallbackImage = isTshirtOversize
     ? '/products/t-shirt-oversize/tshirt-oversize-hitam.jpg'
@@ -787,13 +797,14 @@ export default function CustomPage() {
               const modelImg =
                 model.images && model.images.length > 0 ? model.images[0] : model.image;
               const modelPrice = model.price > 0 ? model.price : 42000;
+              const hoverImg = getProductBackImage(model, modelImg);
 
               return (
                 <div
                   key={model.id}
                   role="button"
                   tabIndex={0}
-                  className={`product-card custom-catalog-card ${isSelected ? 'active-catalog-card' : ''}`}
+                  className={`product-card custom-catalog-card ${isSelected ? 'active-catalog-card' : ''} ${hoverImg ? 'has-hover-back' : ''}`}
                   onClick={() => handleSelectModel(model)}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
@@ -801,11 +812,24 @@ export default function CustomPage() {
                       handleSelectModel(model);
                     }
                   }}
-                  title={`Klik untuk memilih ${model.name} dan beralih ke section pemilihan`}
                 >
                   <div className="product-card-image">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src={modelImg} alt={model.name} loading="lazy" />
+                    <img
+                      src={modelImg}
+                      alt={model.name}
+                      className="product-card-img-primary"
+                      loading="lazy"
+                    />
+                    {hoverImg && (
+                      /* eslint-disable-next-line @next/next/no-img-element */
+                      <img
+                        src={hoverImg}
+                        alt={`${model.name} - Tampak Belakang`}
+                        className="product-card-img-hover"
+                        loading="lazy"
+                      />
+                    )}
                   </div>
 
                   <div className="product-card-info">
@@ -841,13 +865,32 @@ export default function CustomPage() {
             <div className="custom-frame-gallery">
               <div className="custom-gallery-main">
                 {/* Main Garment Image (Tag Populer, Best Seller, dll. Dihilangkan) */}
-                <div className="custom-gallery-img-container">
+                <div
+                  className={`custom-gallery-img-container ${(isTshirtOversize || isTshirtReguler) && colorSpecificBackImage ? 'has-hover-back' : ''}`}
+                  onMouseEnter={() => {
+                    if ((isTshirtOversize || isTshirtReguler) && colorSpecificBackImage) setIsHoveringCustom(true);
+                  }}
+                  onMouseLeave={() => {
+                    setIsHoveringCustom(false);
+                  }}
+                >
+                  {/* Front View */}
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={activeImage}
-                    alt={selectedModel?.name || 'Garment preview'}
-                    className="custom-gallery-img"
+                    src={colorSpecificImage || modelImages[0] || selectedModel?.image || defaultFallbackImage}
+                    alt={`${selectedModel?.name || 'Garment preview'} - Tampak Depan`}
+                    className={`custom-gallery-img custom-gallery-img-front ${isHoveringCustom && colorSpecificBackImage ? 'is-hover-faded' : ''}`}
                   />
+
+                  {/* Back View (Animated automatically on cursor hover) */}
+                  {(isTshirtOversize || isTshirtReguler) && colorSpecificBackImage && (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={colorSpecificBackImage}
+                      alt={`${selectedModel?.name || 'Garment preview'} - Tampak Belakang`}
+                      className={`custom-gallery-img custom-gallery-img-hover ${isHoveringCustom ? 'is-active' : ''}`}
+                    />
+                  )}
                 </div>
 
                 {/* Live Spec Pill Banner */}
