@@ -1,10 +1,18 @@
 import Link from 'next/link';
-import { Star } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import ProductCard from '@/components/ProductCard';
 import HeroSlideshow from '@/components/HeroSlideshow';
 
 export const revalidate = 60; // SSR with 60s revalidation
+
+// Tingkat Emoji Kepuasan Pelanggan: Dari Murung (1) hingga Bahagia (5)
+const EMOJI_RATING_LEVELS = [
+  { level: 1, emoji: '😞', label: 'Murung', mood: 'Sangat Kecewa' },
+  { level: 2, emoji: '🙁', label: 'Kurang Puas', mood: 'Kecewa' },
+  { level: 3, emoji: '😐', label: 'Biasa Saja', mood: 'Netral' },
+  { level: 4, emoji: '😊', label: 'Puas', mood: 'Senang' },
+  { level: 5, emoji: '🤩', label: 'Sangat Bahagia', mood: 'Luar Biasa' },
+];
 
 const CUSTOMER_REVIEWS = [
   {
@@ -29,7 +37,7 @@ const CUSTOMER_REVIEWS = [
     role: 'Owner Brand Distro Lokal — Palopo',
     avatar: 'BS',
     review: 'Kualitas kain cotton combed dan potongan bajunya pas di badan. Admin WhatsApp sangat ramah dan komunikatif dalam membantu preview mockup desain sebelum dicetak.',
-    rating: 5,
+    rating: 4,
   },
   {
     id: 4,
@@ -53,7 +61,7 @@ const CUSTOMER_REVIEWS = [
     role: 'Koordinator Karang Taruna — Luwu Utara',
     avatar: 'KS',
     review: 'Pelayanan cepat dan transparan dari awal konsultasi sampai barang sampai. Bahan kaos awet dan tidak melar setelah dicuci berkali-kali. Mantap Rinjani!',
-    rating: 5,
+    rating: 4,
   },
   {
     id: 7,
@@ -226,28 +234,49 @@ export default async function Home() {
         {/* MARQUEE AUTO SLIDER (KANAN KE KIRI) */}
         <div className="reviews-marquee-wrapper">
           <div className="reviews-marquee-track">
-            {[...CUSTOMER_REVIEWS, ...CUSTOMER_REVIEWS].map((item, index) => (
-              <div key={`${item.id}-${index}`} className="review-card-slide">
-                <div>
-                  <div className="review-card-stars">
-                    {[...Array(item.rating)].map((_, i) => (
-                      <Star key={i} size={16} fill="#F59E0B" color="#F59E0B" />
-                    ))}
-                  </div>
-                  <p className="review-card-text">
-                    &ldquo;{item.review}&rdquo;
-                  </p>
-                </div>
+            {[...CUSTOMER_REVIEWS, ...CUSTOMER_REVIEWS].map((item, index) => {
+              const currentLevel =
+                EMOJI_RATING_LEVELS.find((l) => l.level === item.rating) ||
+                EMOJI_RATING_LEVELS[4];
 
-                <div className="review-card-author">
-                  <div className="review-card-avatar">{item.avatar}</div>
+              return (
+                <div key={`${item.id}-${index}`} className="review-card-slide">
                   <div>
-                    <div className="review-card-name">{item.name}</div>
-                    <div className="review-card-role">{item.role}</div>
+                    <div className="review-card-rating">
+                      <div
+                        className="review-emoji-scale"
+                        aria-label={`Tingkat kepuasan: ${currentLevel.label} (${item.rating} dari 5)`}
+                      >
+                        {EMOJI_RATING_LEVELS.map((tier) => {
+                          const isSelected = tier.level === item.rating;
+                          return (
+                            <span
+                              key={tier.level}
+                              className={`review-emoji-item ${isSelected ? 'is-active' : 'is-inactive'}`}
+                              title={`Tingkat ${tier.level}: ${tier.label}`}
+                            >
+                              {tier.emoji}
+                            </span>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    <p className="review-card-text">
+                      &ldquo;{item.review}&rdquo;
+                    </p>
+                  </div>
+
+                  <div className="review-card-author">
+                    <div className="review-card-avatar">{item.avatar}</div>
+                    <div>
+                      <div className="review-card-name">{item.name}</div>
+                      <div className="review-card-role">{item.role}</div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       </section>
