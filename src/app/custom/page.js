@@ -175,6 +175,11 @@ const FABRICS = [
     id: 'combed-24s',
     name: 'Cotton Combed 24s',
     weight: '170–180 gsm',
+    priceShort: 45000,
+    priceLong: 53000,
+    priceDisplay: 'Rp 45.000 – 53.000',
+    extraAboveXXL: 5000,
+    priceDetail: 'Rp 45.000 (Pendek) • Rp 53.000 (Panjang) • +5k 3XL-5XL',
     description: 'Paling populer untuk distro. Halus, ketebalan pas, adem, dan menyerap keringat dengan baik.',
     texture: 'Medium & Lembut',
     best_for: ['DTF', 'Polyflex', 'Sablon Manual'],
@@ -183,6 +188,11 @@ const FABRICS = [
     id: 'combed-30s',
     name: 'Cotton Combed 30s',
     weight: '140–160 gsm',
+    priceShort: 40000,
+    priceLong: 50000,
+    priceDisplay: 'Rp 40.000 – 50.000',
+    extraAboveXXL: 5000,
+    priceDetail: 'Rp 40.000 (Pendek) • Rp 50.000 (Panjang) • +5k 3XL-5XL',
     description: 'Bahan tipis, jatuh, dan sangat sejuk untuk cuaca panas atau kaos sehari-hari.',
     texture: 'Tipis & Ringan',
     best_for: ['DTF', 'Polyflex'],
@@ -191,14 +201,24 @@ const FABRICS = [
     id: 'combed-20s',
     name: 'Cotton Combed 20s',
     weight: '190–200 gsm',
+    priceShort: 55000,
+    priceLong: 60000,
+    priceDisplay: 'Rp 55.000 – 60.000',
+    extraAboveXXL: 5000,
+    priceDetail: 'Rp 55.000 (Pendek) • Rp 60.000 (Panjang) • +5k 3XL-5XL',
     description: 'Bahan tebal dan kokoh standar pakaian distro vintage. Cocok untuk sablon manual dan DTF.',
     texture: 'Tebal & Kokoh',
     best_for: ['Sablon Manual', 'DTF'],
   },
   {
     id: 'fleece',
-    name: 'Fleece Heavy Cotton',
+    name: 'Heavy Cotton Fleece',
     weight: '280–320 gsm',
+    priceShort: 150000,
+    priceLong: 150000,
+    priceDisplay: 'Rp 150.000',
+    extraAboveXXL: 0,
+    priceDetail: 'Rp 150.000 / pcs',
     description: 'Bahan tebal dan berbulu halus di bagian dalam. Khusus untuk hoodie dan jaket premium.',
     texture: 'Tebal & Hangat',
     best_for: ['DTF', 'Polyflex'],
@@ -207,6 +227,11 @@ const FABRICS = [
     id: 'lacoste',
     name: 'Lacoste Pique CVC',
     weight: '200–230 gsm',
+    priceShort: 110000,
+    priceLong: 110000,
+    priceDisplay: 'Rp 110.000',
+    extraAboveXXL: 0,
+    priceDetail: 'Rp 110.000 / pcs',
     description: 'Rajutan berpori khas polo shirt klasik. Berkarakter formal, rapi, dan kokoh.',
     texture: 'Bertekstur Pique',
     best_for: ['DTF', 'Bordir'],
@@ -215,6 +240,11 @@ const FABRICS = [
     id: 'polyester',
     name: 'Dri-Fit Micro Mesh',
     weight: '130–150 gsm',
+    priceShort: 85000,
+    priceLong: 85000,
+    priceDisplay: 'Rp 85.000',
+    extraAboveXXL: 0,
+    priceDetail: 'Rp 85.000 / pcs',
     description: 'Bahan jersey olahraga cepat kering dengan sirkulasi udara optimal.',
     texture: 'Licin & Quick Dry',
     best_for: ['Sublim', 'DTF'],
@@ -375,13 +405,13 @@ export default function CustomPage() {
     selectedModel?.slug === 't-shirt-oversize' ||
     selectedModel?.name?.toLowerCase().includes('oversize');
 
-  const isLongSleeve =
+  const isLongSleeveModel =
     selectedModel?.id === 'long-sleeve' ||
     selectedModel?.slug === 'long-sleeve' ||
     selectedModel?.name?.toLowerCase().includes('long sleeve') ||
     selectedModel?.category?.toLowerCase().includes('long sleeve');
 
-  const shouldUseLongSleeveImage = sleeveType === 'panjang' || isLongSleeve;
+  const shouldUseLongSleeveImage = sleeveType === 'panjang' || isLongSleeveModel;
 
   const colorSpecificImage =
     shouldUseLongSleeveImage && selectedColor?.id && tshirtColorData?.longSleeveUrls?.[selectedColor.id]
@@ -421,37 +451,48 @@ export default function CustomPage() {
     ? Object.values(sizeQuantities).reduce((acc, qty) => acc + (qty > 0 ? qty : 0), 0) || 1
     : quickQuantity;
 
-  const baseUnitPrice = selectedModel?.price && selectedModel.price > 0 ? selectedModel.price : 42000;
+  // Harga dasar kaos polos disesuaikan dengan jenis bahan kain (FABRICS)
+  const isLongSleeve = sleeveType === 'panjang' || isLongSleeveModel;
+  const fabricBaseShort = typeof selectedFabric?.priceShort === 'number'
+    ? selectedFabric.priceShort
+    : (selectedModel?.price || 45000);
+  const fabricBaseLong = typeof selectedFabric?.priceLong === 'number'
+    ? selectedFabric.priceLong
+    : fabricBaseShort;
+
+  // Harga satuan dasar pakaian (pendek)
+  const baseUnitPrice = fabricBaseShort;
 
   // Harga metode cetak: DTF = 30k, Polyflex = 40k, Sablon Manual = Hubungi Admin (0 pada estimasi sistem)
   const isPrintingManual = selectedPrinting?.id === 'manual';
   const printingPricePerPcs = selectedPrinting?.price || 0;
   const totalPrintingPrice = printingPricePerPcs * totalQuantity;
 
-  // Harga tambahan request lengan panjang (+Rp 5.000 / pakaian)
-  const sleeveExtraPerPcs = sleeveType === 'panjang' ? 5000 : 0;
+  // Selisih biaya lengan panjang sesuai daftar harga kain
+  const sleeveExtraPerPcs = isLongSleeve ? Math.max(0, fabricBaseLong - fabricBaseShort) : 0;
   const totalSleeveExtra = sleeveExtraPerPcs * totalQuantity;
 
-  // Harga tambahan ukuran diatas size XXL (+Rp 5.000 / pakaian)
+  // Harga tambahan ukuran diatas size XXL (+Rp 5.000 / pakaian untuk 3XL - 5XL)
+  const sizeSurchargePerPcs = selectedFabric?.extraAboveXXL !== undefined ? selectedFabric.extraAboveXXL : 5000;
   const totalSizeExtra = isMultiSize
     ? Object.entries(sizeQuantities).reduce((acc, [sz, qty]) => {
-        return acc + (isSizeAboveXXL(sz) ? 5000 * Math.max(0, qty) : 0);
-      }, 0)
-    : (isSizeAboveXXL(activeSize) ? 5000 * quickQuantity : 0);
+      return acc + (isSizeAboveXXL(sz) ? sizeSurchargePerPcs * Math.max(0, qty) : 0);
+    }, 0)
+    : (isSizeAboveXXL(activeSize) ? sizeSurchargePerPcs * quickQuantity : 0);
 
   // Helper label ringkas untuk struk
   const compactSizesLabel = isMultiSize
     ? Object.entries(sizeQuantities)
-        .filter(([, q]) => q > 0)
-        .map(([s, q]) => `${s}:${q}`)
-        .join(', ') || activeSize
+      .filter(([, q]) => q > 0)
+      .map(([s, q]) => `${s}:${q}`)
+      .join(', ') || activeSize
     : activeSize;
 
   const compactAboveXXLLabel = isMultiSize
     ? Object.entries(sizeQuantities)
-        .filter(([s, q]) => isSizeAboveXXL(s) && q > 0)
-        .map(([s, q]) => `${s}:${q}`)
-        .join(', ')
+      .filter(([s, q]) => isSizeAboveXXL(s) && q > 0)
+      .map(([s, q]) => `${s}:${q}`)
+      .join(', ')
     : activeSize;
 
   const totalAboveXXLQty = isMultiSize
@@ -719,6 +760,8 @@ export default function CustomPage() {
     colorHex: selectedColor?.hex || '',
     fabric: selectedFabric?.name || '',
     fabricWeight: selectedFabric?.weight || '',
+    fabricPriceShort: selectedFabric?.priceShort,
+    fabricPriceLong: selectedFabric?.priceLong,
     printingMethod: printingLabel,
     printingPricePerPcs: printingPricePerPcs,
     totalPrintingPrice: totalPrintingPrice,
@@ -729,7 +772,9 @@ export default function CustomPage() {
     totalQuantity: totalQuantity,
     baseUnitPrice: baseUnitPrice,
     totalBasePrice: totalBasePrice,
+    sleeveExtraPerPcs: sleeveExtraPerPcs,
     totalSleeveExtra: totalSleeveExtra,
+    sizeSurchargePerPcs: sizeSurchargePerPcs,
     totalSizeExtra: totalSizeExtra,
     totalPrice: totalPrice,
     notes: notes || '',
@@ -969,16 +1014,27 @@ export default function CustomPage() {
               {/* 2. PILIH JENIS KAIN (FABRIC) */}
               {/* ============================================================ */}
               <div className="custom-section">
-                <div className="custom-section-header">
-                  <span className="custom-section-label">
-                    Jenis Kain: <strong className="selected-val-highlight">{selectedFabric?.name}</strong>
-                  </span>
+                <div className="custom-section-header" style={{ alignItems: 'flex-start' }}>
+                  <div>
+                    <span className="custom-section-label">
+                      Jenis Kain: <strong className="selected-val-highlight">{selectedFabric?.name}</strong>
+                    </span>
+                    <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '2px' }}>
+                      Harga: <strong style={{ color: '#111111' }}>
+                        {formatPrice(isLongSleeve ? (selectedFabric?.priceLong || selectedFabric?.priceShort) : selectedFabric?.priceShort)} / pcs
+                      </strong> ({isLongSleeve ? 'Lengan Panjang' : 'Lengan Pendek'})
+                      {selectedFabric?.extraAboveXXL > 0 && (
+                        <span style={{ marginLeft: '6px', color: '#666666' }}>• +5k (3XL–5XL)</span>
+                      )}
+                    </div>
+                  </div>
                   <span className="custom-section-weight">{selectedFabric?.weight}</span>
                 </div>
 
                 <div className="custom-pill-grid">
                   {FABRICS.map((fab) => {
                     const isSelected = selectedFabric?.id === fab.id;
+                    const activePrice = isLongSleeve ? (fab.priceLong || fab.priceShort) : fab.priceShort;
                     return (
                       <button
                         key={fab.id}
@@ -990,7 +1046,47 @@ export default function CustomPage() {
                           <span className="pill-item-name">{fab.name}</span>
                           {isSelected && <Check size={12} />}
                         </div>
-                        <span className="pill-item-sub">{fab.weight} • {fab.texture}</span>
+                        <div
+                          className="pill-item-price"
+                          style={{
+                            fontSize: '0.8125rem',
+                            fontWeight: '700',
+                            color: isSelected ? '#ffffff' : '#111111',
+                            marginTop: '2px',
+                          }}
+                        >
+                          {formatPrice(activePrice)}{' '}
+                          <span
+                            className="pill-item-unit"
+                            style={{
+                              fontSize: '0.6875rem',
+                              fontWeight: '400',
+                              color: isSelected ? 'rgba(255, 255, 255, 0.85)' : '#555555',
+                              opacity: 0.85,
+                            }}
+                          >
+                            /pcs
+                          </span>
+                        </div>
+                        <span
+                          className="pill-item-sub"
+                          style={{ color: isSelected ? 'rgba(255, 255, 255, 0.75)' : '#666666' }}
+                        >
+                          {fab.weight} • {fab.texture}
+                        </span>
+                        {isSelected && fab.priceLong && fab.priceLong !== fab.priceShort ? (
+                          <div
+                            className="pill-item-details"
+                            style={{
+                              fontSize: '0.6875rem',
+                              color: 'rgba(255, 255, 255, 0.75)',
+                              marginTop: '3px',
+                              lineHeight: '1.3',
+                            }}
+                          >
+                            <span>{formatPrice(fab.priceLong)} (Panjang)</span>
+                          </div>
+                        ) : null}
                       </button>
                     );
                   })}
@@ -1378,12 +1474,12 @@ export default function CustomPage() {
                     </div>
 
                     {/* 3. Lengan Panjang (jika ada) */}
-                    {sleeveType === 'panjang' && (
+                    {sleeveType === 'panjang' && totalSleeveExtra > 0 && (
                       <div className="receipt-row-simple">
                         <div className="receipt-row-desc">
-                          <span className="receipt-item-name">Lengan Panjang</span>
+                          <span className="receipt-item-name">Lengan Panjang ({selectedFabric?.name})</span>
                           <span className="receipt-item-sub">
-                            {totalQuantity} × Rp 5.000
+                            {totalQuantity} × {formatPrice(sleeveExtraPerPcs)}
                           </span>
                         </div>
                         <div className="receipt-item-price">
@@ -1398,7 +1494,7 @@ export default function CustomPage() {
                         <div className="receipt-row-desc">
                           <span className="receipt-item-name">Tambahan Size &gt; XXL ({compactAboveXXLLabel})</span>
                           <span className="receipt-item-sub">
-                            {totalAboveXXLQty} × Rp 5.000
+                            {totalAboveXXLQty} × {formatPrice(sizeSurchargePerPcs)}
                           </span>
                         </div>
                         <div className="receipt-item-price">

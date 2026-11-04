@@ -24,12 +24,22 @@ export function generateSlug(name) {
     .trim();
 }
 
-export function generateOrderMessage(template, data) {
-  if (!template) {
-    return `Halo Rinjani Clothing,\n\nSaya ingin memesan:\n\nProduk: ${data.product_name || ''}\nUkuran: ${data.size || ''}\nWarna: ${data.color || ''}\nJumlah: ${data.quantity || 1}\n\nLink produk:\n${data.product_url || ''}`;
-  }
-  
-  let message = template;
+export function generateOrderMessage(template, data = {}) {
+  const fallbackTemplate = `Halo Rinjani Clothing,
+
+Saya ingin memesan:
+
+Produk: {{product_name}}
+Ukuran: {{size}}
+Warna: {{color}}
+Jumlah: {{quantity}} pcs
+Harga: {{price}}
+
+Link produk:
+{{product_url}}`;
+
+  let message = (template || fallbackTemplate).replace(/\r\n/g, '\n');
+
   const variables = {
     '{{product_name}}': data.product_name || '',
     '{{product_url}}': data.product_url || '',
@@ -37,9 +47,13 @@ export function generateOrderMessage(template, data) {
     '{{price}}': data.price || '',
     '{{size}}': data.size || '',
     '{{color}}': data.color || '',
-    '{{quantity}}': data.quantity || '1',
+    '{{quantity}}': data.quantity !== undefined ? String(data.quantity) : '1',
+    '{{customer_name}}': data.customer_name || '',
+    '{{customer_phone}}': data.customer_phone || '',
+    '{{order_number}}': data.order_number || '',
+    '{{notes}}': data.notes || '',
   };
-  
+
   for (const [key, value] of Object.entries(variables)) {
     if (value) {
       message = message.replace(new RegExp(key.replace(/[{}]/g, '\\$&'), 'g'), value);
@@ -48,8 +62,27 @@ export function generateOrderMessage(template, data) {
       message = message.replace(new RegExp(`.*${key.replace(/[{}]/g, '\\$&')}.*\\n?`, 'g'), '');
     }
   }
-  
-  return message.trim();
+
+  // If customer info or order number exists but was not part of template, append neatly
+  const extraLines = [];
+  if (data.order_number && !template?.includes('{{order_number}}')) {
+    extraLines.push(`📋 No. Pesanan: ${data.order_number}`);
+  }
+  if (data.customer_name && !template?.includes('{{customer_name}}')) {
+    extraLines.push(`👤 Nama: ${data.customer_name}`);
+  }
+  if (data.customer_phone && !template?.includes('{{customer_phone}}')) {
+    extraLines.push(`📱 WhatsApp: ${data.customer_phone}`);
+  }
+  if (data.notes && !template?.includes('{{notes}}')) {
+    extraLines.push(`📝 Catatan: ${data.notes}`);
+  }
+
+  if (extraLines.length > 0) {
+    message = `${message}\n\n---\nData Pemesan:\n${extraLines.join('\n')}`;
+  }
+
+  return message.replace(/\n{3,}/g, '\n\n').trim();
 }
 
 export function generateWhatsAppUrl(phone, message) {

@@ -4,7 +4,7 @@ import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { formatPrice, getStockStatus, getProductImage, getProductBackImage } from '@/lib/utils';
 import ContactModal from '@/components/ContactModal';
-import { ChevronRight, ArrowLeft, ShoppingBag } from 'lucide-react';
+import { ChevronRight, ArrowLeft, ShoppingBag, MessageSquare } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import tshirtColorData from '@/data/tshirt_colors.json';
 
@@ -414,8 +414,10 @@ export default function ProductDetailPage({ params }) {
               className="btn btn-primary btn-full btn-lg"
               onClick={() => setIsModalOpen(true)}
               disabled={availableStock <= 0}
+              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
             >
-              {availableStock <= 0 ? 'STOK HABIS (SOLD OUT)' : 'HUBUNGI ADMIN UNTUK MEMESAN'}
+              <MessageSquare size={18} />
+              <span>{availableStock <= 0 ? 'STOK HABIS (SOLD OUT)' : 'PESAN VIA WHATSAPP (FORMAT OTOMATIS)'}</span>
             </button>
           </div>
 

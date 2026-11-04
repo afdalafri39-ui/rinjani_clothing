@@ -11,6 +11,9 @@ export default function ContactModal({ isOpen, onClose, productData = null, cust
   const [submitted, setSubmitted] = useState(false);
   const [orderNumber, setOrderNumber] = useState('');
   const [error, setError] = useState('');
+  const [finalWaUrl, setFinalWaUrl] = useState('');
+  const [finalWaMessage, setFinalWaMessage] = useState('');
+  const [copied, setCopied] = useState(false);
 
   // Customer form fields
   const [customerName, setCustomerName] = useState('');
@@ -58,10 +61,9 @@ export default function ContactModal({ isOpen, onClose, productData = null, cust
         product_url: currentUrl,
       };
 
+  const targetPhone = settings?.whatsappNumber || '6281369876282';
   const message = generateOrderMessage(settings?.orderMessageTemplate, messageData);
-  const waUrl = settings?.whatsappNumber
-    ? generateWhatsAppUrl(settings.whatsappNumber, message)
-    : '#';
+  const waUrl = generateWhatsAppUrl(targetPhone, message);
 
   // Handle custom order submission
   const handleCustomOrderSubmit = async () => {
@@ -120,10 +122,15 @@ export default function ContactModal({ isOpen, onClose, productData = null, cust
       setSubmitting(false);
 
       // Build custom order WhatsApp message
-      if (settings?.whatsappNumber) {
-        const customMessage = buildCustomOrderMessage(data.orderNumber);
-        const customWaUrl = generateWhatsAppUrl(settings.whatsappNumber, customMessage);
+      const customMessage = buildCustomOrderMessage(data.orderNumber);
+      const customWaUrl = generateWhatsAppUrl(targetPhone, customMessage);
+      setFinalWaUrl(customWaUrl);
+      setFinalWaMessage(customMessage);
+
+      try {
         window.open(customWaUrl, '_blank');
+      } catch (errOpen) {
+        console.error('Window open blocked:', errOpen);
       }
     } catch (err) {
       console.error('Submit custom order error:', err);
@@ -147,7 +154,7 @@ export default function ContactModal({ isOpen, onClose, productData = null, cust
     const priceBreakdown = [];
     if (d.totalPrice) {
       if (d.totalBasePrice) {
-        priceBreakdown.push(`• Harga Pakaian: Rp ${d.totalBasePrice.toLocaleString('id-ID')}`);
+        priceBreakdown.push(`• Harga Pakaian: Rp ${d.totalBasePrice.toLocaleString('id-ID')} (${d.fabric || 'Bahan Standar'})`);
       }
       if (d.isPrintingManual) {
         priceBreakdown.push(`• Biaya Cetak: Sablon Manual (Hubungi Admin - Min. 12 pcs)`);
@@ -155,10 +162,12 @@ export default function ContactModal({ isOpen, onClose, productData = null, cust
         priceBreakdown.push(`• Biaya Cetak: +Rp ${d.totalPrintingPrice.toLocaleString('id-ID')}`);
       }
       if (d.totalSleeveExtra > 0) {
-        priceBreakdown.push(`• Tambahan Lengan Panjang: +Rp ${d.totalSleeveExtra.toLocaleString('id-ID')} (+5k/pcs)`);
+        const extraPerUnit = d.sleeveExtraPerPcs ? ` (+Rp ${d.sleeveExtraPerPcs.toLocaleString('id-ID')}/pcs)` : '';
+        priceBreakdown.push(`• Tambahan Lengan Panjang: +Rp ${d.totalSleeveExtra.toLocaleString('id-ID')}${extraPerUnit}`);
       }
       if (d.totalSizeExtra > 0) {
-        priceBreakdown.push(`• Tambahan Ukuran > XXL: +Rp ${d.totalSizeExtra.toLocaleString('id-ID')} (+5k/pcs)`);
+        const extraPerUnit = d.sizeSurchargePerPcs ? ` (+Rp ${d.sizeSurchargePerPcs.toLocaleString('id-ID')}/pcs)` : ' (+5k/pcs)';
+        priceBreakdown.push(`• Tambahan Ukuran 3XL–5XL: +Rp ${d.totalSizeExtra.toLocaleString('id-ID')}${extraPerUnit}`);
       }
       priceBreakdown.push(`• Total Estimasi: *Rp ${d.totalPrice.toLocaleString('id-ID')}*${d.isPrintingManual ? ' (+ Biaya Sablon Manual)' : ''}`);
     }
@@ -234,10 +243,15 @@ Mohon konfirmasi pesanan saya. Terima kasih!`;
       setSubmitting(false);
 
       // Build product order WhatsApp message
-      if (settings?.whatsappNumber) {
-        const prodMessage = buildProductOrderMessage(data.orderNumber);
-        const prodWaUrl = generateWhatsAppUrl(settings.whatsappNumber, prodMessage);
+      const prodMessage = buildProductOrderMessage(data.orderNumber);
+      const prodWaUrl = generateWhatsAppUrl(targetPhone, prodMessage);
+      setFinalWaUrl(prodWaUrl);
+      setFinalWaMessage(prodMessage);
+
+      try {
         window.open(prodWaUrl, '_blank');
+      } catch (errOpen) {
+        console.error('Window open blocked:', errOpen);
       }
     } catch (err) {
       console.error('Submit product order error:', err);
@@ -247,6 +261,22 @@ Mohon konfirmasi pesanan saya. Terima kasih!`;
   };
 
   const buildProductOrderMessage = (orderNum) => {
+    if (settings?.orderMessageTemplate) {
+      return generateOrderMessage(settings.orderMessageTemplate, {
+        product_name: productData.name,
+        product_url: currentUrl,
+        product_slug: productData.slug,
+        price: productData.price,
+        size: productData.selectedSize || '-',
+        color: productData.selectedColor || '-',
+        quantity: productData.quantity || 1,
+        customer_name: customerName,
+        customer_phone: customerPhone,
+        order_number: orderNum,
+        notes: customerNotes,
+      });
+    }
+
     return `Halo Rinjani Clothing,
 
 Saya ingin memesan PRODUK:
@@ -275,14 +305,17 @@ Mohon konfirmasi ketersediaan & informasi pembayaran. Terima kasih!`;
     setError('');
     setSubmitted(false);
     setOrderNumber('');
+    setFinalWaUrl('');
+    setFinalWaMessage('');
+    setCopied(false);
     onClose();
   };
 
   const modalTitle = isCustomOrder
-    ? 'Konfirmasi Pesanan Custom'
+    ? 'Format Pemesanan Custom via WhatsApp'
     : isProductOrder
-    ? 'Form Pemesanan Produk'
-    : 'Hubungi Admin';
+    ? 'Format Pemesanan Produk via WhatsApp'
+    : 'Hubungi Admin via WhatsApp';
 
   return (
     <div className={`modal-overlay ${isOpen ? 'open' : ''}`} onClick={handleClose}>
@@ -302,23 +335,65 @@ Mohon konfirmasi ketersediaan & informasi pembayaran. Terima kasih!`;
         {isCustomOrder ? (
           submitted ? (
             <div className="custom-order-success">
-              <div className="custom-order-success-icon">
+              <div className="custom-order-success-icon" style={{ color: '#10B981' }}>
                 <CheckCircle size={48} />
               </div>
-              <h4 className="custom-order-success-title">Pesanan Berhasil Dikirim!</h4>
+              <h4 className="custom-order-success-title">Pesanan Berhasil Disimpan!</h4>
               <p className="custom-order-success-desc">Nomor pesanan Anda:</p>
-              <div className="custom-order-success-number">{orderNumber}</div>
+              <div className="custom-order-success-number" style={{ borderColor: '#10B981', color: '#047857' }}>
+                {orderNumber}
+              </div>
               <p className="custom-order-success-hint">
-                Simpan nomor ini untuk tracking pesanan Anda. Admin akan segera menghubungi Anda melalui WhatsApp.
+                Data pesanan telah tersimpan di sistem toko. Klik tombol di bawah untuk melanjutkan obrolan langsung dengan Admin di WhatsApp dengan format pesanan lengkap.
               </p>
-              <button className="btn btn-primary btn-full" onClick={handleClose} style={{ marginTop: '16px' }}>
-                TUTUP
+
+              {finalWaUrl && (
+                <a
+                  href={finalWaUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary btn-full"
+                  style={{
+                    backgroundColor: '#25D366',
+                    borderColor: '#25D366',
+                    color: '#FFF',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '12px',
+                    fontWeight: '700',
+                    marginTop: '16px',
+                    textDecoration: 'none',
+                  }}
+                >
+                  <MessageSquare size={18} /> BUKA CHAT WHATSAPP SEKARANG
+                </a>
+              )}
+
+              {finalWaMessage && (
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-full"
+                  onClick={() => {
+                    navigator.clipboard.writeText(finalWaMessage);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  style={{ marginTop: '8px', fontSize: '0.8125rem' }}
+                >
+                  {copied ? '✓ Format Pesan Berhasil Disalin!' : 'Salin Format Pesan WhatsApp'}
+                </button>
+              )}
+
+              <button className="btn btn-full" onClick={handleClose} style={{ marginTop: '12px', background: 'transparent', border: '1px solid #ddd', color: '#666' }}>
+                Tutup Jendela
               </button>
             </div>
           ) : (
             <>
               <p style={{ fontSize: '0.875rem', color: '#666', marginBottom: '20px' }}>
-                Isi data diri Anda. Pesanan akan otomatis tersimpan dan diteruskan ke admin via WhatsApp.
+                Isi data diri Anda. Pesanan akan otomatis tersimpan di sistem dan diteruskan ke admin via WhatsApp dengan format pesanan lengkap.
               </p>
 
               <div className="custom-order-form">
@@ -377,11 +452,11 @@ Mohon konfirmasi ketersediaan & informasi pembayaran. Terima kasih!`;
                 >
                   {submitting ? (
                     <>
-                      <Loader2 size={16} className="spin-icon" /> MENYIMPAN...
+                      <Loader2 size={16} className="spin-icon" /> MENYIMPAN PESANAN...
                     </>
                   ) : (
                     <>
-                      <Send size={16} /> KIRIM PESANAN VIA WHATSAPP
+                      <Send size={16} /> KIRIM PESANAN KE WHATSAPP ADMIN
                     </>
                   )}
                 </button>
@@ -401,10 +476,50 @@ Mohon konfirmasi ketersediaan & informasi pembayaran. Terima kasih!`;
                 {orderNumber}
               </div>
               <p className="custom-order-success-hint">
-                Data telah tersimpan di sistem toko dan chat WhatsApp sedang diarahkan ke admin untuk verifikasi.
+                Data telah tersimpan di sistem toko. Silakan klik tombol hijau di bawah untuk melanjutkan percakapan ke WhatsApp Admin.
               </p>
-              <button className="btn btn-primary btn-full" onClick={handleClose} style={{ marginTop: '16px' }}>
-                TUTUP
+
+              {finalWaUrl && (
+                <a
+                  href={finalWaUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary btn-full"
+                  style={{
+                    backgroundColor: '#25D366',
+                    borderColor: '#25D366',
+                    color: '#FFF',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '12px',
+                    fontWeight: '700',
+                    marginTop: '16px',
+                    textDecoration: 'none',
+                  }}
+                >
+                  <MessageSquare size={18} /> BUKA CHAT WHATSAPP SEKARANG
+                </a>
+              )}
+
+              {finalWaMessage && (
+                <button
+                  type="button"
+                  className="btn btn-secondary btn-full"
+                  onClick={() => {
+                    navigator.clipboard.writeText(finalWaMessage);
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                  }}
+                  style={{ marginTop: '8px', fontSize: '0.8125rem' }}
+                >
+                  {copied ? '✓ Format Pesan Berhasil Disalin!' : 'Salin Format Pesan WhatsApp'}
+                </button>
+              )}
+
+              <button className="btn btn-full" onClick={handleClose} style={{ marginTop: '12px', background: 'transparent', border: '1px solid #ddd', color: '#666' }}>
+                Tutup Jendela
               </button>
             </div>
           ) : (
@@ -416,7 +531,7 @@ Mohon konfirmasi ketersediaan & informasi pembayaran. Terima kasih!`;
                   border: '1px solid var(--color-gray-200)',
                   borderRadius: '10px',
                   padding: '12px 16px',
-                  marginBottom: '18px',
+                  marginBottom: '16px',
                 }}
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '6px' }}>
@@ -445,9 +560,43 @@ Mohon konfirmasi ketersediaan & informasi pembayaran. Terima kasih!`;
                 </div>
               </div>
 
-              <p style={{ fontSize: '0.8125rem', color: '#666', marginBottom: '16px' }}>
-                Lengkapi kontak Anda untuk pencatatan invoice &amp; konfirmasi pemesanan:
-              </p>
+              {/* 1-CLICK INSTANT ORDER VIA WHATSAPP (FORMAT OTOMATIS) */}
+              <div style={{ marginBottom: '16px', padding: '12px 14px', backgroundColor: '#F0FDF4', border: '1.5px solid #86EFAC', borderRadius: '8px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8125rem', fontWeight: 700, color: '#166534', marginBottom: '4px' }}>
+                  <MessageSquare size={16} color="#25D366" /> FORMAT PEMESANAN WHATSAPP AKTIF
+                </div>
+                <p style={{ fontSize: '0.75rem', color: '#15803D', margin: '0 0 10px 0', lineHeight: 1.4 }}>
+                  Format pesan pemesanan otomatis sudah siap dengan detail produk &amp; varian pilihan Anda.
+                </p>
+                <a
+                  href={waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary btn-full"
+                  style={{
+                    backgroundColor: '#25D366',
+                    borderColor: '#25D366',
+                    color: '#FFF',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '10px 14px',
+                    fontSize: '0.8125rem',
+                    fontWeight: '700',
+                    textDecoration: 'none',
+                  }}
+                >
+                  <Send size={15} /> ORDER LANGSUNG KE WHATSAPP (1 KLIK)
+                </a>
+              </div>
+
+              <div style={{ textAlign: 'center', margin: '14px 0 12px', position: 'relative' }}>
+                <span style={{ background: '#FFF', padding: '0 10px', fontSize: '0.75rem', color: '#888', position: 'relative', zIndex: 1, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  Atau Catat Kontak Untuk Invoice Toko
+                </span>
+                <div style={{ position: 'absolute', top: '50%', left: 0, right: 0, borderTop: '1px solid #E5E7EB', zIndex: 0 }} />
+              </div>
 
               <div className="custom-order-form">
                 <div className="custom-order-field">
@@ -530,7 +679,7 @@ Mohon konfirmasi ketersediaan & informasi pembayaran. Terima kasih!`;
                     </>
                   ) : (
                     <>
-                      <Send size={16} /> ORDER SEKARANG VIA WHATSAPP
+                      <Send size={16} /> SIMPAN &amp; FORWARD KE WHATSAPP
                     </>
                   )}
                 </button>
@@ -550,7 +699,7 @@ Mohon konfirmasi ketersediaan & informasi pembayaran. Terima kasih!`;
               </div>
             ) : (
               <div className="modal-options">
-                {settings?.whatsappEnabled && settings?.whatsappNumber && (
+                {settings?.whatsappEnabled !== false && (
                   <a
                     href={waUrl}
                     target="_blank"
@@ -561,16 +710,10 @@ Mohon konfirmasi ketersediaan & informasi pembayaran. Terima kasih!`;
                       <MessageSquare size={20} />
                     </div>
                     <div className="modal-option-text">
-                      <div className="modal-option-title">WhatsApp</div>
-                      <div className="modal-option-desc">Order otomatis lewat WhatsApp chat</div>
+                      <div className="modal-option-title">WhatsApp Admin</div>
+                      <div className="modal-option-desc">Order otomatis dengan format pesan siap kirim</div>
                     </div>
                   </a>
-                )}
-
-                {!settings?.whatsappEnabled && (
-                  <div style={{ padding: '16px', textAlign: 'center', color: '#666' }}>
-                    Tidak ada kanal komunikasi aktif saat ini.
-                  </div>
                 )}
               </div>
             )}

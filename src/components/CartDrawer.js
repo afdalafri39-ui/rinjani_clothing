@@ -16,6 +16,7 @@ import {
   User,
   Phone,
   RotateCcw,
+  MessageSquare,
 } from 'lucide-react';
 import { useCart } from '@/context/CartContext';
 import { formatPrice, generateWhatsAppUrl } from '@/lib/utils';
@@ -240,7 +241,11 @@ Mohon konfirmasi pesanan dan ketersediaan stok/slot pengerjaan. Terima kasih!`;
       const waUrl = generateWhatsAppUrl(targetPhone, waMessage);
 
       // Open WhatsApp chat in a new tab
-      window.open(waUrl, '_blank');
+      try {
+        window.open(waUrl, '_blank');
+      } catch (errOpen) {
+        console.error('Window open blocked:', errOpen);
+      }
 
       // Update state
       setLastOrderInfo({
@@ -248,6 +253,7 @@ Mohon konfirmasi pesanan dan ketersediaan stok/slot pengerjaan. Terima kasih!`;
         phone: trimmedPhone,
         totalItems,
         totalPrice,
+        waUrl,
       });
 
       // Clear cart
@@ -645,12 +651,36 @@ Mohon konfirmasi pesanan dan ketersediaan stok/slot pengerjaan. Terima kasih!`;
             </div>
 
             <div className="cart-drawer-footer">
+              {lastOrderInfo?.waUrl && (
+                <a
+                  href={lastOrderInfo.waUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-primary btn-full"
+                  style={{
+                    backgroundColor: '#25D366',
+                    borderColor: '#25D366',
+                    color: '#FFF',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '8px',
+                    padding: '12px',
+                    fontWeight: '700',
+                    marginBottom: '10px',
+                    textDecoration: 'none',
+                  }}
+                >
+                  <MessageSquare size={18} />
+                  <span>BUKA CHAT WHATSAPP SEKARANG</span>
+                </a>
+              )}
               <button
                 type="button"
-                className="btn btn-primary btn-full"
+                className="btn btn-secondary btn-full"
                 onClick={() => setIsCartOpen(false)}
               >
-                SELESAI & TUTUP KERANJANG
+                SELESAI &amp; TUTUP KERANJANG
               </button>
             </div>
           </div>
