@@ -1,4 +1,4 @@
-import { firestoreAdapter } from './firestoreAdapter';
+import { firestoreAdapter } from './firestoreAdapter.js';
 
 // Firestore adalah database utama aplikasi Rinjani Clothing
 export const db = firestoreAdapter;

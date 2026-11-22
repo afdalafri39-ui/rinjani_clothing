@@ -1,4 +1,17 @@
-import { adminDb, adminStorage } from './firebaseAdmin';
+import { getDb, getAdminStorage } from './firebaseAdmin.js';
+
+function sanitizeForFirestore(val) {
+  if (val === undefined) return null;
+  if (val === null || typeof val !== 'object') return val;
+  if (Array.isArray(val)) {
+    return val.map(sanitizeForFirestore);
+  }
+  const clean = {};
+  for (const [k, v] of Object.entries(val)) {
+    clean[k] = v === undefined ? null : sanitizeForFirestore(v);
+  }
+  return clean;
+}
 
 export class FirestoreQueryBuilder {
   constructor(collectionName) {
@@ -84,26 +97,28 @@ export class FirestoreQueryBuilder {
 
   async execute() {
     try {
-      if (!adminDb) {
-        throw new Error('Firestore database belum terhubung (adminDb is null).');
+      const db = getDb();
+      if (!db) {
+        throw new Error('Firestore database belum terhubung. Periksa serviceAccountKey.json atau kredensial Firebase.');
       }
 
-      const col = adminDb.collection(this.collectionName);
+      const col = db.collection(this.collectionName);
 
       // 1. Handle INSERT
       if (this.mutationType === 'insert') {
         const rows = Array.isArray(this.mutationData) ? this.mutationData : [this.mutationData];
         const results = [];
-        const batch = adminDb.batch();
+        const batch = db.batch();
 
         for (const row of rows) {
-          const docId = row.id ? String(row.id) : col.doc().id;
+          const cleanRow = sanitizeForFirestore(row);
+          const docId = cleanRow.id ? String(cleanRow.id) : col.doc().id;
           const docRef = col.doc(docId);
           const rowData = {
-            ...row,
+            ...cleanRow,
             id: docId,
-            createdAt: row.createdAt || new Date().toISOString(),
-            updatedAt: row.updatedAt || new Date().toISOString(),
+            createdAt: cleanRow.createdAt || new Date().toISOString(),
+            updatedAt: cleanRow.updatedAt || new Date().toISOString(),
           };
           batch.set(docRef, rowData, { merge: true });
           results.push(rowData);
@@ -115,8 +130,19 @@ export class FirestoreQueryBuilder {
       }
 
       // 2. Fetch docs from Firestore
-      const snapshot = await col.get();
-      let docs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      // Optimisasi: jika filter hanya eq('id', targetId), fetch dokumen spesifik
+      const idFilter = this.filters.find((f) => f.type === 'eq' && f.field === 'id');
+      let docs = [];
+
+      if (idFilter && this.filters.length === 1 && !this.orders.length) {
+        const directDoc = await col.doc(String(idFilter.value)).get();
+        if (directDoc.exists) {
+          docs = [{ id: directDoc.id, ...directDoc.data() }];
+        }
+      } else {
+        const snapshot = await col.get();
+        docs = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+      }
 
       // 3. Apply Filters
       for (const filter of this.filters) {
@@ -138,10 +164,26 @@ export class FirestoreQueryBuilder {
           const parts = filter.str.split(',').map((s) => s.trim());
           docs = docs.filter((d) => {
             return parts.some((part) => {
-              const m = part.match(/^([^.]+)\.ilike\.%([^%]+)%$/);
-              if (m) {
-                const [, field, val] = m;
+              // Format 1: field.ilike.%pattern%
+              const mIlike = part.match(/^([^.]+)\.ilike\.%?([^%]+)%?$/i);
+              if (mIlike) {
+                const [, field, val] = mIlike;
                 return String(d[field] || '').toLowerCase().includes(val.toLowerCase());
+              }
+              // Format 2: field.eq.value (contoh: id.eq.xxx atau slug.eq.xxx)
+              const mEq = part.match(/^([^.]+)\.eq\.(.+)$/);
+              if (mEq) {
+                const [, field, val] = mEq;
+                return (
+                  String(d[field]) === String(val) ||
+                  (field === 'id' && String(d.id) === String(val))
+                );
+              }
+              // Format 3: field.neq.value
+              const mNeq = part.match(/^([^.]+)\.neq\.(.+)$/);
+              if (mNeq) {
+                const [, field, val] = mNeq;
+                return String(d[field]) !== String(val);
               }
               return false;
             });
@@ -151,7 +193,12 @@ export class FirestoreQueryBuilder {
 
       // 4. Handle DELETE
       if (this.mutationType === 'delete') {
-        const batch = adminDb.batch();
+        const batch = db.batch();
+        if (docs.length === 0 && idFilter) {
+          batch.delete(col.doc(String(idFilter.value)));
+          await batch.commit();
+          return { data: null, error: null };
+        }
         docs.forEach((d) => batch.delete(col.doc(d.id)));
         await batch.commit();
         return { data: null, error: null };
@@ -159,16 +206,25 @@ export class FirestoreQueryBuilder {
 
       // 5. Handle UPDATE
       if (this.mutationType === 'update') {
-        const batch = adminDb.batch();
+        const batch = db.batch();
         const updated = [];
+        const cleanUpdate = sanitizeForFirestore(this.mutationData);
+
+        if (docs.length === 0 && idFilter) {
+          const directDoc = await col.doc(String(idFilter.value)).get();
+          if (directDoc.exists) {
+            docs = [{ id: directDoc.id, ...directDoc.data() }];
+          }
+        }
+
         docs.forEach((d) => {
           const docRef = col.doc(d.id);
           const newDoc = {
             ...d,
-            ...this.mutationData,
+            ...cleanUpdate,
             updatedAt: new Date().toISOString(),
           };
-          batch.update(docRef, this.mutationData);
+          batch.set(docRef, cleanUpdate, { merge: true });
           updated.push(newDoc);
         });
         await batch.commit();
@@ -214,9 +270,9 @@ export class FirestoreQueryBuilder {
           this.selectFields.includes('variants:ProductVariant')
         ) {
           const [catSnap, imgSnap, varSnap] = await Promise.all([
-            adminDb.collection('Category').get(),
-            adminDb.collection('ProductImage').get(),
-            adminDb.collection('ProductVariant').get(),
+            db.collection('Category').get(),
+            db.collection('ProductImage').get(),
+            db.collection('ProductVariant').get(),
           ]);
           const categories = catSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
           const images = imgSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
@@ -238,7 +294,7 @@ export class FirestoreQueryBuilder {
         }
       } else if (this.collectionName === 'Category' && typeof this.selectFields === 'string') {
         if (this.selectFields.includes('products:Product')) {
-          const prodSnap = await adminDb.collection('Product').get();
+          const prodSnap = await db.collection('Product').get();
           const prods = prodSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
           docs = docs.map((c) => ({
             ...c,
@@ -277,6 +333,7 @@ export const firestoreAdapter = {
       return {
         async upload(filePath, fileBuffer, options = {}) {
           try {
+            const adminStorage = getAdminStorage();
             if (adminStorage) {
               const bucket = adminStorage.bucket();
               const destination = `${bucketName}/${filePath}`;
