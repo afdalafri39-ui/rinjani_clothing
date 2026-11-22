@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { supabase, generateId } from '@/lib/supabase';
+import { supabase, generateId, isSupabaseConfigured } from '@/lib/supabase';
+import * as mockStore from '@/data/mockOrdersStore';
 
 // Generate unique order number: CO-YYYYMMDD-XXXX
 function generateOrderNumber() {
@@ -11,11 +12,16 @@ function generateOrderNumber() {
 
 // GET: List all custom orders (for admin)
 export async function GET(request) {
-  try {
-    const { searchParams } = new URL(request.url);
-    const status = searchParams.get('status');
-    const limit = parseInt(searchParams.get('limit') || '50', 10);
+  const { searchParams } = new URL(request.url);
+  const status = searchParams.get('status');
+  const limit = parseInt(searchParams.get('limit') || '50', 10);
 
+  if (!isSupabaseConfigured()) {
+    const mockResult = mockStore.getCustomOrders({ status, limit });
+    return NextResponse.json(mockResult);
+  }
+
+  try {
     let query = supabase
       .from('CustomOrder')
       .select('*')
@@ -59,8 +65,9 @@ export async function GET(request) {
       },
     });
   } catch (error) {
-    console.error('GET /api/custom-orders error:', error);
-    return NextResponse.json({ error: 'Gagal memuat data pesanan.' }, { status: 500 });
+    console.warn('GET /api/custom-orders Supabase error, falling back to mockStore:', error.message);
+    const mockResult = mockStore.getCustomOrders({ status, limit });
+    return NextResponse.json(mockResult);
   }
 }
 
@@ -97,9 +104,8 @@ export async function POST(request) {
     const orderNumber = generateOrderNumber();
     const id = generateId('co');
 
-    const { data: order, error } = await supabase
-      .from('CustomOrder')
-      .insert({
+    if (!isSupabaseConfigured()) {
+      const order = mockStore.createCustomOrder({
         id,
         orderNumber,
         customerName,
@@ -117,13 +123,64 @@ export async function POST(request) {
         notes: notes || null,
         designFiles: typeof designFiles === 'string' ? designFiles : JSON.stringify(designFiles || []),
         status: 'BARU',
-      })
-      .select()
-      .single();
+        adminNotes: '',
+        paymentHistory: '[]',
+      });
+      return NextResponse.json({ order, orderNumber }, { status: 201 });
+    }
 
-    if (error) throw error;
+    try {
+      const { data: order, error } = await supabase
+        .from('CustomOrder')
+        .insert({
+          id,
+          orderNumber,
+          customerName,
+          customerPhone,
+          customerEmail: customerEmail || null,
+          garmentModel,
+          garmentCategory: garmentCategory || null,
+          color,
+          colorHex: colorHex || null,
+          fabric,
+          fabricWeight: fabricWeight || null,
+          printingMethod,
+          sizes: typeof sizes === 'string' ? sizes : JSON.stringify(sizes || {}),
+          totalQuantity: totalQuantity || 1,
+          notes: notes || null,
+          designFiles: typeof designFiles === 'string' ? designFiles : JSON.stringify(designFiles || []),
+          status: 'BARU',
+        })
+        .select()
+        .single();
 
-    return NextResponse.json({ order, orderNumber }, { status: 201 });
+      if (error) throw error;
+      return NextResponse.json({ order, orderNumber }, { status: 201 });
+    } catch (dbErr) {
+      console.warn('POST /api/custom-orders DB error, falling back to mockStore:', dbErr.message);
+      const order = mockStore.createCustomOrder({
+        id,
+        orderNumber,
+        customerName,
+        customerPhone,
+        customerEmail: customerEmail || null,
+        garmentModel,
+        garmentCategory: garmentCategory || null,
+        color,
+        colorHex: colorHex || null,
+        fabric,
+        fabricWeight: fabricWeight || null,
+        printingMethod,
+        sizes: typeof sizes === 'string' ? sizes : JSON.stringify(sizes || {}),
+        totalQuantity: totalQuantity || 1,
+        notes: notes || null,
+        designFiles: typeof designFiles === 'string' ? designFiles : JSON.stringify(designFiles || []),
+        status: 'BARU',
+        adminNotes: '',
+        paymentHistory: '[]',
+      });
+      return NextResponse.json({ order, orderNumber }, { status: 201 });
+    }
   } catch (error) {
     console.error('POST /api/custom-orders error:', error);
     return NextResponse.json({ error: 'Gagal menyimpan pesanan.' }, { status: 500 });

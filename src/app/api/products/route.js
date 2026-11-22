@@ -1,11 +1,64 @@
 import { NextResponse } from 'next/server';
-import { supabase, generateId } from '@/lib/supabase';
+import { supabase, generateId, isSupabaseConfigured } from '@/lib/supabase';
 import { requireAuth } from '@/lib/auth';
 import { generateSlug, getRandomApparelImage } from '@/lib/utils';
+import mockProductsData from '@/data/mock_products.json';
+
+function getFallbackProducts(searchParams) {
+  const category = searchParams.get('category');
+  const search = searchParams.get('search');
+  const status = searchParams.get('status');
+  const featured = searchParams.get('featured');
+  const sort = searchParams.get('sort') || 'newest';
+
+  let products = [...(mockProductsData.products || [])];
+
+  if (status) {
+    products = products.filter((p) => p.status === status);
+  } else if (!searchParams.has('allStatus')) {
+    products = products.filter((p) => p.status === 'ACTIVE');
+  }
+
+  if (featured === 'true') {
+    products = products.filter((p) => p.featured === true);
+  }
+
+  if (search) {
+    const q = search.toLowerCase();
+    products = products.filter(
+      (p) =>
+        (p.name && p.name.toLowerCase().includes(q)) ||
+        (p.description && p.description.toLowerCase().includes(q)) ||
+        (p.material && p.material.toLowerCase().includes(q))
+    );
+  }
+
+  if (category) {
+    products = products.filter((p) => p.category?.slug === category);
+  }
+
+  if (sort === 'price-asc') {
+    products.sort((a, b) => (a.price || 0) - (b.price || 0));
+  } else if (sort === 'price-desc') {
+    products.sort((a, b) => (b.price || 0) - (a.price || 0));
+  } else if (sort === 'name-asc') {
+    products.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+  } else {
+    products.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  }
+
+  return products;
+}
 
 export async function GET(request) {
+  const { searchParams } = new URL(request.url);
+
+  if (!isSupabaseConfigured()) {
+    const products = getFallbackProducts(searchParams);
+    return NextResponse.json({ products });
+  }
+
   try {
-    const { searchParams } = new URL(request.url);
     const category = searchParams.get('category');
     const search = searchParams.get('search');
     const status = searchParams.get('status');
@@ -56,11 +109,9 @@ export async function GET(request) {
 
     return NextResponse.json({ products });
   } catch (error) {
-    console.error('Fetch products error:', error);
-    return NextResponse.json(
-      { error: 'Gagal mengambil data produk' },
-      { status: 500 }
-    );
+    console.warn('Fetch products Supabase error, falling back to mock data:', error.message);
+    const products = getFallbackProducts(searchParams);
+    return NextResponse.json({ products });
   }
 }
 

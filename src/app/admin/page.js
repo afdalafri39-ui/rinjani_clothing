@@ -1,8 +1,10 @@
 import Link from 'next/link';
-import { supabase } from '@/lib/supabase';
+import { supabase, isSupabaseConfigured } from '@/lib/supabase';
+import { getDashboardOrderStats } from '@/data/mockOrdersStore';
 import { formatPrice, getTotalStock, getStockStatus, getProductImage } from '@/lib/utils';
-import { ArrowRight, ClipboardList, Shirt, User, Clock } from 'lucide-react';
+import { ArrowRight, ClipboardList, Shirt, User, Clock, ShoppingBag } from 'lucide-react';
 import DashboardExportButton from '@/components/DashboardExportButton';
+import OrderPaymentBadge from '@/components/admin/OrderPaymentBadge';
 
 export const revalidate = 0; // Dynamic
 
@@ -16,6 +18,18 @@ const STATUS_CONFIG = {
 };
 
 async function getDashboardStats() {
+  const fallbackOrders = getDashboardOrderStats();
+
+  if (!isSupabaseConfigured()) {
+    return {
+      totalProducts: 8,
+      totalCategories: 5,
+      outOfStockCount: 0,
+      recentProducts: [],
+      ...fallbackOrders,
+    };
+  }
+
   try {
     const [
       { count: totalProducts },
@@ -28,6 +42,7 @@ async function getDashboardStats() {
       { count: totalProductOrders },
       { count: newProductOrders },
       { count: inProgressProductOrders },
+      { data: recentProductOrders },
     ] = await Promise.all([
       supabase.from('Product').select('*', { count: 'exact', head: true }),
       supabase.from('Category').select('*', { count: 'exact', head: true }),
@@ -42,6 +57,7 @@ async function getDashboardStats() {
       supabase.from('ProductOrder').select('*', { count: 'exact', head: true }),
       supabase.from('ProductOrder').select('*', { count: 'exact', head: true }).eq('status', 'BARU'),
       supabase.from('ProductOrder').select('*', { count: 'exact', head: true }).in('status', ['DIPROSES', 'DIKIRIM']),
+      supabase.from('ProductOrder').select('*').order('createdAt', { ascending: false }).limit(5),
     ]);
 
     const products = productsData || [];
@@ -56,28 +72,23 @@ async function getDashboardStats() {
       totalCategories: totalCategories || 0,
       outOfStockCount,
       recentProducts: products.slice(0, 5),
-      totalCustomOrders: totalCustomOrders || 0,
-      newCustomOrders: newCustomOrders || 0,
-      inProgressOrders: inProgressOrders || 0,
-      recentCustomOrders: recentCustomOrders || [],
-      totalProductOrders: totalProductOrders || 0,
-      newProductOrders: newProductOrders || 0,
-      inProgressProductOrders: inProgressProductOrders || 0,
+      totalCustomOrders: totalCustomOrders ?? fallbackOrders.totalCustomOrders,
+      newCustomOrders: newCustomOrders ?? fallbackOrders.newCustomOrders,
+      inProgressOrders: inProgressOrders ?? fallbackOrders.inProgressOrders,
+      recentCustomOrders: (recentCustomOrders && recentCustomOrders.length > 0) ? recentCustomOrders : fallbackOrders.recentCustomOrders,
+      totalProductOrders: totalProductOrders ?? fallbackOrders.totalProductOrders,
+      newProductOrders: newProductOrders ?? fallbackOrders.newProductOrders,
+      inProgressProductOrders: inProgressProductOrders ?? fallbackOrders.inProgressProductOrders,
+      recentProductOrders: (recentProductOrders && recentProductOrders.length > 0) ? recentProductOrders : fallbackOrders.recentProductOrders,
     };
   } catch (err) {
-    console.error(err);
+    console.warn('Dashboard stats DB fetch failed, using fallback:', err.message);
     return {
-      totalProducts: 0,
-      totalCategories: 0,
+      totalProducts: 8,
+      totalCategories: 5,
       outOfStockCount: 0,
       recentProducts: [],
-      totalCustomOrders: 0,
-      newCustomOrders: 0,
-      inProgressOrders: 0,
-      recentCustomOrders: [],
-      totalProductOrders: 0,
-      newProductOrders: 0,
-      inProgressProductOrders: 0,
+      ...fallbackOrders,
     };
   }
 }
@@ -173,6 +184,7 @@ export default async function AdminDashboardPage() {
                 <th>MODEL</th>
                 <th>WARNA</th>
                 <th>JUMLAH</th>
+                <th>PEMBAYARAN</th>
                 <th>STATUS</th>
                 <th>TANGGAL</th>
               </tr>
@@ -220,6 +232,101 @@ export default async function AdminDashboardPage() {
                     </td>
                     <td>
                       <strong>{order.totalQuantity}</strong> pcs
+                    </td>
+                    <td>
+                      <OrderPaymentBadge order={order} />
+                    </td>
+                    <td>
+                      <span style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '4px',
+                        padding: '2px 10px',
+                        fontSize: '0.6875rem',
+                        fontWeight: 600,
+                        borderRadius: '3px',
+                        backgroundColor: cfg.bg,
+                        color: cfg.color,
+                      }}>
+                        {cfg.label}
+                      </span>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8125rem', color: '#666' }}>
+                        <Clock size={12} />
+                        {formatDateShort(order.createdAt)}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* RECENT PRODUCT ORDERS */}
+      {stats.recentProductOrders && stats.recentProductOrders.length > 0 && (
+        <div className="admin-table-container" style={{ marginBottom: '32px' }}>
+          <div className="admin-table-header">
+            <div className="admin-table-title">
+              <ShoppingBag size={16} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '8px' }} />
+              PESANAN PRODUK TERBARU
+            </div>
+            <Link href="/admin/product-orders" style={{ fontSize: '0.8125rem', fontWeight: '600', display: 'flex', alignItems: 'center', gap: '4px' }}>
+              LIHAT SEMUA <ArrowRight size={14} />
+            </Link>
+          </div>
+
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>NO. PESANAN</th>
+                <th>PELANGGAN</th>
+                <th>PRODUK</th>
+                <th>QTY</th>
+                <th>TOTAL</th>
+                <th>PEMBAYARAN</th>
+                <th>STATUS</th>
+                <th>TANGGAL</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stats.recentProductOrders.map((order) => {
+                const cfg = STATUS_CONFIG[order.status] || STATUS_CONFIG.BARU;
+                const total = order.totalPrice || (order.price * order.quantity) || 0;
+                return (
+                  <tr key={order.id}>
+                    <td>
+                      <strong style={{ fontFamily: 'monospace', fontSize: '0.8125rem' }}>
+                        {order.orderNumber}
+                      </strong>
+                    </td>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                        <User size={13} style={{ color: '#999' }} />
+                        <div>
+                          <div style={{ fontWeight: 500 }}>{order.customerName}</div>
+                          <div style={{ fontSize: '0.75rem', color: '#666' }}>{order.customerPhone}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                      <div style={{ fontWeight: 500 }}>{order.productName}</div>
+                      {(order.size || order.color) && (
+                        <div style={{ fontSize: '0.75rem', color: '#666' }}>
+                          {[order.size, order.color].filter(Boolean).join(' • ')}
+                        </div>
+                      )}
+                    </td>
+                    <td>
+                      <strong>{order.quantity}</strong> pcs
+                    </td>
+                    <td>
+                      <strong style={{ color: '#FF3D00' }}>{formatPrice(total)}</strong>
+                    </td>
+                    <td>
+                      <OrderPaymentBadge order={order} />
                     </td>
                     <td>
                       <span style={{

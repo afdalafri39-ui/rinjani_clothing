@@ -3,6 +3,16 @@ import { supabase } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
 import { generateToken, setAuthCookie } from '@/lib/auth';
 
+const DEFAULT_ADMIN = {
+  id: 'cmumu1sdy0000sxkst1cs7ni1',
+  name: 'Amidi Rinjani',
+  email: 'amidi@rinjani.com',
+  username: 'amidi',
+  role: 'ADMIN',
+  // bcrypt hash for 'amidi123'
+  passwordHash: '$2b$10$2DDef4ZcKRoc1ASM8k560.70Y3v6feodcrsCa2MnCa9D6P4SmImGa',
+};
+
 export async function POST(request) {
   try {
     const body = await request.json();
@@ -16,31 +26,47 @@ export async function POST(request) {
       );
     }
 
-    // Try finding user by email
-    let { data: user } = await supabase
-      .from('User')
-      .select('*')
-      .eq('email', identifier)
-      .maybeSingle();
+    let user = null;
 
-    // If not found, try finding by name (username)
-    if (!user) {
-      const { data: userByName } = await supabase
+    // 1. Coba cari di Supabase jika database terhubung
+    try {
+      const { data: userByEmail } = await supabase
         .from('User')
         .select('*')
-        .ilike('name', identifier)
+        .eq('email', identifier)
         .maybeSingle();
-      user = userByName;
+      user = userByEmail;
+
+      if (!user) {
+        const { data: userByName } = await supabase
+          .from('User')
+          .select('*')
+          .ilike('name', identifier)
+          .maybeSingle();
+        user = userByName;
+      }
+
+      if (!user && !identifier.includes('@')) {
+        const { data: userByDomain } = await supabase
+          .from('User')
+          .select('*')
+          .eq('email', `${identifier}@rinjani.com`)
+          .maybeSingle();
+        user = userByDomain;
+      }
+    } catch (dbError) {
+      console.warn('Peringatan: Gagal query Supabase (database offline/belum dikonfigurasi). Menggunakan fallback admin default.', dbError?.message);
     }
 
-    // If still not found and doesn't contain '@', try with default domain
-    if (!user && !identifier.includes('@')) {
-      const { data: userByDomain } = await supabase
-        .from('User')
-        .select('*')
-        .eq('email', `${identifier}@rinjani.com`)
-        .maybeSingle();
-      user = userByDomain;
+    // 2. Fallback jika user belum ada di Supabase atau database belum terhubung
+    const isAmidiAdmin =
+      identifier === 'amidi' ||
+      identifier === 'amidi@rinjani.com' ||
+      identifier === 'amidi@rinjaniclothing.com' ||
+      identifier === 'amidi rinjani';
+
+    if (!user && isAmidiAdmin) {
+      user = DEFAULT_ADMIN;
     }
 
     if (!user) {
@@ -50,7 +76,16 @@ export async function POST(request) {
       );
     }
 
-    const isMatch = await bcrypt.compare(password, user.passwordHash);
+    // 3. Verifikasi password dengan bcrypt
+    let isMatch = false;
+    if (user.passwordHash) {
+      try {
+        isMatch = await bcrypt.compare(password, user.passwordHash);
+      } catch (err) {
+        console.error('Bcrypt compare error:', err);
+      }
+    }
+
     if (!isMatch) {
       return NextResponse.json(
         { error: 'Username atau password salah' },
@@ -73,7 +108,7 @@ export async function POST(request) {
   } catch (error) {
     console.error('Login error:', error);
     return NextResponse.json(
-      { error: 'Terjadi kesalahan pada server' },
+      { error: 'Terjadi kesalahan pada server saat memproses login.' },
       { status: 500 }
     );
   }

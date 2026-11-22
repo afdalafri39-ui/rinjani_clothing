@@ -22,23 +22,6 @@ export default function AdminLayout({ children }) {
       return;
     }
 
-    if (typeof window !== 'undefined') {
-      const isDashboardRefreshed = sessionStorage.getItem('rc_dashboard_refreshed') === 'true';
-
-      if (isDashboardRefreshed) {
-        sessionStorage.removeItem('rc_dashboard_refreshed');
-        sessionStorage.removeItem('rc_dashboard_loaded');
-        try {
-          sessionStorage.clear();
-        } catch (e) {}
-
-        fetch('/api/auth/logout', { method: 'POST' }).finally(() => {
-          router.replace('/admin/login');
-        });
-        return;
-      }
-    }
-
     fetch('/api/auth/me')
       .then((res) => {
         if (!res.ok) {
@@ -50,10 +33,6 @@ export default function AdminLayout({ children }) {
       .then((data) => {
         if (data?.user) {
           setUser(data.user);
-          if (typeof window !== 'undefined') {
-            sessionStorage.setItem('rc_dashboard_loaded', 'true');
-            sessionStorage.removeItem('rc_dashboard_refreshed');
-          }
         }
         setLoading(false);
       })
@@ -62,33 +41,6 @@ export default function AdminLayout({ children }) {
         setLoading(false);
       });
   }, [pathname, isLoginPage, router]);
-
-  useEffect(() => {
-    if (isLoginPage || loading) return;
-
-    const handleDashboardUnload = () => {
-      if (typeof window !== 'undefined') {
-        const isLoaded = sessionStorage.getItem('rc_dashboard_loaded') === 'true';
-        if (isLoaded) {
-          sessionStorage.setItem('rc_dashboard_refreshed', 'true');
-
-          if (navigator.sendBeacon) {
-            navigator.sendBeacon('/api/auth/logout');
-          } else {
-            fetch('/api/auth/logout', { method: 'POST', keepalive: true });
-          }
-        }
-      }
-    };
-
-    window.addEventListener('beforeunload', handleDashboardUnload);
-    window.addEventListener('pagehide', handleDashboardUnload);
-
-    return () => {
-      window.removeEventListener('beforeunload', handleDashboardUnload);
-      window.removeEventListener('pagehide', handleDashboardUnload);
-    };
-  }, [isLoginPage, loading]);
 
   const handleLogout = async () => {
     try {

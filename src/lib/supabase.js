@@ -18,6 +18,10 @@ function isValidUrl(url) {
 const supabaseUrl = isValidUrl(rawUrl) ? rawUrl : 'https://dummy-project.supabase.co';
 const supabaseKey = (rawKey && !rawKey.includes('your-')) ? rawKey : 'dummy-anon-key-placeholder';
 
+export function isSupabaseConfigured() {
+  return isValidUrl(rawUrl) && !rawUrl.includes('dummy-project.supabase.co') && Boolean(rawKey && !rawKey.includes('dummy-') && !rawKey.includes('your-'));
+}
+
 export const supabase = createClient(supabaseUrl, supabaseKey, {
   auth: {
     persistSession: false,

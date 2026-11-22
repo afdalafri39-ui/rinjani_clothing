@@ -69,11 +69,11 @@ export default function AdminLoginPage() {
       }
 
       if (typeof window !== 'undefined') {
-        sessionStorage.removeItem('rc_dashboard_loaded');
-        sessionStorage.removeItem('rc_dashboard_refreshed');
+        sessionStorage.clear();
+        window.location.href = '/admin';
+      } else {
+        router.push('/admin');
       }
-
-      router.push('/admin');
     } catch (err) {
       console.error(err);
       setError('Terjadi kesalahan koneksi server.');

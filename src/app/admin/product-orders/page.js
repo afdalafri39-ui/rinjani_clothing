@@ -27,6 +27,9 @@ import {
 } from 'lucide-react';
 import { exportProductOrdersCsv } from '@/lib/spreadsheetExport';
 import SpreadsheetConfigModal from '@/components/SpreadsheetConfigModal';
+import OrderPaymentBadge from '@/components/admin/OrderPaymentBadge';
+import OrderPaymentHistory from '@/components/admin/OrderPaymentHistory';
+import { cleanAdminNotes, parsePaymentHistory } from '@/lib/paymentUtils';
 import { formatPrice } from '@/lib/utils';
 
 const STATUS_CONFIG = {
@@ -127,10 +130,17 @@ export default function AdminProductOrdersPage() {
   const handleSaveAdminNotes = async (orderId) => {
     setSavingNotes(orderId);
     try {
+      const order = orders.find((o) => o.id === orderId);
+      const existingMatch = (order?.adminNotes || '').match(/<!--PAYMENT_HISTORY_JSON:[\s\S]*?-->/);
+      let newNote = (adminNotes[orderId] || '').trim();
+      if (existingMatch) {
+        newNote = `${newNote}\n${existingMatch[0]}`.trim();
+      }
+
       await fetch(`/api/product-orders/${orderId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ adminNotes: adminNotes[orderId] || '' }),
+        body: JSON.stringify({ adminNotes: newNote }),
       });
       await fetchOrders();
     } catch (err) {
@@ -157,7 +167,7 @@ export default function AdminProductOrdersPage() {
       setExpandedOrder(orderId);
       const order = orders.find((o) => o.id === orderId);
       if (order && !adminNotes[orderId] && adminNotes[orderId] !== '') {
-        setAdminNotes((prev) => ({ ...prev, [orderId]: order.adminNotes || '' }));
+        setAdminNotes((prev) => ({ ...prev, [orderId]: cleanAdminNotes(order.adminNotes || '') }));
       }
     }
   };
@@ -172,15 +182,18 @@ export default function AdminProductOrdersPage() {
     });
   };
 
-  // Filter by search
+  // Filter by search (termasuk metode pembayaran)
   const filteredOrders = orders.filter((order) => {
     if (!searchQuery) return true;
     const q = searchQuery.toLowerCase();
+    const payments = parsePaymentHistory(order);
+    const paymentMethods = payments.map((p) => (p.customMethodName || p.method || '').toLowerCase()).join(' ');
     return (
       order.orderNumber.toLowerCase().includes(q) ||
       order.customerName.toLowerCase().includes(q) ||
       order.customerPhone.includes(q) ||
-      order.productName.toLowerCase().includes(q)
+      order.productName.toLowerCase().includes(q) ||
+      paymentMethods.includes(q)
     );
   });
 
@@ -346,6 +359,7 @@ export default function AdminProductOrdersPage() {
                         {formatPrice(order.totalPrice || order.price * order.quantity)}
                       </span>
                     </div>
+                    <OrderPaymentBadge order={order} />
                     <span
                       className="co-order-status-badge"
                       style={{ backgroundColor: cfg.bg, color: cfg.color, borderColor: cfg.color }}
@@ -473,6 +487,15 @@ export default function AdminProductOrdersPage() {
                       </div>
                     )}
 
+                    {/* Riwayat Pembayaran Customer */}
+                    <div className="co-detail-section">
+                      <OrderPaymentHistory
+                        order={order}
+                        orderType="product"
+                        onUpdate={fetchOrders}
+                      />
+                    </div>
+
                     {/* Admin Actions */}
                     <div className="co-detail-section co-admin-actions-section">
                       <h4 className="co-detail-section-title">
@@ -521,7 +544,7 @@ export default function AdminProductOrdersPage() {
                           id={`admin-notes-${order.id}`}
                           className="form-input form-textarea"
                           placeholder="Tambahkan catatan nomor resi, konfirmasi pembayaran, dll..."
-                          value={adminNotes[order.id] ?? order.adminNotes ?? ''}
+                          value={adminNotes[order.id] ?? cleanAdminNotes(order.adminNotes ?? '')}
                           onChange={(e) =>
                             setAdminNotes((prev) => ({ ...prev, [order.id]: e.target.value }))
                           }
@@ -540,19 +563,20 @@ export default function AdminProductOrdersPage() {
                       {/* Delete */}
                       <div className="co-delete-area">
                         {deleteConfirm === order.id ? (
-                          <div className="co-delete-confirm">
-                            <AlertCircle size={16} />
-                            <span>Yakin hapus pesanan produk ini?</span>
+                          <div className="co-delete-confirm" style={{ padding: '12px 16px', gap: '12px', fontSize: '0.875rem' }}>
+                            <AlertCircle size={18} />
+                            <span style={{ fontWeight: 600 }}>Yakin hapus pesanan produk ini?</span>
                             <button
-                              className="btn btn-sm"
-                              style={{ backgroundColor: '#EF4444', color: '#FFF' }}
+                              className="btn"
+                              style={{ backgroundColor: '#EF4444', color: '#FFF', padding: '8px 18px', fontSize: '0.875rem', fontWeight: 600, borderRadius: '6px' }}
                               onClick={() => handleDeleteOrder(order.id)}
                               disabled={deletingOrder === order.id}
                             >
                               {deletingOrder === order.id ? 'Menghapus...' : 'Ya, Hapus'}
                             </button>
                             <button
-                              className="btn btn-secondary btn-sm"
+                              className="btn btn-secondary"
+                              style={{ padding: '8px 18px', fontSize: '0.875rem', fontWeight: 600, borderRadius: '6px' }}
                               onClick={() => setDeleteConfirm(null)}
                             >
                               Batal
@@ -561,9 +585,10 @@ export default function AdminProductOrdersPage() {
                         ) : (
                           <button
                             className="co-delete-btn"
+                            style={{ padding: '8px 16px', fontSize: '0.8125rem', fontWeight: 600, borderRadius: '6px' }}
                             onClick={() => setDeleteConfirm(order.id)}
                           >
-                            <Trash2 size={14} /> Hapus Pesanan
+                            <Trash2 size={16} /> Hapus Pesanan
                           </button>
                         )}
                       </div>

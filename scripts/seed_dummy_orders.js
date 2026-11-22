@@ -389,6 +389,77 @@ async function seed() {
     const timestamp = getPastDate(d.daysAgo, d.hoursAgo);
     const dateObj = new Date(timestamp);
     const orderNumber = generateOrderNumber('CO', dateObj);
+
+    // Contoh riwayat pembayaran realistis
+    let samplePayments = [];
+    if (d.status === 'SELESAI') {
+      samplePayments = [
+        {
+          id: `pay_co_${index}_1`,
+          date: timestamp,
+          method: 'BCA',
+          type: 'DP',
+          amount: 2000000,
+          referenceNumber: 'Transfer BCA a/n ' + d.customerName.split(' ')[0],
+          note: 'DP 50% sebelum produksi',
+          proofUrl: '/uploads/payment-proofs/sample_bca_receipt.svg',
+          proofFileName: 'bukti_transfer_bca.svg',
+          proofFileSize: 245000,
+          createdAt: timestamp
+        },
+        {
+          id: `pay_co_${index}_2`,
+          date: timestamp,
+          method: 'BCA',
+          type: 'PELUNASAN',
+          amount: 2000000,
+          referenceNumber: 'Transfer BCA Pelunasan',
+          note: 'Pelunasan barang siap kirim',
+          proofUrl: '/uploads/payment-proofs/sample_bca_receipt.svg',
+          proofFileName: 'bukti_pelunasan_bca.svg',
+          proofFileSize: 245000,
+          createdAt: timestamp
+        }
+      ];
+    } else if (d.status === 'PRODUKSI') {
+      samplePayments = [
+        {
+          id: `pay_co_${index}_1`,
+          date: timestamp,
+          method: 'MANDIRI',
+          type: 'DP',
+          amount: 2500000,
+          referenceNumber: 'Livin Mandiri Ref #88921',
+          note: 'Uang muka 50% telah diterima',
+          proofUrl: '/uploads/payment-proofs/sample_bca_receipt.svg',
+          proofFileName: 'struk_transfer_mandiri.svg',
+          proofFileSize: 245000,
+          createdAt: timestamp
+        }
+      ];
+    } else if (d.status === 'MOCKUP') {
+      samplePayments = [
+        {
+          id: `pay_co_${index}_1`,
+          date: timestamp,
+          method: 'QRIS',
+          type: 'DP',
+          amount: 1000000,
+          referenceNumber: 'Scan QRIS Dinamis Toko',
+          note: 'Tanda jadi DP mockup & sampling',
+          proofUrl: '/uploads/payment-proofs/sample_qris_receipt.svg',
+          proofFileName: 'bukti_qris_sukses.svg',
+          proofFileSize: 198000,
+          createdAt: timestamp
+        }
+      ];
+    }
+
+    const baseNotes = d.notes || '';
+    const embeddedNotes = samplePayments.length > 0
+      ? `${baseNotes}\n<!--PAYMENT_HISTORY_JSON:${JSON.stringify(samplePayments)}-->`.trim()
+      : baseNotes;
+
     return {
       id: generateId('co') + index,
       orderNumber,
@@ -407,20 +478,35 @@ async function seed() {
       notes: d.notes,
       designFiles: '[]',
       status: d.status,
+      adminNotes: embeddedNotes,
+      paymentHistory: JSON.stringify(samplePayments),
       createdAt: timestamp,
       updatedAt: timestamp
     };
   });
 
-  const { data: insertedCO, error: errCO } = await supabase
+  let { data: insertedCO, error: errCO } = await supabase
     .from('CustomOrder')
     .insert(coRecords)
     .select();
 
+  // Retry jika kolom paymentHistory belum ada
+  if (errCO && (errCO.code === '42703' || errCO.message?.includes('paymentHistory'))) {
+    console.log('Kolom paymentHistory belum ada, insert dengan fallback adminNotes...');
+    const fallbackRecords = coRecords.map(r => {
+      const copy = { ...r };
+      delete copy.paymentHistory;
+      return copy;
+    });
+    const retry = await supabase.from('CustomOrder').insert(fallbackRecords).select();
+    insertedCO = retry.data;
+    errCO = retry.error;
+  }
+
   if (errCO) {
     console.error('Error saat insert CustomOrder:', errCO);
   } else {
-    console.log(`Berhasil menambahkan ${insertedCO.length} data CustomOrder!`);
+    console.log(`Berhasil menambahkan ${insertedCO?.length || 0} data CustomOrder!`);
   }
 
   // 2. Prepare Product Orders
@@ -428,6 +514,49 @@ async function seed() {
     const timestamp = getPastDate(d.daysAgo, d.hoursAgo);
     const dateObj = new Date(timestamp);
     const orderNumber = generateOrderNumber('PO', dateObj);
+
+    let samplePayments = [];
+    if (d.status === 'SELESAI' || d.status === 'DIKIRIM') {
+      const methods = ['BCA', 'QRIS', 'DANA', 'MANDIRI', 'TUNAI'];
+      const chosenMethod = methods[index % methods.length];
+      samplePayments = [
+        {
+          id: `pay_po_${index}_1`,
+          date: timestamp,
+          method: chosenMethod,
+          type: 'LUNAS',
+          amount: d.totalPrice,
+          referenceNumber: `TRX-${chosenMethod}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`,
+          note: `Pembayaran lunas via ${chosenMethod}`,
+          proofUrl: chosenMethod === 'QRIS' ? '/uploads/payment-proofs/sample_qris_receipt.svg' : '/uploads/payment-proofs/sample_bca_receipt.svg',
+          proofFileName: `struk_${chosenMethod.toLowerCase()}.svg`,
+          proofFileSize: 215000,
+          createdAt: timestamp
+        }
+      ];
+    } else if (d.status === 'DIPROSES') {
+      samplePayments = [
+        {
+          id: `pay_po_${index}_1`,
+          date: timestamp,
+          method: 'BCA',
+          type: 'LUNAS',
+          amount: d.totalPrice,
+          referenceNumber: 'Transfer m-BCA',
+          note: 'Konfirmasi WhatsApp lunas',
+          proofUrl: '/uploads/payment-proofs/sample_bca_receipt.svg',
+          proofFileName: 'struk_mbca.svg',
+          proofFileSize: 245000,
+          createdAt: timestamp
+        }
+      ];
+    }
+
+    const baseNotes = d.notes || '';
+    const embeddedNotes = samplePayments.length > 0
+      ? `${baseNotes}\n<!--PAYMENT_HISTORY_JSON:${JSON.stringify(samplePayments)}-->`.trim()
+      : baseNotes;
+
     return {
       id: generateId('po') + index,
       orderNumber,
@@ -443,20 +572,35 @@ async function seed() {
       totalPrice: d.totalPrice,
       notes: d.notes,
       status: d.status,
+      adminNotes: embeddedNotes,
+      paymentHistory: JSON.stringify(samplePayments),
       createdAt: timestamp,
       updatedAt: timestamp
     };
   });
 
-  const { data: insertedPO, error: errPO } = await supabase
+  let { data: insertedPO, error: errPO } = await supabase
     .from('ProductOrder')
     .insert(poRecords)
     .select();
 
+  // Retry jika kolom paymentHistory belum ada
+  if (errPO && (errPO.code === '42703' || errPO.message?.includes('paymentHistory'))) {
+    console.log('Kolom paymentHistory belum ada di ProductOrder, insert dengan fallback adminNotes...');
+    const fallbackRecords = poRecords.map(r => {
+      const copy = { ...r };
+      delete copy.paymentHistory;
+      return copy;
+    });
+    const retry = await supabase.from('ProductOrder').insert(fallbackRecords).select();
+    insertedPO = retry.data;
+    errPO = retry.error;
+  }
+
   if (errPO) {
     console.error('Error saat insert ProductOrder:', errPO);
   } else {
-    console.log(`Berhasil menambahkan ${insertedPO.length} data ProductOrder!`);
+    console.log(`Berhasil menambahkan ${insertedPO?.length || 0} data ProductOrder!`);
   }
 
   console.log('--- Selesai Seeding ---');

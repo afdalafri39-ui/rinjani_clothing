@@ -1,4 +1,5 @@
 // Helper functions for CSV/Excel export and Google Sheets integration
+import { calculatePaymentSummary, cleanAdminNotes } from './paymentUtils';
 
 /**
  * Mendapatkan detail tanggal-bulan-tahun & waktu lengkap dalam bahasa Indonesia
@@ -439,6 +440,10 @@ export function exportCustomOrdersCsv(orders = [], format = 'excel') {
       `"Tanggal (DD-MM-YYYY)"`,
       `"Jam (WIB)"`,
       `"Status Pesanan"`,
+      `"Status Pembayaran"`,
+      `"Metode Pembayaran"`,
+      `"Total Terbayar (Rp)"`,
+      `"Sisa Tagihan (Rp)"`,
       `"Nama Customer"`,
       `"No. WhatsApp"`,
       `"Email Customer"`,
@@ -452,6 +457,7 @@ export function exportCustomOrdersCsv(orders = [], format = 'excel') {
       `"Total Qty (pcs)"`,
       `"Catatan Customer"`,
       `"File Desain"`,
+      `"Bukti Transfer"`,
       `"Catatan Admin"`
     ].join(','));
 
@@ -475,6 +481,11 @@ export function exportCustomOrdersCsv(orders = [], format = 'excel') {
       const oDate = o.createdAt ? getFormattedDateInfo(o.createdAt) : null;
       const qty = Number(o.totalQuantity) || 0;
       totalQtySum += qty;
+      const paySummary = calculatePaymentSummary(o);
+      const proofsStr = (paySummary.payments || [])
+        .filter((p) => p.proofUrl)
+        .map((p) => `${getPaymentMethodInfo(p.method, p.customMethodName).shortLabel}: ${p.proofUrl}`)
+        .join('; ');
 
       lines.push([
         idx + 1,
@@ -482,6 +493,10 @@ export function exportCustomOrdersCsv(orders = [], format = 'excel') {
         escapeCell(oDate ? oDate.numericDate : '-'),
         escapeCell(oDate ? oDate.timeShort : '-'),
         escapeCell(o.status),
+        escapeCell(paySummary.statusConfig.label),
+        escapeCell(paySummary.methodsSummary),
+        paySummary.totalPaid,
+        paySummary.balanceDue,
         escapeCell(o.customerName),
         escapeCell(o.customerPhone ? `'${o.customerPhone}` : '-'),
         escapeCell(o.customerEmail || '-'),
@@ -495,7 +510,8 @@ export function exportCustomOrdersCsv(orders = [], format = 'excel') {
         qty,
         escapeCell(o.notes || '-'),
         escapeCell(filesStr || '-'),
-        escapeCell(o.adminNotes || '-')
+        escapeCell(proofsStr || '-'),
+        escapeCell(cleanAdminNotes(o.adminNotes || '-'))
       ].join(','));
     });
 
@@ -531,6 +547,12 @@ export function exportCustomOrdersCsv(orders = [], format = 'excel') {
     const oDate = o.createdAt ? getFormattedDateInfo(o.createdAt) : null;
     const qty = Number(o.totalQuantity) || 0;
     totalQtySum += qty;
+    const paySummary = calculatePaymentSummary(o);
+
+    const proofsStr = (paySummary.payments || [])
+      .filter((p) => p.proofUrl)
+      .map((p) => `${getPaymentMethodInfo(p.method, p.customMethodName).shortLabel}: ${p.proofUrl}`)
+      .join('; ');
 
     rowsHtml += `<tr>
       <td class="text-center">${idx + 1}</td>
@@ -538,6 +560,10 @@ export function exportCustomOrdersCsv(orders = [], format = 'excel') {
       <td class="text-center">${oDate ? oDate.numericDate : '-'}</td>
       <td class="text-center">${oDate ? oDate.timeShort : '-'}</td>
       <td class="text-center" style="font-weight: bold;">${o.status}</td>
+      <td class="text-center" style="font-weight: bold; color: ${paySummary.statusConfig.color};">${paySummary.statusConfig.label}</td>
+      <td><strong>${paySummary.methodsSummary}</strong></td>
+      <td class="text-right">Rp ${paySummary.totalPaid.toLocaleString('id-ID')}</td>
+      <td class="text-right" style="color: ${paySummary.balanceDue > 0 ? '#dc2626' : '#059669'};">Rp ${paySummary.balanceDue.toLocaleString('id-ID')}</td>
       <td><strong>${o.customerName}</strong></td>
       <td class="phone-cell">${o.customerPhone || '-'}</td>
       <td>${o.customerEmail || '-'}</td>
@@ -551,14 +577,15 @@ export function exportCustomOrdersCsv(orders = [], format = 'excel') {
       <td class="text-center" style="font-weight: bold;">${qty}</td>
       <td>${o.notes || '-'}</td>
       <td>${filesStr || '-'}</td>
-      <td>${o.adminNotes || '-'}</td>
+      <td>${proofsStr || '-'}</td>
+      <td>${cleanAdminNotes(o.adminNotes || '-')}</td>
     </tr>`;
   });
 
   const tableHtml = `
   <table border="1">
     <tr>
-      <td colspan="19" class="title-banner">
+      <td colspan="24" class="title-banner">
         RINJANI CLOTHING - LAPORAN REKAPITULASI PESANAN CUSTOM KONVEKSI
       </td>
     </tr>
@@ -566,18 +593,22 @@ export function exportCustomOrdersCsv(orders = [], format = 'excel') {
     <tr style="height: 36px;">
       <td colspan="3" class="meta-cell"><b>TANGGAL:</b> <span style="color: #2563eb; font-weight: bold;">${dateInfo.numericDate}</span></td>
       <td colspan="3" class="meta-cell"><b>HARI:</b> <span>${dateInfo.dayName}</span></td>
-      <td colspan="3" class="meta-cell"><b>BULAN:</b> <span>${dateInfo.monthName}</span></td>
+      <td colspan="4" class="meta-cell"><b>BULAN:</b> <span>${dateInfo.monthName}</span></td>
       <td colspan="3" class="meta-cell"><b>TAHUN:</b> <span>${dateInfo.year}</span></td>
-      <td colspan="3" class="meta-cell"><b>WAKTU:</b> <span>${dateInfo.timeShort}</span></td>
-      <td colspan="4" class="meta-cell"><b>TOTAL PESANAN:</b> <span style="color: #059669; font-weight: bold;">${safeOrders.length} Pesanan (${totalQtySum} pcs)</span></td>
+      <td colspan="4" class="meta-cell"><b>WAKTU:</b> <span>${dateInfo.timeShort}</span></td>
+      <td colspan="7" class="meta-cell"><b>TOTAL PESANAN:</b> <span style="color: #059669; font-weight: bold;">${safeOrders.length} Pesanan (${totalQtySum} pcs)</span></td>
     </tr>
-    <tr><td colspan="19" style="border: none; height: 12px; background: transparent;"></td></tr>
+    <tr><td colspan="24" style="border: none; height: 12px; background: transparent;"></td></tr>
     <tr>
       <th style="width: 35px; text-align: center;">No</th>
       <th style="width: 120px;">No. Pesanan</th>
       <th style="width: 95px; text-align: center;">Tanggal</th>
       <th style="width: 75px; text-align: center;">Jam</th>
       <th style="width: 85px; text-align: center;">Status</th>
+      <th style="width: 95px; text-align: center;">Status Bayar</th>
+      <th style="width: 110px;">Metode Bayar</th>
+      <th style="width: 110px; text-align: right;">Terbayar (Rp)</th>
+      <th style="width: 110px; text-align: right;">Sisa Tagihan</th>
       <th style="width: 150px;">Nama Customer</th>
       <th style="width: 120px;">WhatsApp</th>
       <th style="width: 150px;">Email</th>
@@ -591,13 +622,14 @@ export function exportCustomOrdersCsv(orders = [], format = 'excel') {
       <th style="width: 80px; text-align: center;">Qty (pcs)</th>
       <th style="width: 180px;">Catatan Customer</th>
       <th style="width: 140px;">File Desain</th>
+      <th style="width: 140px;">Bukti Transfer</th>
       <th style="width: 150px;">Catatan Admin</th>
     </tr>
-    ${rowsHtml || `<tr><td colspan="19" class="text-center" style="padding: 16px;">Tidak ada data pesanan custom</td></tr>`}
+    ${rowsHtml || `<tr><td colspan="24" class="text-center" style="padding: 16px;">Tidak ada data pesanan custom</td></tr>`}
     <tr class="summary-row">
-      <td colspan="15" style="text-align: right; padding-right: 16px;">TOTAL KUANTITAS KESELURUHAN:</td>
+      <td colspan="19" style="text-align: right; padding-right: 16px;">TOTAL KUANTITAS KESELURUHAN:</td>
       <td class="text-center" style="font-size: 12pt; color: #059669;">${totalQtySum} pcs</td>
-      <td colspan="3"></td>
+      <td colspan="4"></td>
     </tr>
   </table>
   `;
@@ -635,6 +667,10 @@ export function exportProductOrdersCsv(orders = [], format = 'excel') {
       `"Tanggal (DD-MM-YYYY)"`,
       `"Jam (WIB)"`,
       `"Status Transaksi"`,
+      `"Status Pembayaran"`,
+      `"Metode Pembayaran"`,
+      `"Total Terbayar (Rp)"`,
+      `"Sisa Tagihan (Rp)"`,
       `"Nama Pembeli"`,
       `"No. WhatsApp"`,
       `"Email Pembeli"`,
@@ -644,6 +680,7 @@ export function exportProductOrdersCsv(orders = [], format = 'excel') {
       `"Jumlah (pcs)"`,
       `"Harga Satuan (Rp)"`,
       `"Total Pembayaran (Rp)"`,
+      `"Bukti Transfer"`,
       `"Catatan Pembeli"`,
       `"Catatan Admin"`
     ].join(','));
@@ -655,6 +692,11 @@ export function exportProductOrdersCsv(orders = [], format = 'excel') {
       const totalPrice = Number(o.totalPrice) || (qty * price) || 0;
       totalQtySum += qty;
       totalPriceSum += totalPrice;
+      const paySummary = calculatePaymentSummary(o);
+      const proofsStr = (paySummary.payments || [])
+        .filter((p) => p.proofUrl)
+        .map((p) => `${getPaymentMethodInfo(p.method, p.customMethodName).shortLabel}: ${p.proofUrl}`)
+        .join('; ');
 
       lines.push([
         idx + 1,
@@ -662,6 +704,10 @@ export function exportProductOrdersCsv(orders = [], format = 'excel') {
         escapeCell(oDate ? oDate.numericDate : '-'),
         escapeCell(oDate ? oDate.timeShort : '-'),
         escapeCell(o.status),
+        escapeCell(paySummary.statusConfig.label),
+        escapeCell(paySummary.methodsSummary),
+        paySummary.totalPaid,
+        paySummary.balanceDue,
         escapeCell(o.customerName),
         escapeCell(o.customerPhone ? `'${o.customerPhone}` : '-'),
         escapeCell(o.customerEmail || '-'),
@@ -671,8 +717,9 @@ export function exportProductOrdersCsv(orders = [], format = 'excel') {
         qty,
         price,
         totalPrice,
+        escapeCell(proofsStr || '-'),
         escapeCell(o.notes || '-'),
-        escapeCell(o.adminNotes || '-')
+        escapeCell(cleanAdminNotes(o.adminNotes || '-'))
       ].join(','));
     });
 
@@ -695,6 +742,11 @@ export function exportProductOrdersCsv(orders = [], format = 'excel') {
     const totalPrice = Number(o.totalPrice) || (qty * price) || 0;
     totalQtySum += qty;
     totalPriceSum += totalPrice;
+    const paySummary = calculatePaymentSummary(o);
+    const proofsStr = (paySummary.payments || [])
+      .filter((p) => p.proofUrl)
+      .map((p) => `${getPaymentMethodInfo(p.method, p.customMethodName).shortLabel}: ${p.proofUrl}`)
+      .join('; ');
 
     rowsHtml += `<tr>
       <td class="text-center">${idx + 1}</td>
@@ -702,6 +754,10 @@ export function exportProductOrdersCsv(orders = [], format = 'excel') {
       <td class="text-center">${oDate ? oDate.numericDate : '-'}</td>
       <td class="text-center">${oDate ? oDate.timeShort : '-'}</td>
       <td class="text-center" style="font-weight: bold;">${o.status}</td>
+      <td class="text-center" style="font-weight: bold; color: ${paySummary.statusConfig.color};">${paySummary.statusConfig.label}</td>
+      <td><strong>${paySummary.methodsSummary}</strong></td>
+      <td class="text-right">Rp ${paySummary.totalPaid.toLocaleString('id-ID')}</td>
+      <td class="text-right" style="color: ${paySummary.balanceDue > 0 ? '#dc2626' : '#059669'};">Rp ${paySummary.balanceDue.toLocaleString('id-ID')}</td>
       <td><strong>${o.customerName}</strong></td>
       <td class="phone-cell">${o.customerPhone || '-'}</td>
       <td>${o.customerEmail || '-'}</td>
@@ -711,34 +767,39 @@ export function exportProductOrdersCsv(orders = [], format = 'excel') {
       <td class="text-center" style="font-weight: bold;">${qty}</td>
       <td class="text-right">Rp ${price.toLocaleString('id-ID')}</td>
       <td class="text-right" style="font-weight: bold; color: #047857;">Rp ${totalPrice.toLocaleString('id-ID')}</td>
+      <td>${proofsStr || '-'}</td>
       <td>${o.notes || '-'}</td>
-      <td>${o.adminNotes || '-'}</td>
+      <td>${cleanAdminNotes(o.adminNotes || '-')}</td>
     </tr>`;
   });
 
   const tableHtml = `
   <table border="1">
     <tr>
-      <td colspan="16" class="title-banner">
+      <td colspan="21" class="title-banner">
         RINJANI CLOTHING - LAPORAN TRANSAKSI PESANAN PRODUK (KATALOG SHOP)
       </td>
     </tr>
     <!-- BARIS 2: TANGGAL-BULAN-TAHUN MENYAMPING KE KANAN -->
     <tr style="height: 36px;">
-      <td colspan="2" class="meta-cell"><b>TANGGAL:</b> <span style="color: #2563eb; font-weight: bold;">${dateInfo.numericDate}</span></td>
+      <td colspan="3" class="meta-cell"><b>TANGGAL:</b> <span style="color: #2563eb; font-weight: bold;">${dateInfo.numericDate}</span></td>
       <td colspan="2" class="meta-cell"><b>HARI:</b> <span>${dateInfo.dayName}</span></td>
       <td colspan="3" class="meta-cell"><b>BULAN:</b> <span>${dateInfo.monthName}</span></td>
-      <td colspan="2" class="meta-cell"><b>TAHUN:</b> <span>${dateInfo.year}</span></td>
-      <td colspan="3" class="meta-cell"><b>WAKTU:</b> <span>${dateInfo.timeShort}</span></td>
-      <td colspan="4" class="meta-cell"><b>TOTAL OMZET:</b> <span style="color: #059669; font-weight: bold;">Rp ${totalPriceSum.toLocaleString('id-ID')} (${totalQtySum} pcs)</span></td>
+      <td colspan="3" class="meta-cell"><b>TAHUN:</b> <span>${dateInfo.year}</span></td>
+      <td colspan="4" class="meta-cell"><b>WAKTU:</b> <span>${dateInfo.timeShort}</span></td>
+      <td colspan="6" class="meta-cell"><b>TOTAL OMZET:</b> <span style="color: #059669; font-weight: bold;">Rp ${totalPriceSum.toLocaleString('id-ID')} (${totalQtySum} pcs)</span></td>
     </tr>
-    <tr><td colspan="16" style="border: none; height: 12px; background: transparent;"></td></tr>
+    <tr><td colspan="21" style="border: none; height: 12px; background: transparent;"></td></tr>
     <tr>
       <th style="width: 35px; text-align: center;">No</th>
       <th style="width: 125px;">No. Pesanan</th>
       <th style="width: 95px; text-align: center;">Tanggal</th>
       <th style="width: 75px; text-align: center;">Jam</th>
       <th style="width: 90px; text-align: center;">Status</th>
+      <th style="width: 95px; text-align: center;">Status Bayar</th>
+      <th style="width: 110px;">Metode Bayar</th>
+      <th style="width: 110px; text-align: right;">Terbayar (Rp)</th>
+      <th style="width: 110px; text-align: right;">Sisa Tagihan</th>
       <th style="width: 150px;">Nama Pembeli</th>
       <th style="width: 120px;">WhatsApp</th>
       <th style="width: 150px;">Email</th>
@@ -748,12 +809,19 @@ export function exportProductOrdersCsv(orders = [], format = 'excel') {
       <th style="width: 75px; text-align: center;">Qty (pcs)</th>
       <th style="width: 110px; text-align: right;">Harga (Rp)</th>
       <th style="width: 125px; text-align: right;">Total (Rp)</th>
+      <th style="width: 140px;">Bukti Transfer</th>
       <th style="width: 170px;">Catatan Pembeli</th>
       <th style="width: 140px;">Catatan Admin</th>
     </tr>
-    ${rowsHtml || `<tr><td colspan="16" class="text-center" style="padding: 16px;">Tidak ada data pesanan produk</td></tr>`}
+    ${rowsHtml || `<tr><td colspan="21" class="text-center" style="padding: 16px;">Tidak ada data pesanan produk</td></tr>`}
     <tr class="summary-row">
-      <td colspan="11" style="text-align: right; padding-right: 16px;">TOTAL KESELURUHAN:</td>
+      <td colspan="15" style="text-align: right; padding-right: 16px;">TOTAL KESELURUHAN:</td>
+      <td class="text-center" style="font-size: 12pt; color: #059669;">${totalQtySum} pcs</td>
+      <td></td>
+      <td class="text-right" style="font-size: 12pt; color: #059669; font-weight: bold;">Rp ${totalPriceSum.toLocaleString('id-ID')}</td>
+      <td colspan="4"></td>
+    </tr>
+  </table>
       <td class="text-center" style="font-size: 12pt; color: #059669;">${totalQtySum} pcs</td>
       <td></td>
       <td class="text-right" style="font-size: 12pt; color: #047857;">Rp ${totalPriceSum.toLocaleString('id-ID')}</td>

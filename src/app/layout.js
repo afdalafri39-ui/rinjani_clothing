@@ -11,11 +11,10 @@ export const metadata = {
   keywords: ['Rinjani Clothing', 'Kaos Rinjani', 'Oversize Tee', 'Hoodie', 'Custom Printing', 'Streetwear Indonesia'],
   icons: {
     icon: [
-      { url: '/logo-rc.svg', type: 'image/svg+xml' },
       { url: '/favicon.ico', sizes: 'any' },
     ],
-    shortcut: '/logo-rc.svg',
-    apple: '/apple-touch-icon.png',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
   },
 };
 
@@ -23,8 +22,9 @@ export default function RootLayout({ children }) {
   return (
     <html lang="id">
       <head>
-        <link rel="icon" href="/logo-rc.svg" type="image/svg+xml" />
-        <link rel="alternate icon" href="/favicon.ico" />
+        <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/favicon.ico" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
