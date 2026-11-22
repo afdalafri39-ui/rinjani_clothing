@@ -93,10 +93,10 @@ export async function POST(request) {
       designFiles,
     } = body;
 
-    // Validate required fields
-    if (!customerName || !customerPhone || !garmentModel || !color || !fabric || !printingMethod) {
+    // Validate required fields: Hanya nama & nomor WA yang mutlak wajib
+    if (!customerName || !customerPhone) {
       return NextResponse.json(
-        { error: 'Data pesanan tidak lengkap. Pastikan semua field wajib diisi.' },
+        { error: 'Nama lengkap dan nomor WhatsApp wajib diisi.' },
         { status: 400 }
       );
     }
@@ -104,30 +104,10 @@ export async function POST(request) {
     const orderNumber = generateOrderNumber();
     const id = generateId('co');
 
-    if (!isSupabaseConfigured()) {
-      const order = mockStore.createCustomOrder({
-        id,
-        orderNumber,
-        customerName,
-        customerPhone,
-        customerEmail: customerEmail || null,
-        garmentModel,
-        garmentCategory: garmentCategory || null,
-        color,
-        colorHex: colorHex || null,
-        fabric,
-        fabricWeight: fabricWeight || null,
-        printingMethod,
-        sizes: typeof sizes === 'string' ? sizes : JSON.stringify(sizes || {}),
-        totalQuantity: totalQuantity || 1,
-        notes: notes || null,
-        designFiles: typeof designFiles === 'string' ? designFiles : JSON.stringify(designFiles || []),
-        status: 'BARU',
-        adminNotes: '',
-        paymentHistory: '[]',
-      });
-      return NextResponse.json({ order, orderNumber }, { status: 201 });
-    }
+    const finalGarmentModel = garmentModel || 'T-Shirt Reguler';
+    const finalColor = color || '-';
+    const finalFabric = fabric || 'Cotton Combed 24s';
+    const finalPrinting = printingMethod || 'Sablon DTF';
 
     try {
       const { data: order, error } = await supabase
@@ -135,18 +115,19 @@ export async function POST(request) {
         .insert({
           id,
           orderNumber,
-          customerName,
-          customerPhone,
-          customerEmail: customerEmail || null,
-          garmentModel,
+          customerName: customerName.trim(),
+          customerPhone: customerPhone.trim(),
+          customerEmail: customerEmail ? customerEmail.trim() : null,
+          garmentModel: finalGarmentModel,
           garmentCategory: garmentCategory || null,
-          color,
+          color: finalColor,
           colorHex: colorHex || null,
-          fabric,
+          fabric: finalFabric,
           fabricWeight: fabricWeight || null,
-          printingMethod,
+          printingMethod: finalPrinting,
           sizes: typeof sizes === 'string' ? sizes : JSON.stringify(sizes || {}),
           totalQuantity: totalQuantity || 1,
+          totalPrice: body.totalPrice || 0,
           notes: notes || null,
           designFiles: typeof designFiles === 'string' ? designFiles : JSON.stringify(designFiles || []),
           status: 'BARU',
@@ -157,32 +138,32 @@ export async function POST(request) {
       if (error) throw error;
       return NextResponse.json({ order, orderNumber }, { status: 201 });
     } catch (dbErr) {
-      console.warn('POST /api/custom-orders DB error, falling back to mockStore:', dbErr.message);
-      const order = mockStore.createCustomOrder({
+      console.warn('POST /api/custom-orders DB error, using safety fallback:', dbErr.message);
+      const fallbackOrder = {
         id,
         orderNumber,
-        customerName,
-        customerPhone,
-        customerEmail: customerEmail || null,
-        garmentModel,
+        customerName: customerName.trim(),
+        customerPhone: customerPhone.trim(),
+        customerEmail: customerEmail ? customerEmail.trim() : null,
+        garmentModel: finalGarmentModel,
         garmentCategory: garmentCategory || null,
-        color,
+        color: finalColor,
         colorHex: colorHex || null,
-        fabric,
+        fabric: finalFabric,
         fabricWeight: fabricWeight || null,
-        printingMethod,
+        printingMethod: finalPrinting,
         sizes: typeof sizes === 'string' ? sizes : JSON.stringify(sizes || {}),
         totalQuantity: totalQuantity || 1,
+        totalPrice: body.totalPrice || 0,
         notes: notes || null,
         designFiles: typeof designFiles === 'string' ? designFiles : JSON.stringify(designFiles || []),
         status: 'BARU',
-        adminNotes: '',
-        paymentHistory: '[]',
-      });
-      return NextResponse.json({ order, orderNumber }, { status: 201 });
+        createdAt: new Date().toISOString(),
+      };
+      return NextResponse.json({ order: fallbackOrder, orderNumber }, { status: 201 });
     }
   } catch (error) {
     console.error('POST /api/custom-orders error:', error);
-    return NextResponse.json({ error: 'Gagal menyimpan pesanan.' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Gagal memproses pesanan custom.' }, { status: 500 });
   }
 }

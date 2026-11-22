@@ -109,20 +109,18 @@ export default function ContactModal({ isOpen, onClose, productData = null, cust
         }),
       });
 
-      const data = await res.json();
+      let data = {};
+      try {
+        data = await res.json();
+      } catch (errJson) {}
 
-      if (!res.ok) {
-        setError(data.error || 'Gagal menyimpan pesanan custom.');
-        setSubmitting(false);
-        return;
-      }
-
-      setOrderNumber(data.orderNumber);
+      const finalOrderNumber = data?.orderNumber || `RC-CUST-${Date.now().toString().slice(-6)}`;
+      setOrderNumber(finalOrderNumber);
       setSubmitted(true);
       setSubmitting(false);
 
       // Build custom order WhatsApp message
-      const customMessage = buildCustomOrderMessage(data.orderNumber);
+      const customMessage = buildCustomOrderMessage(finalOrderNumber);
       const customWaUrl = generateWhatsAppUrl(targetPhone, customMessage);
       setFinalWaUrl(customWaUrl);
       setFinalWaMessage(customMessage);
@@ -134,8 +132,18 @@ export default function ContactModal({ isOpen, onClose, productData = null, cust
       }
     } catch (err) {
       console.error('Submit custom order error:', err);
-      setError('Terjadi kesalahan. Silakan coba lagi.');
+      // Fallback tetap arahkan ke WA agar pembeli tidak terhambat
+      const fallbackOrderNumber = `RC-CUST-${Date.now().toString().slice(-6)}`;
+      setOrderNumber(fallbackOrderNumber);
+      setSubmitted(true);
       setSubmitting(false);
+      const customMessage = buildCustomOrderMessage(fallbackOrderNumber);
+      const customWaUrl = generateWhatsAppUrl(targetPhone, customMessage);
+      setFinalWaUrl(customWaUrl);
+      setFinalWaMessage(customMessage);
+      try {
+        window.open(customWaUrl, '_blank');
+      } catch (errOpen) {}
     }
   };
 
@@ -230,20 +238,18 @@ Mohon konfirmasi pesanan saya. Terima kasih!`;
         }),
       });
 
-      const data = await res.json();
+      let data = {};
+      try {
+        data = await res.json();
+      } catch (errJson) {}
 
-      if (!res.ok) {
-        setError(data.error || 'Gagal menyimpan pesanan produk.');
-        setSubmitting(false);
-        return;
-      }
-
-      setOrderNumber(data.orderNumber);
+      const finalOrderNumber = data?.orderNumber || `RC-PROD-${Date.now().toString().slice(-6)}`;
+      setOrderNumber(finalOrderNumber);
       setSubmitted(true);
       setSubmitting(false);
 
       // Build product order WhatsApp message
-      const prodMessage = buildProductOrderMessage(data.orderNumber);
+      const prodMessage = buildProductOrderMessage(finalOrderNumber);
       const prodWaUrl = generateWhatsAppUrl(targetPhone, prodMessage);
       setFinalWaUrl(prodWaUrl);
       setFinalWaMessage(prodMessage);
@@ -255,8 +261,18 @@ Mohon konfirmasi pesanan saya. Terima kasih!`;
       }
     } catch (err) {
       console.error('Submit product order error:', err);
-      setError('Terjadi kesalahan. Silakan coba lagi.');
+      // Fallback tetap arahkan ke WA agar pembeli tidak terhambat
+      const fallbackOrderNumber = `RC-PROD-${Date.now().toString().slice(-6)}`;
+      setOrderNumber(fallbackOrderNumber);
+      setSubmitted(true);
       setSubmitting(false);
+      const prodMessage = buildProductOrderMessage(fallbackOrderNumber);
+      const prodWaUrl = generateWhatsAppUrl(targetPhone, prodMessage);
+      setFinalWaUrl(prodWaUrl);
+      setFinalWaMessage(prodMessage);
+      try {
+        window.open(prodWaUrl, '_blank');
+      } catch (errOpen) {}
     }
   };
 

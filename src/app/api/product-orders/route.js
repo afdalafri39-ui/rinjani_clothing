@@ -105,28 +105,6 @@ export async function POST(request) {
       ? (typeof totalPrice === 'number' ? totalPrice : parseFloat(String(totalPrice).replace(/[^0-9.]/g, '')) || 0)
       : parsedPrice * parsedQty;
 
-    if (!isSupabaseConfigured()) {
-      const order = mockStore.createProductOrder({
-        id,
-        orderNumber,
-        customerName: customerName.trim(),
-        customerPhone: customerPhone.trim(),
-        customerEmail: customerEmail ? customerEmail.trim() : null,
-        productName: productName.trim(),
-        productSlug: productSlug || null,
-        price: parsedPrice,
-        quantity: parsedQty,
-        size: size || null,
-        color: color || null,
-        totalPrice: computedTotal,
-        notes: notes ? notes.trim() : null,
-        status: 'BARU',
-        adminNotes: '',
-        paymentHistory: '[]',
-      });
-      return NextResponse.json({ order, orderNumber }, { status: 201 });
-    }
-
     try {
       const { data: order, error } = await supabase
         .from('ProductOrder')
@@ -152,8 +130,8 @@ export async function POST(request) {
       if (error) throw error;
       return NextResponse.json({ order, orderNumber }, { status: 201 });
     } catch (dbErr) {
-      console.warn('POST /api/product-orders DB error, falling back to mockStore:', dbErr.message);
-      const order = mockStore.createProductOrder({
+      console.warn('POST /api/product-orders DB error, using safety fallback:', dbErr.message);
+      const fallbackOrder = {
         id,
         orderNumber,
         customerName: customerName.trim(),
@@ -168,13 +146,12 @@ export async function POST(request) {
         totalPrice: computedTotal,
         notes: notes ? notes.trim() : null,
         status: 'BARU',
-        adminNotes: '',
-        paymentHistory: '[]',
-      });
-      return NextResponse.json({ order, orderNumber }, { status: 201 });
+        createdAt: new Date().toISOString(),
+      };
+      return NextResponse.json({ order: fallbackOrder, orderNumber }, { status: 201 });
     }
   } catch (error) {
     console.error('POST /api/product-orders error:', error);
-    return NextResponse.json({ error: 'Gagal menyimpan pesanan produk.' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Gagal menyimpan pesanan produk.' }, { status: 500 });
   }
 }

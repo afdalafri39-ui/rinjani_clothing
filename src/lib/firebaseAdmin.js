@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 
 function getCredential() {
-  // 1. Coba baca langsung dari file scripts/serviceAccountKey.json (Paling stabil & anti-error OpenSSL)
+  // 1. Coba baca dari file lokal scripts/serviceAccountKey.json jika ada
   const localKeyPath = path.resolve(process.cwd(), 'scripts/serviceAccountKey.json');
   try {
     if (fs.existsSync(localKeyPath) && fs.statSync(localKeyPath).size > 0) {
@@ -15,7 +15,30 @@ function getCredential() {
     }
   } catch (e) {}
 
-  // 2. Fallback: baca dari environment variables jika di-deploy tanpa file JSON fisik
+  // 2. Baca dari environment variable FIREBASE_SERVICE_ACCOUNT_KEY atau FIREBASE_SERVICE_ACCOUNT (Sangat cocok untuk Vercel / Hosting)
+  const rawServiceAccountJson = process.env.FIREBASE_SERVICE_ACCOUNT_KEY || process.env.FIREBASE_SERVICE_ACCOUNT;
+  if (rawServiceAccountJson) {
+    try {
+      const sa = JSON.parse(rawServiceAccountJson.trim());
+      return cert(sa);
+    } catch (err) {
+      console.warn('Gagal parse JSON dari FIREBASE_SERVICE_ACCOUNT_KEY:', err.message);
+    }
+  }
+
+  // 3. Baca dari environment variable Base64 FIREBASE_SERVICE_ACCOUNT_BASE64 (Anti-error newline di cloud)
+  const rawBase64 = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
+  if (rawBase64) {
+    try {
+      const decoded = Buffer.from(rawBase64.trim(), 'base64').toString('utf8');
+      const sa = JSON.parse(decoded);
+      return cert(sa);
+    } catch (err) {
+      console.warn('Gagal parse Base64 FIREBASE_SERVICE_ACCOUNT_BASE64:', err.message);
+    }
+  }
+
+  // 4. Baca dari FIREBASE_CLIENT_EMAIL dan FIREBASE_PRIVATE_KEY
   const email = process.env.FIREBASE_CLIENT_EMAIL;
   let key = process.env.FIREBASE_PRIVATE_KEY;
 
@@ -24,7 +47,7 @@ function getCredential() {
     if (cleanKey.startsWith('"') && cleanKey.endsWith('"')) {
       cleanKey = cleanKey.slice(1, -1);
     }
-    cleanKey = cleanKey.replace(/\\n/g, '\n');
+    cleanKey = cleanKey.replace(/\\n/g, '\n').replace(/\r\n/g, '\n');
     return cert({
       projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'rinjani-clothing',
       clientEmail: email,
