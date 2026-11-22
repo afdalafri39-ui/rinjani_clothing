@@ -3504,6 +3504,13 @@ h3,
   }
 }
 
+.login-page.mobile-allowed .login-card {
+  display: block !important;
+}
+.login-page.mobile-allowed .login-restricted-screen {
+  display: none !important;
+}
+
 @media (min-width: 768px) {
   .login-card {
     display: block !important;

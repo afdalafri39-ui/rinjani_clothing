@@ -22,7 +22,7 @@ export default function AdminLayout({ children }) {
       return;
     }
 
-    fetch('/api/auth/me')
+    fetch('/api/auth/me', { credentials: 'include' })
       .then((res) => {
         if (!res.ok) {
           router.push('/admin/login');

@@ -22,6 +22,7 @@ export default function AdminLoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [screenWidth, setScreenWidth] = useState(null);
+  const [bypassMobileBlock, setBypassMobileBlock] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -45,9 +46,9 @@ export default function AdminLoginPage() {
     e.preventDefault();
     setError('');
 
-    // Extra guard for screens below 768px
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      setError('Akses ditolak: Portal login hanya diizinkan melalui perangkat desktop (resolusi minimal 768px).');
+    // Extra guard for screens below 768px (hanya jika pengguna belum menekan bypass)
+    if (!bypassMobileBlock && typeof window !== 'undefined' && window.innerWidth < 768) {
+      setError('Akses ditolak: Portal login dioptimalkan untuk layar minimal 768px. Klik "Tetap Buka Form Login di HP" di bawah jika ingin melanjutkan.');
       return;
     }
 
@@ -57,6 +58,7 @@ export default function AdminLoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ username, password }),
       });
 
@@ -82,7 +84,7 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="login-page">
+    <div className={`login-page ${bypassMobileBlock ? 'mobile-allowed' : ''}`}>
       {/* ==============================================================
           1. RESTRICTION VIEW FOR MOBILE / DEVICES UNDER 768PX
           Enforced instantly via CSS media query (@media max-width: 767.98px)
@@ -102,10 +104,10 @@ export default function AdminLoginPage() {
             <span>AKSES DIBATASI &bull; KHUSUS DESKTOP</span>
           </div>
           <h1 className="login-restricted-title">
-            Portal Tidak Dapat Dibuka di Perangkat HP
+            Portal Dioptimalkan untuk Layar Desktop
           </h1>
           <p className="login-restricted-desc">
-            Demi keamanan data dan operasional manajemen inventaris serta pemrosesan pesanan kustom, portal administrator hanya dapat diakses melalui perangkat beresolusi layar minimal <strong>768 piksel</strong>.
+            Demi kenyamanan manajemen inventaris, statistik grafik, dan pesanan, portal administrator disarankan diakses melalui layar minimal <strong>768 piksel</strong>. Namun Anda tetap dapat melanjutkan masuk di perangkat ini.
           </p>
         </div>
 
@@ -116,79 +118,32 @@ export default function AdminLoginPage() {
           </div>
           <div className="login-screen-meter-value">
             {screenWidth !== null ? `${screenWidth}px` : '< 768px'}{' '}
-            <span className="login-screen-meter-target">(Syarat: &ge; 768px)</span>
+            <span className="login-screen-meter-target">(Standar: &ge; 768px)</span>
           </div>
         </div>
 
-        {/* Actionable Instructions */}
-        <div>
-          <div className="login-instructions-title">PANDUAN MEMBUKA PORTAL LOGIN</div>
-          <div className="login-instruction-list">
-            <div className="login-instruction-item">
-              <div className="login-instruction-icon">
-                <Laptop size={18} />
-              </div>
-              <div>
-                <div className="login-instruction-heading">1. Buka di Laptop / PC Desktop (Disarankan)</div>
-                <div className="login-instruction-text">
-                  Gunakan browser di komputer atau laptop dengan layar standar desktop untuk kenyamanan operasional penuh.
-                </div>
-              </div>
-            </div>
-
-            <div className="login-instruction-item">
-              <div className="login-instruction-icon">
-                <Globe size={18} />
-              </div>
-              <div>
-                <div className="login-instruction-heading">2. Aktifkan Fitur &ldquo;Situs Desktop&rdquo; di HP</div>
-                <div className="login-instruction-text">
-                  Jika mendesak dan tetap ingin mengakses dari browser ponsel:
-                  <ul className="login-instruction-steps">
-                    <li><strong>Chrome / Android:</strong> Ketuk menu titik tiga (&vellip;) di kanan atas &rarr; centang <strong>Situs Desktop</strong>.</li>
-                    <li><strong>Safari / iOS:</strong> Ketuk ikon <strong>aA</strong> di bilah alamat &rarr; pilih <strong>Minta Situs Web Desktop</strong>.</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-
-            <div className="login-instruction-item">
-              <div className="login-instruction-icon">
-                <RotateCw size={18} />
-              </div>
-              <div>
-                <div className="login-instruction-heading">3. Putar ke Mode Lanskap (Tablet / Layar Lebar)</div>
-                <div className="login-instruction-text">
-                  Jika menggunakan tablet atau ponsel dengan bentang layar luas, ubah orientasi ke horizontal (lanskap) hingga mencapai &ge; 768px.
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Actions: Button Return to Homepage & Refresh */}
-        <div className="login-restricted-actions">
+        {/* Actions: Button Bypass, Return to Homepage & Refresh */}
+        <div className="login-restricted-actions" style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+          <button
+            type="button"
+            onClick={() => setBypassMobileBlock(true)}
+            className="btn btn-primary btn-full"
+            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', backgroundColor: '#111827', borderColor: '#111827', color: '#FFF', fontWeight: '600' }}
+          >
+            <Laptop size={16} /> TETAP BUKA FORM LOGIN DI HP
+          </button>
           <Link
             href="/"
-            className="btn btn-primary btn-full"
+            className="btn btn-secondary btn-full"
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
           >
             <Home size={16} /> KEMBALI KE BERANDA
           </Link>
-          <button
-            type="button"
-            onClick={() => window.location.reload()}
-            className="btn btn-secondary btn-full"
-            style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px' }}
-          >
-            <RotateCw size={14} /> PERIKSA ULANG RESOLUSI
-          </button>
         </div>
       </section>
 
       {/* ==============================================================
-          2. DESKTOP VIEW FOR SCREENS >= 768PX
-          Enforced instantly via CSS media query (@media min-width: 768px)
+          2. DESKTOP VIEW FOR SCREENS >= 768PX (OR MOBILE BYPASSED)
           ============================================================== */}
       <div className="login-card">
         <div style={{ marginBottom: '20px' }}>
@@ -215,6 +170,12 @@ export default function AdminLoginPage() {
           <div className="login-brand-name">RINJANI CLOTHING</div>
           <div className="login-brand-role">PORTAL LOGIN ADMINISTRATOR</div>
         </div>
+
+        {bypassMobileBlock && (
+          <div style={{ padding: '10px 14px', marginBottom: '16px', backgroundColor: '#FFFBEB', border: '1px solid #FCD34D', borderRadius: '4px', fontSize: '0.8125rem', color: '#92400E', lineHeight: '1.4' }}>
+            📱 <strong>Mode Akses Ponsel Aktif:</strong> Gunakan mode horizontal (lanskap) jika tabel inventaris terasa sempit.
+          </div>
+        )}
 
         {error && <div className="login-error">{error}</div>}
 
