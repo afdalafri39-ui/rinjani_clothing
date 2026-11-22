@@ -72,14 +72,9 @@ export default function HeroSlideshow() {
   const touchEndX = useRef(0);
   const transitionTimerRef = useRef(null);
 
-  // Preload background images & setup Supabase storage fallback
+  // Preload background images
   useEffect(() => {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-    if (supabaseUrl) {
-      setImgSources(
-        SLIDES.map((s) => `${supabaseUrl}/storage/v1/object/public/site-assets/${s.storagePath}`)
-      );
-    }
+    setImgSources(SLIDES.map((s) => s.image));
 
     // Preload all slides into browser cache for instant transitions
     SLIDES.forEach((s) => {

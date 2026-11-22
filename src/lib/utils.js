@@ -187,9 +187,6 @@ export function getProductBackImage(product, mainImage) {
   if (resolvedMain.includes('tshirt-oversize-') && !resolvedMain.includes('-back.')) {
     const match = resolvedMain.match(/tshirt-oversize-([a-z0-9-]+?)(?:-back)?\.(?:webp|jpg|png|jpeg)/i);
     const col = match ? match[1] : 'hitam';
-    if (resolvedMain.includes('/site-assets/t-shirt-oversize/')) {
-      return `https://sqmkpznnvpkdecwwizam.supabase.co/storage/v1/object/public/site-assets/t-shirt-oversize/tshirt-oversize-${col}-back.jpg`;
-    }
     return `/products/t-shirt-oversize/tshirt-oversize-${col}-back.jpg`;
   }
 
@@ -197,9 +194,6 @@ export function getProductBackImage(product, mainImage) {
   if (resolvedMain.includes('tshirt-reguler-') && !resolvedMain.includes('-back.')) {
     const match = resolvedMain.match(/tshirt-reguler-([a-z0-9-]+?)(?:-back)?\.(?:webp|jpg|png|jpeg)/i);
     const col = match ? match[1] : 'salmon';
-    if (resolvedMain.includes('/site-assets/t-shirt-reguler/')) {
-      return `https://sqmkpznnvpkdecwwizam.supabase.co/storage/v1/object/public/site-assets/t-shirt-reguler/tshirt-reguler-${col}-back.webp`;
-    }
     return `/products/t-shirt-reguler/tshirt-reguler-${col}-back.webp`;
   }
 

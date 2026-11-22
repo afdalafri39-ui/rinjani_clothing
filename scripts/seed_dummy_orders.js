@@ -1,21 +1,23 @@
-const { createClient } = require('@supabase/supabase-js');
+const { initializeApp, cert, getApps } = require('firebase-admin/app');
+const { getFirestore } = require('firebase-admin/firestore');
 const fs = require('fs');
+const path = require('path');
 
-const envContent = fs.readFileSync('.env.local', 'utf8');
-const env = {};
-envContent.split('\n').forEach(line => {
-  const match = line.match(/^\s*([\w.-]+)\s*=\s*(.*)?\s*$/);
-  if (match) {
-    let value = match[2] || '';
-    value = value.trim().replace(/^['"](.*)['"]$/, '$1');
-    env[match[1]] = value;
-  }
-});
+const keyPath = path.resolve(__dirname, './serviceAccountKey.json');
+if (!fs.existsSync(keyPath)) {
+  console.error('❌ File scripts/serviceAccountKey.json tidak ditemukan.');
+  process.exit(1);
+}
 
-const supabase = createClient(
-  env.NEXT_PUBLIC_SUPABASE_URL,
-  env.SUPABASE_SERVICE_ROLE_KEY || env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-);
+const serviceAccount = JSON.parse(fs.readFileSync(keyPath, 'utf8'));
+
+if (!getApps().length) {
+  initializeApp({
+    credential: cert(serviceAccount),
+  });
+}
+
+const db = getFirestore();
 
 function generateId(prefix = '') {
   const p = prefix ? `${prefix}_` : '';
@@ -485,29 +487,20 @@ async function seed() {
     };
   });
 
-  let { data: insertedCO, error: errCO } = await supabase
-    .from('CustomOrder')
-    .insert(coRecords)
-    .select();
-
-  // Retry jika kolom paymentHistory belum ada
-  if (errCO && (errCO.code === '42703' || errCO.message?.includes('paymentHistory'))) {
-    console.log('Kolom paymentHistory belum ada, insert dengan fallback adminNotes...');
-    const fallbackRecords = coRecords.map(r => {
-      const copy = { ...r };
-      delete copy.paymentHistory;
-      return copy;
-    });
-    const retry = await supabase.from('CustomOrder').insert(fallbackRecords).select();
-    insertedCO = retry.data;
-    errCO = retry.error;
-  }
-
-  if (errCO) {
-    console.error('Error saat insert CustomOrder:', errCO);
-  } else {
-    console.log(`Berhasil menambahkan ${insertedCO?.length || 0} data CustomOrder!`);
-  }
+  const coBatch = db.batch();
+  coRecords.forEach((r) => {
+    const docRef = db.collection('CustomOrder').doc(r.id);
+    const formatted = { ...r };
+    if (typeof formatted.sizes === 'string') {
+      try { formatted.sizes = JSON.parse(formatted.sizes); } catch (e) { }
+    }
+    if (typeof formatted.paymentHistory === 'string') {
+      try { formatted.paymentHistory = JSON.parse(formatted.paymentHistory); } catch (e) { }
+    }
+    coBatch.set(docRef, formatted, { merge: true });
+  });
+  await coBatch.commit();
+  console.log(`Berhasil menambahkan ${coRecords.length} data CustomOrder ke Firestore!`);
 
   // 2. Prepare Product Orders
   const poRecords = productOrdersData.map((d, index) => {
@@ -579,29 +572,17 @@ async function seed() {
     };
   });
 
-  let { data: insertedPO, error: errPO } = await supabase
-    .from('ProductOrder')
-    .insert(poRecords)
-    .select();
-
-  // Retry jika kolom paymentHistory belum ada
-  if (errPO && (errPO.code === '42703' || errPO.message?.includes('paymentHistory'))) {
-    console.log('Kolom paymentHistory belum ada di ProductOrder, insert dengan fallback adminNotes...');
-    const fallbackRecords = poRecords.map(r => {
-      const copy = { ...r };
-      delete copy.paymentHistory;
-      return copy;
-    });
-    const retry = await supabase.from('ProductOrder').insert(fallbackRecords).select();
-    insertedPO = retry.data;
-    errPO = retry.error;
-  }
-
-  if (errPO) {
-    console.error('Error saat insert ProductOrder:', errPO);
-  } else {
-    console.log(`Berhasil menambahkan ${insertedPO?.length || 0} data ProductOrder!`);
-  }
+  const poBatch = db.batch();
+  poRecords.forEach((r) => {
+    const docRef = db.collection('ProductOrder').doc(r.id);
+    const formatted = { ...r };
+    if (typeof formatted.paymentHistory === 'string') {
+      try { formatted.paymentHistory = JSON.parse(formatted.paymentHistory); } catch (e) { }
+    }
+    poBatch.set(docRef, formatted, { merge: true });
+  });
+  await poBatch.commit();
+  console.log(`Berhasil menambahkan ${poRecords.length} data ProductOrder ke Firestore!`);
 
   console.log('--- Selesai Seeding ---');
 }
