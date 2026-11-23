@@ -62,10 +62,15 @@ export default function AdminLoginPage() {
         body: JSON.stringify({ username, password }),
       });
 
-      const data = await res.json();
+      let data = {};
+      try {
+        data = await res.json();
+      } catch (jsonErr) {
+        console.warn('Response bukan JSON:', jsonErr);
+      }
 
       if (!res.ok) {
-        setError(data.error || 'Login gagal. Periksa kembali username dan password.');
+        setError(data.error || `Server merespons kode ${res.status}. Silakan coba lagi.`);
         setLoading(false);
         return;
       }
@@ -82,7 +87,7 @@ export default function AdminLoginPage() {
       }
     } catch (err) {
       console.error(err);
-      setError('Terjadi kesalahan koneksi server.');
+      setError('Terjadi kendala jaringan saat menghubungi server. Silakan muat ulang halaman dan coba lagi.');
       setLoading(false);
     }
   };

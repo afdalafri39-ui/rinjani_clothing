@@ -9,27 +9,13 @@ export async function GET(request) {
       return NextResponse.json({ user: null }, { status: 401 });
     }
 
-    let user = null;
-    try {
-      const { data } = await supabase
-        .from('User')
-        .select('id, name, email, role, createdAt')
-        .eq('id', authUser.id)
-        .maybeSingle();
-      user = data;
-    } catch (e) {
-      // Database offline/unreachable
-    }
-
-    // Fallback jika database belum terhubung atau user tidak ditemukan di DB
-    if (!user) {
-      user = {
-        id: authUser.id,
-        name: authUser.name || 'Amidi Rinjani',
-        email: authUser.email || 'amidi@rinjani.com',
-        role: authUser.role || 'ADMIN',
-      };
-    }
+    // authUser dari token JWT sudah memegang identitas valid yang dienkripsi
+    const user = {
+      id: authUser.id,
+      name: authUser.name || 'Amidi Rinjani',
+      email: authUser.email || 'amidi@rinjani.com',
+      role: authUser.role || 'ADMIN',
+    };
 
     return NextResponse.json({ user });
   } catch (error) {

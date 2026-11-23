@@ -27,10 +27,15 @@ function getCredential() {
   }
 
   // 3. Baca dari environment variable Base64 FIREBASE_SERVICE_ACCOUNT_BASE64 (Anti-error newline di cloud)
-  const rawBase64 = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
+  let rawBase64 = process.env.FIREBASE_SERVICE_ACCOUNT_BASE64;
   if (rawBase64) {
     try {
-      const decoded = Buffer.from(rawBase64.trim(), 'base64').toString('utf8');
+      rawBase64 = rawBase64.trim();
+      if (rawBase64.startsWith('"') && rawBase64.endsWith('"')) {
+        rawBase64 = rawBase64.slice(1, -1);
+      }
+      rawBase64 = rawBase64.replace(/[\r\n\s]/g, '');
+      const decoded = Buffer.from(rawBase64, 'base64').toString('utf8');
       const sa = JSON.parse(decoded);
       return cert(sa);
     } catch (err) {
