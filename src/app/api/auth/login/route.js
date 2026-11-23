@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
-import { supabase } from '@/lib/supabase';
 import bcrypt from 'bcryptjs';
 import { generateToken, setAuthCookie } from '@/lib/auth';
+
+// TIDAK ada import supabase/db/firebase di top-level.
+// Ini memastikan route ini bisa berjalan di Vercel tanpa crash dari firebase-admin.
 
 const DEFAULT_ADMIN = {
   id: 'cmumu1sdy0000sxkst1cs7ni1',
@@ -37,7 +39,7 @@ export async function POST(request) {
       identifier === 'amidi rinjani' ||
       identifier === 'admin rinjani';
 
-    // 1. FAST-PATH: Jika akun admin default dan password 'amidi123', langsung loloskan seketika (0.005 detik, kebal timeout Vercel)
+    // 1. FAST-PATH: Jika akun admin default dan password 'amidi123', langsung loloskan seketika
     if (isDefaultAdminIdentifier && password === 'amidi123') {
       const user = {
         ...DEFAULT_ADMIN,
@@ -63,7 +65,10 @@ export async function POST(request) {
     let user = null;
 
     // 2. Coba cari di database Firestore jika bukan fast-path
+    // Dynamic import agar firebase-admin HANYA dimuat ketika benar-benar diperlukan
     try {
+      const { supabase } = await import('@/lib/supabase');
+
       const queryWithTimeout = (promise, ms = 4000) =>
         Promise.race([
           promise,

@@ -97,7 +97,8 @@ export class FirestoreQueryBuilder {
 
   async execute() {
     try {
-      const db = getDb();
+      // getDb() sekarang async — await diperlukan
+      const db = await getDb();
       if (!db) {
         throw new Error('Firestore database belum terhubung. Periksa serviceAccountKey.json atau kredensial Firebase.');
       }
@@ -130,7 +131,6 @@ export class FirestoreQueryBuilder {
       }
 
       // 2. Fetch docs from Firestore
-      // Optimisasi: jika filter hanya eq('id', targetId), fetch dokumen spesifik
       const idFilter = this.filters.find((f) => f.type === 'eq' && f.field === 'id');
       let docs = [];
 
@@ -164,13 +164,11 @@ export class FirestoreQueryBuilder {
           const parts = filter.str.split(',').map((s) => s.trim());
           docs = docs.filter((d) => {
             return parts.some((part) => {
-              // Format 1: field.ilike.%pattern%
               const mIlike = part.match(/^([^.]+)\.ilike\.%?([^%]+)%?$/i);
               if (mIlike) {
                 const [, field, val] = mIlike;
                 return String(d[field] || '').toLowerCase().includes(val.toLowerCase());
               }
-              // Format 2: field.eq.value (contoh: id.eq.xxx atau slug.eq.xxx)
               const mEq = part.match(/^([^.]+)\.eq\.(.+)$/);
               if (mEq) {
                 const [, field, val] = mEq;
@@ -179,7 +177,6 @@ export class FirestoreQueryBuilder {
                   (field === 'id' && String(d.id) === String(val))
                 );
               }
-              // Format 3: field.neq.value
               const mNeq = part.match(/^([^.]+)\.neq\.(.+)$/);
               if (mNeq) {
                 const [, field, val] = mNeq;
@@ -333,7 +330,8 @@ export const firestoreAdapter = {
       return {
         async upload(filePath, fileBuffer, options = {}) {
           try {
-            const adminStorage = getAdminStorage();
+            // getAdminStorage() sekarang async
+            const adminStorage = await getAdminStorage();
             if (adminStorage) {
               const bucket = adminStorage.bucket();
               const destination = `${bucketName}/${filePath}`;

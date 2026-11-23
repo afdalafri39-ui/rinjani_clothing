@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth';
-import { supabase } from '@/lib/supabase';
+
+// TIDAK ada import supabase/db/firebase di top-level.
+// Route ini hanya butuh JWT verification, tidak perlu database.
 
 export async function GET(request) {
   try {
