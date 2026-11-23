@@ -22,9 +22,19 @@ export default function AdminLayout({ children }) {
       return;
     }
 
-    fetch('/api/auth/me', { credentials: 'include' })
+    const localToken = typeof window !== 'undefined' ? localStorage.getItem('rc_admin_token') : null;
+    const reqHeaders = { 'Content-Type': 'application/json' };
+    if (localToken) {
+      reqHeaders['Authorization'] = `Bearer ${localToken}`;
+    }
+
+    fetch('/api/auth/me', {
+      headers: reqHeaders,
+      credentials: 'include',
+    })
       .then((res) => {
         if (!res.ok) {
+          if (typeof window !== 'undefined') localStorage.removeItem('rc_admin_token');
           router.push('/admin/login');
           return null;
         }
@@ -37,6 +47,7 @@ export default function AdminLayout({ children }) {
         setLoading(false);
       })
       .catch(() => {
+        if (typeof window !== 'undefined') localStorage.removeItem('rc_admin_token');
         router.push('/admin/login');
         setLoading(false);
       });
@@ -44,6 +55,7 @@ export default function AdminLayout({ children }) {
 
   const handleLogout = async () => {
     try {
+      if (typeof window !== 'undefined') localStorage.removeItem('rc_admin_token');
       await fetch('/api/auth/logout', { method: 'POST' });
       router.push('/admin/login');
     } catch (err) {

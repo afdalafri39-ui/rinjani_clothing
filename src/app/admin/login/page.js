@@ -70,6 +70,10 @@ export default function AdminLoginPage() {
         return;
       }
 
+      if (data?.token && typeof window !== 'undefined') {
+        localStorage.setItem('rc_admin_token', data.token);
+      }
+
       if (typeof window !== 'undefined') {
         sessionStorage.clear();
         window.location.href = '/admin';

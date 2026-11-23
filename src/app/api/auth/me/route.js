@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth';
 import { supabase } from '@/lib/supabase';
 
-export async function GET() {
+export async function GET(request) {
   try {
-    const authUser = await getAuthUser();
+    const authUser = await getAuthUser(request);
     if (!authUser) {
       return NextResponse.json({ user: null }, { status: 401 });
     }

@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'rinjani-clothing-secret-key-change-in-production';
 const TOKEN_NAME = 'rinjani_auth_token';
@@ -7,13 +7,14 @@ const TOKEN_EXPIRY = '7d';
 
 export function generateToken(user) {
   return jwt.sign(
-    { id: user.id, email: user.email, role: user.role },
+    { id: user.id, email: user.email, role: user.role, name: user.name },
     JWT_SECRET,
     { expiresIn: TOKEN_EXPIRY }
   );
 }
 
 export function verifyToken(token) {
+  if (!token) return null;
   try {
     return jwt.verify(token, JWT_SECRET);
   } catch {
@@ -21,11 +22,39 @@ export function verifyToken(token) {
   }
 }
 
-export async function getAuthUser() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get(TOKEN_NAME)?.value;
-  if (!token) return null;
-  return verifyToken(token);
+export async function getAuthUser(request = null) {
+  // 1. Coba baca dari Authorization Header jika request disediakan
+  if (request && request.headers) {
+    const authHeader = typeof request.headers.get === 'function' ? request.headers.get('authorization') : request.headers['authorization'];
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const bearerToken = authHeader.substring(7).trim();
+      const verified = verifyToken(bearerToken);
+      if (verified) return verified;
+    }
+  }
+
+  // 2. Coba baca dari next/headers
+  try {
+    const headerStore = await headers();
+    const authHeader = headerStore.get('authorization');
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const bearerToken = authHeader.substring(7).trim();
+      const verified = verifyToken(bearerToken);
+      if (verified) return verified;
+    }
+  } catch (e) {}
+
+  // 3. Coba baca dari Cookie
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get(TOKEN_NAME)?.value;
+    if (token) {
+      const verified = verifyToken(token);
+      if (verified) return verified;
+    }
+  } catch (e) {}
+
+  return null;
 }
 
 export function setAuthCookie(response, token) {
@@ -51,13 +80,9 @@ export function clearAuthCookie(response) {
 }
 
 export async function requireAuth(request) {
-  const token = request.cookies.get(TOKEN_NAME)?.value;
-  if (!token) {
-    return { error: 'Unauthorized', status: 401 };
-  }
-  const user = verifyToken(token);
+  const user = await getAuthUser(request);
   if (!user) {
-    return { error: 'Invalid token', status: 401 };
+    return { error: 'Unauthorized', status: 401 };
   }
   return { user };
 }
