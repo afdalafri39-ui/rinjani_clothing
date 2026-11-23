@@ -64,7 +64,8 @@ function getCredential() {
 }
 
 export function initFirebaseAdmin() {
-  if (!getApps().length) {
+  if (getApps().length) return;
+  try {
     const credential = getCredential();
     if (credential) {
       initializeApp({
@@ -74,29 +75,43 @@ export function initFirebaseAdmin() {
     } else {
       console.warn('⚠️ Firebase Admin SDK belum terkonfigurasi dengan service account yang valid.');
     }
+  } catch (err) {
+    console.warn('⚠️ Gagal inisialisasi Firebase Admin SDK:', err?.message);
   }
 }
 
-// Inisialisasi awal
-initFirebaseAdmin();
-
 export function getDb() {
-  initFirebaseAdmin();
-  return getApps().length ? getFirestore() : null;
+  try {
+    initFirebaseAdmin();
+    return getApps().length ? getFirestore() : null;
+  } catch (err) {
+    console.warn('⚠️ getDb error:', err?.message);
+    return null;
+  }
 }
 
 export function getAdminStorage() {
-  initFirebaseAdmin();
-  return getApps().length ? getStorage() : null;
+  try {
+    initFirebaseAdmin();
+    return getApps().length ? getStorage() : null;
+  } catch (err) {
+    console.warn('⚠️ getAdminStorage error:', err?.message);
+    return null;
+  }
 }
 
 export function getAdminAuth() {
-  initFirebaseAdmin();
-  return getApps().length ? getAuth() : null;
+  try {
+    initFirebaseAdmin();
+    return getApps().length ? getAuth() : null;
+  } catch (err) {
+    console.warn('⚠️ getAdminAuth error:', err?.message);
+    return null;
+  }
 }
 
-export const adminDb = getDb();
-export const adminStorage = getAdminStorage();
-export const adminAuth = getAdminAuth();
+export const adminDb = null;
+export const adminStorage = null;
+export const adminAuth = null;
 
 

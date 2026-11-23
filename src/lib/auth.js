@@ -58,24 +58,32 @@ export async function getAuthUser(request = null) {
 }
 
 export function setAuthCookie(response, token) {
-  response.cookies.set(TOKEN_NAME, token, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 7 * 24 * 60 * 60, // 7 days
-    path: '/',
-  });
+  try {
+    response.cookies.set(TOKEN_NAME, token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60, // 7 days
+      path: '/',
+    });
+  } catch (err) {
+    console.warn('⚠️ setAuthCookie error:', err?.message);
+  }
   return response;
 }
 
 export function clearAuthCookie(response) {
-  response.cookies.set(TOKEN_NAME, '', {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 0,
-    path: '/',
-  });
+  try {
+    response.cookies.set(TOKEN_NAME, '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 0,
+      path: '/',
+    });
+  } catch (err) {
+    console.warn('⚠️ clearAuthCookie error:', err?.message);
+  }
   return response;
 }
 
